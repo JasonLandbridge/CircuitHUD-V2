@@ -7,21 +7,6 @@ default_gui["bras-scrollpane"] = {
   bottom_padding = 0
 }
 
-default_gui["green-signal"] = {
-  type = "button_style",
-  --minimal_width = 70,
-  --maximal_height = 70,
-  tint = {
-    135,
-    216,
-    139,
-    128
-  },
-  parent = "green_circuit_network_content_slot"
-}
-
---
-
 local hudCombinatorEntity = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 hudCombinatorEntity.name = "hud-combinator"
 hudCombinatorEntity.sprites = {

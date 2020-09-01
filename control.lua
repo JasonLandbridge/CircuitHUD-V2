@@ -23,11 +23,20 @@ local function create_root_gui(player)
    return frame
 end
 
---commands.add_command("test", "Gør noget", test)
+local function has_network_signals(entity)
+   local red_network = entity.get_circuit_network(defines.wire_type.red)
+   local green_network = entity.get_circuit_network(defines.wire_type.green)
 
---
---
---
+   if not (red_network == nil or red_network.signals == nil) then
+      return true
+   end
+
+   if not (green_network == nil or green_network.signals == nil) then
+      return true
+   end
+
+   return false
+end
 
 local function render_network(parent, network, signal_style)
    -- skip this one, if the network has no signals
@@ -35,14 +44,10 @@ local function render_network(parent, network, signal_style)
       return
    end
 
-   local table =
-      parent.add {
-      type = "table",
-      column_count = 4
-   }
+   local table = parent.add {type = "table", column_count = 4}
 
    for i, signal in ipairs(network.signals) do
-      parent.add {
+      table.add {
          type = "sprite-button",
          sprite = signal.signal.type .. "/" .. signal.signal.name,
          number = signal.count,
@@ -52,19 +57,23 @@ local function render_network(parent, network, signal_style)
 end
 
 local function render_combinator(parent, entity)
-   local child = parent.add {type = "flow", direction = "vertical"}
+   if has_network_signals(entity) then
+      local red_network = entity.get_circuit_network(defines.wire_type.red)
+      local green_network = entity.get_circuit_network(defines.wire_type.green)
 
-   if (global.hud_entity_data[entity.unit_number]) then
-      child.add {type = "label", caption = global.hud_entity_data[entity.unit_number]["name"]}
+      local child = parent.add {type = "flow", direction = "vertical"}
+
+      if (global.hud_entity_data[entity.unit_number]) then
+         child.add {
+            type = "label",
+            caption = global.hud_entity_data[entity.unit_number]["name"],
+            style = "heading_2_label"
+         }
+      end
+
+      render_network(child, green_network, "green_circuit_network_content_slot")
+      render_network(child, red_network, "red_circuit_network_content_slot")
    end
-
-   -- red network
-   local red_network = entity.get_circuit_network(defines.wire_type.red)
-   render_network(child.add {type = "flow"}, red_network, "red_circuit_network_content_slot")
-
-   -- green network
-   local green_network = entity.get_circuit_network(defines.wire_type.green)
-   render_network(child.add {type = "flow"}, green_network, "green_circuit_network_content_slot")
 end
 
 local function render_combinators(parent, entities)
@@ -83,28 +92,65 @@ local function render_surfaces(parent)
       local hud_combinators = surface.find_entities_filtered {name = "hud-combinator"}
 
       if not (hud_combinators == nil) then
-         parent.add {type = "line"}
-         parent.add {type = "label", caption = surface.name}
-         parent.add {type = "line"}
-         local child = parent.add {type = "flow"}
-
-         render_combinators(child, hud_combinators)
+         render_combinators(parent, hud_combinators)
       end
    end
 end
 
--- each tick
+--
+--
+--
+
+-- todo: do this when an hud-comparator is placed instead
+Event.register(
+   defines.events.on_tick,
+   function()
+      if (global["last_frame"] == nil) then
+         global["last_frame"] = {}
+      end
+
+      if (global["inner_frame"] == nil) then
+         global["inner_frame"] = {}
+      end
+
+      -- go through each player
+      for i, player in pairs(game.players) do
+         if global["last_frame"][player.index] == nil then
+            local root_frame = player.gui.screen.add {type = "frame", direction = "vertical"}
+            local title_flow = create_frame_title(root_frame, "Circuit HUD")
+            local inner_frame =
+               root_frame.add {
+               type = "frame",
+               style = "inside_shallow_frame_with_padding",
+               direction = "vertical"
+            }
+
+            root_frame.force_auto_center()
+
+            global["last_frame"][player.index] = root_frame
+            global["inner_frame"][player.index] = inner_frame
+         end
+      end
+   end
+)
+
 Event.register(
    defines.events.on_tick,
    function()
       -- go through each player
       for i, player in pairs(game.players) do
-         local root_frame = create_root_gui(player)
-
-         render_surfaces(root_frame)
+         local root = global["inner_frame"][player.index]
+         if root then
+            root.clear()
+            render_surfaces(root)
+         end
       end
    end
 )
+
+--
+--
+--
 
 local function ensure_global_state()
    if (not global.hud_entity_data) then

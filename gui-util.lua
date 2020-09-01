@@ -1,5 +1,22 @@
 local Event = require("__stdlib__/stdlib/event/event")
 
+function create_frame_title(parent, title)
+  -- create a title_flow
+  local title_flow = parent.add {type = "flow"}
+
+  -- add the title label
+  local title = title_flow.add {type = "label", caption = title, style = "frame_title"}
+  title.drag_target = parent
+
+  -- add a pusher (so the close button becomes right-aligned)
+  local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_header"}
+  pusher.style.vertically_stretchable = true
+  pusher.style.horizontally_stretchable = true
+  pusher.drag_target = parent
+
+  return title_flow
+end
+
 function create_frame(parent, title, close_name)
   -- find a unique event name
   local ui_name = "frame_" .. Event.generate_event_name("frame-event")
@@ -8,18 +25,7 @@ function create_frame(parent, title, close_name)
   -- add the frame
   local frame = parent.add {type = "frame", name = ui_name, direction = "vertical"}
 
-  -- create a title_flow
-  local title_flow = frame.add {type = "flow"}
-
-  -- add the title label
-  local title = title_flow.add {type = "label", caption = title, style = "frame_title"}
-  title.drag_target = frame
-
-  -- add a pusher (so the close button becomes right-aligned)
-  local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_header"}
-  pusher.style.vertically_stretchable = true
-  pusher.style.horizontally_stretchable = true
-  pusher.drag_target = frame
+  local title_flow = create_frame_title(frame, title)
 
   -- add a close button
   title_flow.add {
