@@ -138,13 +138,16 @@ local function ensure_global_state()
    if (not global.hud_entity_data) then
       global.hud_entity_data = {}
    end
+
+   if (not global.textbox_hud_entity_map) then
+      global.textbox_hud_entity_map = {}
+   end
 end
 
 --
 -- UI HANDLING
 --
 
--- on gui open
 Event.register(
    defines.events.on_gui_opened,
    function(event)
@@ -186,11 +189,6 @@ Event.register(
 
          textbox.select(0, 0)
 
-         -- create lookup table if it does not exist
-         if (not global.textbox_hud_entity_map) then
-            global.textbox_hud_entity_map = {}
-         end
-
          -- save the reference
          global.textbox_hud_entity_map[textbox.index] = event.entity
       end
@@ -208,9 +206,24 @@ Event.register(
    end
 )
 
+local function register_entity(entity)
+   ensure_global_state()
+
+   global.hud_entity_data[entity.unit_number] = {
+      name = "HUD Comparator #" .. entity.unit_number
+   }
+end
+
 Event.register(
-   defines.events.on_gui_click,
+   defines.events.on_built_entity,
    function(event)
-      local bla = 2
+      register_entity(event.created_entity)
+   end
+)
+
+Event.register(
+   defines.events.on_robot_built_entity,
+   function(event)
+      register_entity(event.created_entity)
    end
 )
