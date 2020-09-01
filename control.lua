@@ -79,11 +79,6 @@ local function render_surfaces(parent)
    end
 end
 
---
---
---
-
--- todo: do this when an hud-comparator is placed instead
 Event.register(
    defines.events.on_tick,
    function()
@@ -111,6 +106,12 @@ Event.register(
 
             global["last_frame"][player.index] = root_frame
             global["inner_frame"][player.index] = inner_frame
+         else
+            if global.hud_entity_data and next(global.hud_entity_data) then
+               global["last_frame"][player.index].visible = true
+            else
+               global["last_frame"][player.index].visible = false
+            end
          end
       end
    end
@@ -214,16 +215,45 @@ local function register_entity(entity)
    }
 end
 
+local function unregister_entity(entity)
+   ensure_global_state()
+
+   global.hud_entity_data[entity.unit_number] = nil
+   global.textbox_hud_entity_map[entity.unit_number] = nil
+end
+
 Event.register(
    defines.events.on_built_entity,
    function(event)
-      register_entity(event.created_entity)
+      if event.created_entity.name == "hud-combinator" then
+         register_entity(event.created_entity)
+      end
    end
 )
 
 Event.register(
    defines.events.on_robot_built_entity,
    function(event)
-      register_entity(event.created_entity)
+      if event.created_entity.name == "hud-combinator" then
+         register_entity(event.created_entity)
+      end
+   end
+)
+
+Event.register(
+   defines.events.on_player_mined_entity,
+   function(event)
+      if event.entity.name == "hud-combinator" then
+         unregister_entity(event.entity)
+      end
+   end
+)
+
+Event.register(
+   defines.events.on_robot_mined_entity,
+   function(event)
+      if event.entity.name == "hud-combinator" then
+         unregister_entity(event.entity)
+      end
    end
 )
