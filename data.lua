@@ -267,8 +267,7 @@ hudCombinatorItem.name = "hud-combinator"
 hudCombinatorItem.place_result = "hud-combinator"
 hudCombinatorItem.icons = {
   {
-    icon = hudCombinatorItem.icon,
-    tint = {r = 0.5, g = 0.5, a = 0.3}
+    icon = "__CircuitHUD__/graphics/icon/hud-combinator.png"
   }
 }
 
