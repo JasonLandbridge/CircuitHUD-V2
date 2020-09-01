@@ -7,6 +7,11 @@ default_gui["bras-scrollpane"] = {
   bottom_padding = 0
 }
 
+default_gui["empty_widget_distance"] = {
+  type = "empty_widget_style",
+  size = {100, 16}
+}
+
 local hudCombinatorEntity = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 hudCombinatorEntity.name = "hud-combinator"
 hudCombinatorEntity.sprites = {

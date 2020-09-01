@@ -45,22 +45,24 @@ local function render_network(parent, network, signal_style)
 end
 
 local function render_combinator(parent, entity)
+   local child = parent.add {type = "flow", direction = "vertical"}
+
+   if (global.hud_entity_data[entity.unit_number]) then
+      child.add {
+         type = "label",
+         caption = global.hud_entity_data[entity.unit_number]["name"],
+         style = "heading_2_label"
+      }
+   end
+
    if has_network_signals(entity) then
       local red_network = entity.get_circuit_network(defines.wire_type.red)
       local green_network = entity.get_circuit_network(defines.wire_type.green)
 
-      local child = parent.add {type = "flow", direction = "vertical"}
-
-      if (global.hud_entity_data[entity.unit_number]) then
-         child.add {
-            type = "label",
-            caption = global.hud_entity_data[entity.unit_number]["name"],
-            style = "heading_2_label"
-         }
-      end
-
       render_network(child, green_network, "green_circuit_network_content_slot")
       render_network(child, red_network, "red_circuit_network_content_slot")
+   else
+      child.add {type = "label", caption = "No signal"}
    end
 end
 
@@ -69,6 +71,10 @@ local function render_combinators(parent, entities)
 
    -- loop over every entity provided
    for i, entity in ipairs(entities) do
+      if i > 1 then
+         child.add {type = "empty-widget", style = "empty_widget_distance"} -- todo: correctly add some space
+      end
+
       render_combinator(child, entity)
    end
 end
