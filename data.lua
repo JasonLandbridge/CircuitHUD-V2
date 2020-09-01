@@ -272,9 +272,9 @@ hudCombinatorItem.icons = {
 }
 
 local hudCombinatorRecipe = table.deepcopy(data.raw.recipe["iron-chest"])
-hudCombinatorRecipe.enabled = true
 hudCombinatorRecipe.name = "hud-combinator"
-hudCombinatorRecipe.ingredients = {{"iron-ore", 1}}
+-- todo: specify this
+--hudCombinatorRecipe.ingredients = {{"iron-ore", 1}}
 hudCombinatorRecipe.result = "hud-combinator"
 
 data:extend {hudCombinatorEntity, hudCombinatorItem, hudCombinatorRecipe}
