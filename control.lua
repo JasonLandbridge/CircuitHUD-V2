@@ -20,6 +20,12 @@ local function has_network_signals(entity)
    return false
 end
 
+local SIGNAL_TYPE_MAP = {
+   ["item"] = "item",
+   ["virtual"] = "virtual-signal",
+   ["fluid"] = "fluid"
+}
+
 local function render_network(parent, network, signal_style)
    -- skip this one, if the network has no signals
    if network == nil or network.signals == nil then
@@ -31,7 +37,7 @@ local function render_network(parent, network, signal_style)
    for i, signal in ipairs(network.signals) do
       table.add {
          type = "sprite-button",
-         sprite = signal.signal.type .. "/" .. signal.signal.name,
+         sprite = SIGNAL_TYPE_MAP[signal.signal.type] .. "/" .. signal.signal.name,
          number = signal.count,
          style = signal_style
       }
