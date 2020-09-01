@@ -5,24 +5,6 @@ local Event = require("__stdlib__/stdlib/event/event")
 
 --
 
-local panel_name = "circuit-panel"
-local function create_root_gui(player)
-   -- find any existing root guis, and destroy them
-   if player.gui.left[panel_name] then
-      player.gui.left[panel_name].destroy()
-   end
-
-   local frame =
-      player.gui.left.add {
-      type = "frame",
-      name = panel_name,
-      direction = "vertical",
-      style = "bras-scrollpane",
-      caption = "Circuit HUD"
-   }
-   return frame
-end
-
 local function has_network_signals(entity)
    local red_network = entity.get_circuit_network(defines.wire_type.red)
    local green_network = entity.get_circuit_network(defines.wire_type.green)
