@@ -211,6 +211,7 @@ Event.register(
 Event.register(
    defines.events.on_gui_text_changed,
    function(event)
+      ensure_global_state()
       local entity = global.textbox_hud_entity_map[event.element.index]
       if entity and (global.textbox_hud_entity_map[event.element.index]) then
          -- save the reference
