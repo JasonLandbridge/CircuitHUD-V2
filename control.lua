@@ -5,6 +5,20 @@ local Event = require("__stdlib__/stdlib/event/event")
 
 --
 
+local function ensure_global_state()
+   if (not global.hud_entity_data) then
+      global.hud_entity_data = {}
+   end
+
+   if (not global.textbox_hud_entity_map) then
+      global.textbox_hud_entity_map = {}
+   end
+
+   if (not global.hud_combinator_map) then
+      global.hud_combinator_map = {}
+   end
+end
+
 local function should_show_network(entity)
    local red_network = entity.get_circuit_network(defines.wire_type.red)
    local green_network = entity.get_circuit_network(defines.wire_type.green)
@@ -100,7 +114,7 @@ local function render_combinators(parent, entities)
    local did_render_any_combinator = false
 
    -- loop over every entity provided
-   for i, entity in ipairs(entities) do
+   for i, entity in pairs(entities) do
       local spacer = nil
       if i > 1 and did_render_any_combinator then
          spacer = child.add {type = "empty-widget", style = "empty_widget_distance"} -- todo: correctly add some space
@@ -116,22 +130,6 @@ local function render_combinators(parent, entities)
 
    if not did_render_any_combinator then
       child.destroy()
-   end
-
-   return did_render_any_combinator
-end
-
-local function render_surfaces(parent)
-   local did_render_any_combinator = false
-
-   -- loop over every surface in the game
-   for i, surface in pairs(game.surfaces) do
-      -- find all hud combinator
-      local hud_combinators = surface.find_entities_filtered {name = "hud-combinator"}
-
-      if not (hud_combinators == nil) then
-         did_render_any_combinator = did_render_any_combinator or render_combinators(parent, hud_combinators)
-      end
    end
 
    return did_render_any_combinator
@@ -195,9 +193,39 @@ Event.register(
    end
 )
 
+local did_cleanup_and_discovery = false
+
 Event.register(
    defines.events.on_tick,
-   function()
+   function(event)
+      if not did_cleanup_and_discovery then
+         did_cleanup_and_discovery = true
+
+         -- clear the map
+         global.hud_combinator_map = {}
+
+         -- find entities not discovered
+         for i, surface in pairs(game.surfaces) do
+            -- find all hud combinator
+            local hud_combinators = surface.find_entities_filtered {name = "hud-combinator"}
+
+            if hud_combinators then
+               for i, hud_combinator in pairs(hud_combinators) do
+                  table.insert(global.hud_combinator_map, hud_combinator)
+               end
+            end
+         end
+      end
+   end
+)
+
+Event.register(
+   defines.events.on_tick,
+   function(event)
+      if not did_cleanup_and_discovery then
+         return -- wait for cleanup and discovery
+      end
+
       -- go through each player
       for i, player in pairs(game.players) do
          local outer_frame = global["last_frame"][player.index]
@@ -205,26 +233,18 @@ Event.register(
 
          if inner_frame and outer_frame then
             inner_frame.clear()
-            local did_render_any_combinator = render_surfaces(inner_frame)
+
+            local did_render_any_combinator = false
+
+            if global.hud_combinator_map then
+               did_render_any_combinator = render_combinators(inner_frame, global.hud_combinator_map)
+            end
+
             outer_frame.visible = did_render_any_combinator
          end
       end
    end
 )
-
---
---
---
-
-local function ensure_global_state()
-   if (not global.hud_entity_data) then
-      global.hud_entity_data = {}
-   end
-
-   if (not global.textbox_hud_entity_map) then
-      global.textbox_hud_entity_map = {}
-   end
-end
 
 --
 -- UI HANDLING
@@ -295,6 +315,8 @@ local function register_entity(entity)
    global.hud_entity_data[entity.unit_number] = {
       name = "HUD Comparator #" .. entity.unit_number
    }
+
+   table.insert(global.hud_combinator_map, entity)
 end
 
 local function unregister_entity(entity)
