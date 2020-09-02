@@ -212,7 +212,7 @@ Event.register(
    defines.events.on_gui_text_changed,
    function(event)
       local entity = global.textbox_hud_entity_map[event.element.index]
-      if (global.textbox_hud_entity_map[event.element.index]) then
+      if entity and (global.textbox_hud_entity_map[event.element.index]) then
          -- save the reference
          global.hud_entity_data[entity.unit_number] = {name = event.text}
       end
