@@ -5,6 +5,29 @@ local Event = require("__stdlib__/stdlib/event/event")
 
 --
 
+local function should_show_network(entity)
+   local red_network = entity.get_circuit_network(defines.wire_type.red)
+   local green_network = entity.get_circuit_network(defines.wire_type.green)
+
+   if red_network and red_network.signals then
+      for _, signal in pairs(red_network.signals) do
+         if signal.signal.name == "signal-hide-hud-comparator" then
+            return false
+         end
+      end
+   end
+
+   if green_network and green_network.signals then
+      for _, signal in pairs(green_network.signals) do
+         if signal.signal.name == "signal-hide-hud-comparator" then
+            return false
+         end
+      end
+   end
+
+   return true
+end
+
 local function has_network_signals(entity)
    local red_network = entity.get_circuit_network(defines.wire_type.red)
    local green_network = entity.get_circuit_network(defines.wire_type.green)
@@ -45,6 +68,10 @@ local function render_network(parent, network, signal_style)
 end
 
 local function render_combinator(parent, entity)
+   if not should_show_network(entity) then
+      return false -- skip rendering this combinator
+   end
+
    local child = parent.add {type = "flow", direction = "vertical"}
 
    if (global.hud_entity_data[entity.unit_number]) then
@@ -64,31 +91,50 @@ local function render_combinator(parent, entity)
    else
       child.add {type = "label", caption = "No signal"}
    end
+
+   return true
 end
 
 local function render_combinators(parent, entities)
    local child = parent.add {type = "flow", direction = "vertical"}
+   local did_render_any_combinator = false
 
    -- loop over every entity provided
    for i, entity in ipairs(entities) do
-      if i > 1 then
-         child.add {type = "empty-widget", style = "empty_widget_distance"} -- todo: correctly add some space
+      local spacer = nil
+      if i > 1 and did_render_any_combinator then
+         spacer = child.add {type = "empty-widget", style = "empty_widget_distance"} -- todo: correctly add some space
       end
 
-      render_combinator(child, entity)
+      local did_render_combinator = render_combinator(child, entity)
+      did_render_any_combinator = did_render_any_combinator or did_render_combinator
+
+      if spacer and (not did_render_combinator) then
+         spacer.destroy()
+      end
    end
+
+   if not did_render_any_combinator then
+      child.destroy()
+   end
+
+   return did_render_any_combinator
 end
 
 local function render_surfaces(parent)
+   local did_render_any_combinator = false
+
    -- loop over every surface in the game
    for i, surface in pairs(game.surfaces) do
       -- find all hud combinator
       local hud_combinators = surface.find_entities_filtered {name = "hud-combinator"}
 
       if not (hud_combinators == nil) then
-         render_combinators(parent, hud_combinators)
+         did_render_any_combinator = did_render_any_combinator or render_combinators(parent, hud_combinators)
       end
    end
+
+   return did_render_any_combinator
 end
 
 Event.register(
@@ -134,10 +180,13 @@ Event.register(
    function()
       -- go through each player
       for i, player in pairs(game.players) do
-         local root = global["inner_frame"][player.index]
-         if root then
-            root.clear()
-            render_surfaces(root)
+         local outer_frame = global["last_frame"][player.index]
+         local inner_frame = global["inner_frame"][player.index]
+
+         if inner_frame and outer_frame then
+            inner_frame.clear()
+            local did_render_any_combinator = render_surfaces(inner_frame)
+            outer_frame.visible = did_render_any_combinator
          end
       end
    end

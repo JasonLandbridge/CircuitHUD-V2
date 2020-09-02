@@ -282,3 +282,28 @@ hudCombinatorRecipe.ingredients = {{"electronic-circuit", 2}, {"copper-cable", 5
 hudCombinatorRecipe.result = "hud-combinator"
 
 data:extend {hudCombinatorEntity, hudCombinatorItem, hudCombinatorRecipe}
+
+--
+
+--
+-- SIGNALS
+--
+
+local hud_comparator_signal_subgroup = {
+  type = "item-subgroup",
+  name = "circuit-hid-signals",
+  group = "signals",
+  order = "f"
+}
+
+local hide_hud_comparator_signal = {
+  type = "virtual-signal",
+  name = "signal-hide-hud-comparator",
+  icon = "__CircuitHUD__/graphics/icon/signal/signal-hide-hud-comparator.png",
+  icon_size = 64,
+  icon_mipmaps = 4,
+  subgroup = "circuit-hid-signals",
+  order = "d[hud-comparator]-[hide]"
+}
+
+data:extend {hud_comparator_signal_subgroup, hide_hud_comparator_signal}
