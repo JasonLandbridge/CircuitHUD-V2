@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+  Features:
+    - Add a signal that, when passed to the HUD combinator, will hide it in the overlay
+    - Add a scroll-panel for those with many signals
+  Bugfixes:
+    - Fix a bug that caused the mod to crash on load (https://mods.factorio.com/mod/CircuitHUD/discussion/5f4fcb189d757ff648181e96)
+---------------------------------------------------------------------------------------------------
 Version: 0.2.1
   Bugfixes:
     - Fix a bug that caused the mod to crash when other text fields were used (https://mods.factorio.com/mod/CircuitHUD/discussion/5f4f1f152b466357a9aed521)
