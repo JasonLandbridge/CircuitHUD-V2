@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.1
+Date: 2020-09-02
+  Changes:
+    - Removed unused code and files
+---------------------------------------------------------------------------------------------------
 Version: 0.3.0
   Features:
     - Add a signal that, when passed to the HUD combinator, will hide it in the overlay
