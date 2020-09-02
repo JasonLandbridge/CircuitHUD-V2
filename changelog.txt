@@ -1,5 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.2.1
+Date: 2020.09.01
+  Bugfixes:
+    - Fix a bug that caused the mod to crash when other text fields were used (https://mods.factorio.com/mod/CircuitHUD/discussion/5f4f1f152b466357a9aed521)
+    - Fix a bug that caused mining the HUD Combinator to yield a constant combinator (https://mods.factorio.com/mod/CircuitHUD/discussion/5f4f46d1709ceaccd0aee1f3)
+---------------------------------------------------------------------------------------------------
 Version: 0.1.0
-Date: 2019.03.21
+Date: 2020.09.01
   Info:
     - Initial release
