@@ -7,6 +7,12 @@ default_gui["bras-scrollpane"] = {
   bottom_padding = 0
 }
 
+default_gui["hud_scrollpane_style"] = {
+  type = "scroll_pane_style",
+  maximal_height = 400,
+  extra_padding_when_activated = 0
+}
+
 default_gui["empty_widget_distance"] = {
   type = "empty_widget_style",
   size = {100, 16}

@@ -55,7 +55,7 @@ local function render_network(parent, network, signal_style)
       return
    end
 
-   local table = parent.add {type = "table", column_count = 4}
+   local table = parent.add {type = "table", column_count = 6}
 
    for i, signal in ipairs(network.signals) do
       table.add {
@@ -137,9 +137,27 @@ local function render_surfaces(parent)
    return did_render_any_combinator
 end
 
+local function reset_hud()
+   -- todo: remember frame positioning
+   -- force re-initialization every game load
+   if (global["last_frame"]) then
+      for _, frame in pairs(global["last_frame"]) do
+         frame.destroy()
+      end
+      global["last_frame"] = {}
+   end
+end
+
+local did_initial_render = false
+
 Event.register(
    defines.events.on_tick,
    function()
+      if not did_initial_render then
+         reset_hud()
+         did_initial_render = true
+      end
+
       if (global["last_frame"] == nil) then
          global["last_frame"] = {}
       end
@@ -153,8 +171,16 @@ Event.register(
          if global["last_frame"][player.index] == nil then
             local root_frame = player.gui.screen.add {type = "frame", direction = "vertical"}
             local title_flow = create_frame_title(root_frame, "Circuit HUD")
-            local inner_frame =
+
+            local scroll_pane =
                root_frame.add {
+               type = "scroll-pane",
+               vertical_scroll_policy = "auto",
+               style = "hud_scrollpane_style"
+            }
+
+            local inner_frame =
+               scroll_pane.add {
                type = "frame",
                style = "inside_shallow_frame_with_padding",
                direction = "vertical"
@@ -164,12 +190,6 @@ Event.register(
 
             global["last_frame"][player.index] = root_frame
             global["inner_frame"][player.index] = inner_frame
-         else
-            if global.hud_entity_data and next(global.hud_entity_data) then
-               global["last_frame"][player.index].visible = true
-            else
-               global["last_frame"][player.index].visible = false
-            end
          end
       end
    end
