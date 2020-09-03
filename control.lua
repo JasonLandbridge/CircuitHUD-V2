@@ -6,16 +6,12 @@ local Event = require("__stdlib__/stdlib/event/event")
 --
 
 local function ensure_global_state()
-   if (not global.hud_entity_data) then
-      global.hud_entity_data = {}
+   if (not global.hud_combinators) then
+      global.hud_combinators = {}
    end
 
    if (not global.textbox_hud_entity_map) then
       global.textbox_hud_entity_map = {}
-   end
-
-   if (not global.hud_combinator_map) then
-      global.hud_combinator_map = {}
    end
 end
 
@@ -88,10 +84,10 @@ local function render_combinator(parent, entity)
 
    local child = parent.add {type = "flow", direction = "vertical"}
 
-   if (global.hud_entity_data[entity.unit_number]) then
+   if global.hud_combinators[entity.unit_number] then
       child.add {
          type = "label",
-         caption = global.hud_entity_data[entity.unit_number]["name"],
+         caption = global.hud_combinators[entity.unit_number]["name"],
          style = "heading_2_label"
       }
    else
@@ -115,15 +111,16 @@ local function render_combinator(parent, entity)
    return true
 end
 
-local function render_combinators(parent, entities)
+local function render_combinators(parent, meta_entities)
    local child = parent.add {type = "flow", direction = "vertical"}
    local did_render_any_combinator = false
 
    -- loop over every entity provided
-   for i, entity in pairs(entities) do
+   for i, meta_entity in pairs(meta_entities) do
+      local entity = meta_entity.entity
+
       if not entity.valid then
          -- the entity has probably just been deconstructed
-         local bla = 2
          break
       end
 
@@ -211,30 +208,6 @@ Event.register(
    defines.events.on_tick,
    function(event)
       if not did_cleanup_and_discovery then
-         did_cleanup_and_discovery = true
-
-         -- clear the map
-         global.hud_combinator_map = {}
-
-         -- find entities not discovered
-         for i, surface in pairs(game.surfaces) do
-            -- find all hud combinator
-            local hud_combinators = surface.find_entities_filtered {name = "hud-combinator"}
-
-            if hud_combinators then
-               for i, hud_combinator in pairs(hud_combinators) do
-                  global.hud_combinator_map[hud_combinator.unit_number] = hud_combinator
-               end
-            end
-         end
-      end
-   end
-)
-
-Event.register(
-   defines.events.on_tick,
-   function(event)
-      if not did_cleanup_and_discovery then
          return -- wait for cleanup and discovery
       end
 
@@ -248,11 +221,45 @@ Event.register(
 
             local did_render_any_combinator = false
 
-            if global.hud_combinator_map then
-               did_render_any_combinator = render_combinators(inner_frame, global.hud_combinator_map)
+            if global.hud_combinators then
+               did_render_any_combinator = render_combinators(inner_frame, global.hud_combinators)
             end
 
             outer_frame.visible = did_render_any_combinator
+         end
+      end
+   end
+)
+
+Event.register(
+   defines.events.on_tick,
+   function(event)
+      if not did_cleanup_and_discovery then
+         did_cleanup_and_discovery = true
+         ensure_global_state()
+
+         -- clean the map for invalid entities
+         for i, meta_entity in pairs(global.hud_combinators) do
+            if (not meta_entity.entity) or (not meta_entity.entity.valid) then
+               global.hud_combinators[i] = nil
+            end
+         end
+
+         -- find entities not discovered
+         for i, surface in pairs(game.surfaces) do
+            -- find all hud combinator
+            local hud_combinators = surface.find_entities_filtered {name = "hud-combinator"}
+
+            if hud_combinators then
+               for i, hud_combinator in pairs(hud_combinators) do
+                  if not global.hud_combinators[hud_combinator.unit_number] then
+                     global.hud_combinators[hud_combinator.unit_number] = {
+                        ["entity"] = hud_combinator,
+                        ["name"] = "HUD Combinator #" .. hud_combinator.unit_number -- todo: use backer names here
+                     }
+                  end
+               end
+            end
          end
       end
    end
@@ -295,12 +302,7 @@ Event.register(
 
          local textbox = vertical_flow.add {type = "textfield", style = "production_gui_search_textfield"}
          ensure_global_state()
-         if (global.hud_entity_data[event.entity.unit_number] == nil) then
-            textbox.text = ""
-         else
-            textbox.text = global.hud_entity_data[event.entity.unit_number]["name"]
-         end
-
+         textbox.text = global.hud_combinators[event.entity.unit_number]["name"]
          textbox.select(0, 0)
 
          -- save the reference
@@ -324,19 +326,16 @@ Event.register(
 local function register_entity(entity)
    ensure_global_state()
 
-   global.hud_entity_data[entity.unit_number] = {
-      name = "HUD Comparator #" .. entity.unit_number
+   global.hud_combinators[entity.unit_number] = {
+      ["entity"] = entity,
+      name = "HUD Comparator #" .. entity.unit_number -- todo: use backer names here
    }
-
-   global.hud_combinator_map[entity.unit_number] = entity
 end
 
 local function unregister_entity(entity)
    ensure_global_state()
 
-   global.hud_entity_data[entity.unit_number] = nil
-   global.textbox_hud_entity_map[entity.unit_number] = nil
-   global.hud_combinator_map[entity.unit_number] = nil
+   global.hud_combinators[entity.unit_number] = nil
 end
 
 Event.register(
