@@ -94,6 +94,12 @@ local function render_combinator(parent, entity)
          caption = global.hud_entity_data[entity.unit_number]["name"],
          style = "heading_2_label"
       }
+   else
+      child.add {
+         type = "label",
+         caption = "Unknown entity",
+         style = "heading_2_label"
+      }
    end
 
    if has_network_signals(entity) then
@@ -115,6 +121,12 @@ local function render_combinators(parent, entities)
 
    -- loop over every entity provided
    for i, entity in pairs(entities) do
+      if not entity.valid then
+         -- the entity has probably just been deconstructed
+         local bla = 2
+         break
+      end
+
       local spacer = nil
       if i > 1 and did_render_any_combinator then
          spacer = child.add {type = "empty-widget", style = "empty_widget_distance"} -- todo: correctly add some space
@@ -211,7 +223,7 @@ Event.register(
 
             if hud_combinators then
                for i, hud_combinator in pairs(hud_combinators) do
-                  table.insert(global.hud_combinator_map, hud_combinator)
+                  global.hud_combinator_map[hud_combinator.unit_number] = hud_combinator
                end
             end
          end
@@ -316,7 +328,7 @@ local function register_entity(entity)
       name = "HUD Comparator #" .. entity.unit_number
    }
 
-   table.insert(global.hud_combinator_map, entity)
+   global.hud_combinator_map[entity.unit_number] = entity
 end
 
 local function unregister_entity(entity)
@@ -324,6 +336,7 @@ local function unregister_entity(entity)
 
    global.hud_entity_data[entity.unit_number] = nil
    global.textbox_hud_entity_map[entity.unit_number] = nil
+   global.hud_combinator_map[entity.unit_number] = nil
 end
 
 Event.register(
