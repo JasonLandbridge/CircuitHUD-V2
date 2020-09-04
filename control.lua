@@ -59,6 +59,14 @@ local SIGNAL_TYPE_MAP = {
    ["fluid"] = "fluid"
 }
 
+local SIGNAL_NAME_MAP = function()
+   return {
+      ["item"] = game.item_prototypes,
+      ["virtual"] = game.virtual_signal_prototypes,
+      ["fluid"] = game.fluid_prototypes
+   }
+end
+
 local function render_network(parent, network, signal_style)
    -- skip this one, if the network has no signals
    if network == nil or network.signals == nil then
@@ -67,12 +75,14 @@ local function render_network(parent, network, signal_style)
 
    local table = parent.add {type = "table", column_count = 6}
 
+   local signal_name_map = SIGNAL_NAME_MAP()
    for i, signal in ipairs(network.signals) do
       table.add {
          type = "sprite-button",
          sprite = SIGNAL_TYPE_MAP[signal.signal.type] .. "/" .. signal.signal.name,
          number = signal.count,
-         style = signal_style
+         style = signal_style,
+         tooltip = signal_name_map[signal.signal.type][signal.signal.name].localised_name
       }
    end
 end
