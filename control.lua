@@ -140,12 +140,25 @@ local function render_combinators(parent, meta_entities)
    return did_render_any_combinator
 end
 
+Event.register(
+   defines.events.on_gui_location_changed,
+   function(event)
+      if event.element.name == "hud-root-frame" then
+         ensure_global_state()
+
+         -- save the state
+         global.hud_position_map[event.player_index] = event.element.location
+      end
+   end
+)
+
 local did_initial_render = false
 
 Event.register(
    defines.events.on_tick,
    function()
       if not did_initial_render then
+         ensure_global_state()
          reset_hud()
          did_initial_render = true
       end
@@ -161,7 +174,12 @@ Event.register(
       -- go through each player
       for i, player in pairs(game.players) do
          if global["last_frame"][player.index] == nil then
-            local root_frame = player.gui.screen.add {type = "frame", direction = "vertical"}
+            local root_frame = player.gui.screen.add {type = "frame", direction = "vertical", name = "hud-root-frame"}
+            if global.hud_position_map[player.index] then
+               local new_location = global.hud_position_map[player.index]
+               root_frame.location = new_location
+            end
+
             local title_flow = create_frame_title(root_frame, "Circuit HUD")
 
             local scroll_pane =
@@ -177,8 +195,6 @@ Event.register(
                style = "inside_shallow_frame_with_padding",
                direction = "vertical"
             }
-
-            root_frame.force_auto_center()
 
             global["last_frame"][player.index] = root_frame
             global["inner_frame"][player.index] = inner_frame
