@@ -90,7 +90,7 @@ local function render_combinator(parent, entity)
       child.add {
       type = "label",
       caption = global.hud_combinators[entity.unit_number]["name"],
-      style = "frame_title",
+      style = "heading_3_label",
       name = "hudcombinatortitle--" .. entity.unit_number
    }
 
