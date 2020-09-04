@@ -328,7 +328,7 @@ Event.register(
       local entity = global.textbox_hud_entity_map[event.element.index]
       if entity and (global.textbox_hud_entity_map[event.element.index]) then
          -- save the reference
-         global.hud_entity_data[entity.unit_number] = {name = event.text}
+         global.hud_combinators[entity.unit_number]["name"] = event.text
       end
    end
 )
