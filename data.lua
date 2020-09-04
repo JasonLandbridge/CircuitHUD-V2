@@ -13,6 +13,16 @@ default_gui["hud_scrollpane_style"] = {
   extra_padding_when_activated = 0
 }
 
+default_gui["draggable_space_hud_header"] = {
+  type = "empty_widget_style",
+  parent = "draggable_space",
+  top_margin = 0,
+  left_margin = 8,
+  right_margin = 8,
+  minimal_width = 32,
+  minimal_height = 24
+}
+
 default_gui["empty_widget_distance"] = {
   type = "empty_widget_style",
   size = {100, 10}

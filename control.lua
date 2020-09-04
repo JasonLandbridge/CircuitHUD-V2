@@ -153,6 +153,17 @@ Event.register(
 )
 
 local did_initial_render = false
+local toggle_button = nil
+
+local function update_collapse_button(player_index)
+   if toggle_button then
+      if global.hud_collapsed_map[player_index] then
+         toggle_button.sprite = "utility/expand"
+      else
+         toggle_button.sprite = "utility/collapse"
+      end
+   end
+end
 
 Event.register(
    defines.events.on_tick,
@@ -181,6 +192,15 @@ Event.register(
             end
 
             local title_flow = create_frame_title(root_frame, "Circuit HUD")
+
+            -- add a "toggle" button
+            toggle_button =
+               title_flow.add {
+               type = "sprite-button",
+               style = "frame_action_button",
+               sprite = (global.hud_collapsed_map[player.index] == true) and "utility/expand" or "utility/collapse",
+               name = "toggle-circuit-hud"
+            }
 
             local scroll_pane =
                root_frame.add {
@@ -216,6 +236,13 @@ Event.register(
       for i, player in pairs(game.players) do
          local outer_frame = global["last_frame"][player.index]
          local inner_frame = global["inner_frame"][player.index]
+
+         if global.hud_collapsed_map[player.index] and outer_frame then
+            inner_frame.visible = false
+            return
+         else
+            inner_frame.visible = true
+         end
 
          if inner_frame and outer_frame then
             inner_frame.clear()
@@ -315,13 +342,18 @@ Event.register(
    end
 )
 
-local function register_entity(entity)
+local function register_entity(entity, maybe_player_index)
    ensure_global_state()
 
    global.hud_combinators[entity.unit_number] = {
       ["entity"] = entity,
       name = "HUD Comparator #" .. entity.unit_number -- todo: use backer names here
    }
+
+   if maybe_player_index then
+      global.hud_collapsed_map[maybe_player_index] = false
+      update_collapse_button(maybe_player_index)
+   end
 end
 
 local function unregister_entity(entity)
@@ -357,7 +389,7 @@ Event.register(
    defines.events.on_built_entity,
    function(event)
       if event.created_entity.name == "hud-combinator" then
-         register_entity(event.created_entity)
+         register_entity(event.created_entity, event.player_index)
       end
    end
 )
@@ -366,7 +398,7 @@ Event.register(
    defines.events.on_robot_built_entity,
    function(event)
       if event.created_entity.name == "hud-combinator" then
-         register_entity(event.created_entity)
+         register_entity(event.created_entity, event.player_index)
       end
    end
 )
@@ -385,6 +417,17 @@ Event.register(
    function(event)
       if event.entity.name == "hud-combinator" then
          unregister_entity(event.entity)
+      end
+   end
+)
+
+Event.register(
+   defines.events.on_gui_click,
+   function(event)
+      if toggle_button and event.element.name == "toggle-circuit-hud" then
+         ensure_global_state()
+         global.hud_collapsed_map[event.player_index] = not global.hud_collapsed_map[event.player_index]
+         update_collapse_button(event.player_index)
       end
    end
 )

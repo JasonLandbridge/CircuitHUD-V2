@@ -9,8 +9,8 @@ function create_frame_title(parent, title)
   title.drag_target = parent
 
   -- add a pusher (so the close button becomes right-aligned)
-  local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_header"}
-  pusher.style.vertically_stretchable = true
+  local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_hud_header"}
+  -- pusher.style.vertically_stretchable = true
   pusher.style.horizontally_stretchable = true
   pusher.drag_target = parent
 

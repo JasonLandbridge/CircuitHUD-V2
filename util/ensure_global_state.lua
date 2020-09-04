@@ -10,4 +10,8 @@ function ensure_global_state()
   if (not global.hud_position_map) then
     global.hud_position_map = {}
   end
+
+  if (not global.hud_collapsed_map) then
+    global.hud_collapsed_map = {}
+  end
 end
