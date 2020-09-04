@@ -86,19 +86,13 @@ local function render_combinator(parent, entity)
 
    local child = parent.add {type = "flow", direction = "vertical"}
 
-   if global.hud_combinators[entity.unit_number] then
+   local title =
       child.add {
-         type = "label",
-         caption = global.hud_combinators[entity.unit_number]["name"],
-         style = "heading_2_label"
-      }
-   else
-      child.add {
-         type = "label",
-         caption = "Unknown entity",
-         style = "heading_2_label"
-      }
-   end
+      type = "label",
+      caption = global.hud_combinators[entity.unit_number]["name"],
+      style = "frame_title",
+      name = "hudcombinatortitle--" .. entity.unit_number
+   }
 
    if has_network_signals(entity) then
       local red_network = entity.get_circuit_network(defines.wire_type.red)
@@ -319,6 +313,29 @@ local function unregister_entity(entity)
 
    global.hud_combinators[entity.unit_number] = nil
 end
+
+Event.register(
+   defines.events.on_gui_click,
+   function(event)
+      if not event.element.name then
+         return -- skip this one
+      end
+
+      local unit_number = string.match(event.element.name, "hudcombinatortitle%-%-(%d+)")
+
+      if unit_number then
+         -- find the entity
+         local hud_combinator = global.hud_combinators[tonumber(unit_number)]
+         if hud_combinator and hud_combinator.entity.valid then
+            -- open the map on the coordinates
+            local player = game.players[event.player_index]
+            player.zoom_to_world(hud_combinator.entity.position, 2)
+         end
+      end
+      -- find the related HUD combinator
+      local bras = 2
+   end
+)
 
 Event.register(
    defines.events.on_built_entity,

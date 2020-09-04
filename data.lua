@@ -15,7 +15,7 @@ default_gui["hud_scrollpane_style"] = {
 
 default_gui["empty_widget_distance"] = {
   type = "empty_widget_style",
-  size = {100, 16}
+  size = {100, 10}
 }
 
 local hudCombinatorEntity = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
