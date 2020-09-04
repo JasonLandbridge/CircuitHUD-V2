@@ -1,19 +1,11 @@
 require "mod-gui"
 require "gui-util"
 require "commands/reload"
+require "util/reset_hud"
+require "util/ensure_global_state"
 local Event = require("__stdlib__/stdlib/event/event")
 
 --
-
-local function ensure_global_state()
-   if (not global.hud_combinators) then
-      global.hud_combinators = {}
-   end
-
-   if (not global.textbox_hud_entity_map) then
-      global.textbox_hud_entity_map = {}
-   end
-end
 
 local function should_show_network(entity)
    local red_network = entity.get_circuit_network(defines.wire_type.red)
@@ -59,7 +51,7 @@ local SIGNAL_TYPE_MAP = {
    ["fluid"] = "fluid"
 }
 
-local SIGNAL_NAME_MAP = function()
+local GET_SIGNAL_NAME_MAP = function()
    return {
       ["item"] = game.item_prototypes,
       ["virtual"] = game.virtual_signal_prototypes,
@@ -75,7 +67,7 @@ local function render_network(parent, network, signal_style)
 
    local table = parent.add {type = "table", column_count = 6}
 
-   local signal_name_map = SIGNAL_NAME_MAP()
+   local signal_name_map = GET_SIGNAL_NAME_MAP()
    for i, signal in ipairs(network.signals) do
       table.add {
          type = "sprite-button",
@@ -152,17 +144,6 @@ local function render_combinators(parent, meta_entities)
    end
 
    return did_render_any_combinator
-end
-
-local function reset_hud()
-   -- todo: remember frame positioning
-   -- force re-initialization every game load
-   if (global["last_frame"]) then
-      for _, frame in pairs(global["last_frame"]) do
-         frame.destroy()
-      end
-      global["last_frame"] = {}
-   end
 end
 
 local did_initial_render = false
@@ -275,20 +256,11 @@ Event.register(
    end
 )
 
---
--- UI HANDLING
---
-
 Event.register(
    defines.events.on_gui_opened,
    function(event)
       if (not (event.entity == nil)) and (event.entity.name == "hud-combinator") then
          local player = game.players[event.player_index]
-
-         -- cleanup
-         -- if player.gui.screen.test then
-         --    player.gui.screen.test.destroy()
-         -- end
 
          -- create the new gui
          local root_element = create_frame(player.gui.screen, "HUD Comparator")
