@@ -152,15 +152,15 @@ Event.register(
    end
 )
 
-local did_initial_render = false
-local toggle_button = nil
+global.did_initial_render = false
+global.toggle_button = nil
 
 local function update_collapse_button(player_index)
-   if toggle_button then
+   if global.toggle_button then
       if global.hud_collapsed_map[player_index] then
-         toggle_button.sprite = "utility/expand"
+         global.toggle_button.sprite = "utility/expand"
       else
-         toggle_button.sprite = "utility/collapse"
+         global.toggle_button.sprite = "utility/collapse"
       end
    end
 end
@@ -168,10 +168,10 @@ end
 Event.register(
    defines.events.on_tick,
    function()
-      if not did_initial_render then
+      if not global.did_initial_render then
          ensure_global_state()
          reset_hud()
-         did_initial_render = true
+         global.did_initial_render = true
       end
 
       if (global["last_frame"] == nil) then
@@ -194,7 +194,7 @@ Event.register(
             local title_flow = create_frame_title(root_frame, "Circuit HUD")
 
             -- add a "toggle" button
-            toggle_button =
+            global.toggle_button =
                title_flow.add {
                type = "sprite-button",
                style = "frame_action_button",
@@ -223,12 +223,12 @@ Event.register(
    end
 )
 
-local did_cleanup_and_discovery = false
+global.did_cleanup_and_discovery = false
 
 Event.register(
    defines.events.on_tick,
    function(event)
-      if not did_cleanup_and_discovery then
+      if not global.did_cleanup_and_discovery then
          return -- wait for cleanup and discovery
       end
 
@@ -262,8 +262,8 @@ Event.register(
 Event.register(
    defines.events.on_tick,
    function(event)
-      if not did_cleanup_and_discovery then
-         did_cleanup_and_discovery = true
+      if not global.did_cleanup_and_discovery then
+         global.did_cleanup_and_discovery = true
          ensure_global_state()
 
          -- clean the map for invalid entities
@@ -424,7 +424,7 @@ Event.register(
 Event.register(
    defines.events.on_gui_click,
    function(event)
-      if toggle_button and event.element.name == "toggle-circuit-hud" then
+      if global.toggle_button and event.element.name == "toggle-circuit-hud" then
          ensure_global_state()
          global.hud_collapsed_map[event.player_index] = not global.hud_collapsed_map[event.player_index]
          update_collapse_button(event.player_index)

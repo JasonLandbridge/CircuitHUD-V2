@@ -1,14 +1,23 @@
 {
-  "name": "CircuitHUD-V2",
-  "version": "1.0.0",
-  "title": "Circuit HUD",
-  "author": "Xiomax, feupeu",
-  "contact": "",
-  "homepage": "https://mods.factorio.com/mod/CircuitHUD",
-  "factorio_version": "1.1",
-  "dependencies": ["stdlib > 0.4.3"],
-  "description": "Allows you to track circuit signals on the player HUD",
-  "package": {
-    "ignore": ["**/*.psd", "**/.zip", ".git", ".gitignore", ".vscode"]
-  }
-}
+	"name":"CircuitHUD-V2",
+	"version":"1.0.1",
+	"title":"Circuit HUD V2",
+	"author":"Xiomax & feupeu",
+	"contact":"https://github.com/JasonLandbridge/Circuit-HUD-V2/issues",
+	"homepage":"https://mods.factorio.com/mod/CircuitHUD-V2",
+	"factorio_version":"1.1",
+	"dependencies":[
+	   "stdlib > 0.4.3",
+	   "! CircuitHUD >= 0.0.1"
+	],
+	"description":" Allows you to any track circuit signals in the player HUD / UI. Awesome for Storage monitoring, Robotics network, Production flow, Alerts, Debugging circuit networks or Power monitoring! This is a continuation of the Circuit HUD mod.",
+	"package":{
+	   "ignore":[
+		  "**/*.psd",
+		  "**/.zip",
+		  ".git",
+		  ".gitignore",
+		  ".vscode"
+	   ]
+	}
+ }
