@@ -1,11 +1,11 @@
 {
   "name": "CircuitHUD",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "title": "Circuit HUD",
-  "author": "feupeu",
+  "author": "Xiomax, feupeu",
   "contact": "",
   "homepage": "https://mods.factorio.com/mod/CircuitHUD",
-  "factorio_version": "1.0",
+  "factorio_version": "1.1",
   "dependencies": ["stdlib > 0.4.3"],
   "description": "Allows you to track circuit signals on the player HUD",
   "package": {
