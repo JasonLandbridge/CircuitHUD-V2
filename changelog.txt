@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2021-03-05
+  Changes:
+    - Updated info.json description, now also marks the orginal mod as incompatiable
+  Bugfixes:
+    - Fixed "Desync when joining a multiplayer game." thanks to https://mods.factorio.com/user/Emslandfalke in https://mods.factorio.com/mod/CircuitHUD/discussion/5f5d4ffb5411f6a5920966f3
+    - Imported the missing icon folder from original CircuitHUD mod
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2021-03-05
   Changes:
