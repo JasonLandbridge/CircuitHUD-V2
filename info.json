@@ -10,7 +10,7 @@
 	   "stdlib > 0.4.3",
 	   "! CircuitHUD >= 0.0.1"
 	],
-	"description":" Allows you to any track circuit signals in the player HUD / UI. Awesome for Storage monitoring, Robotics network, Production flow, Alerts, Debugging circuit networks or Power monitoring! This is a continuation of the Circuit HUD mod.",
+	"description":"Allows you to track any circuit signals in the player HUD / UI. Awesome for storage monitoring, robotics network, production flow, alerts, debugging circuit networks or power monitoring! This is a continuation of the Circuit HUD mod, this can be safely installed in existing save files as it uses the same entities.",
 	"package":{
 	   "ignore":[
 		  "**/*.psd",
