@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2021-03-05
+  Changes:
+    - Branched from https://github.com/feupeu/factorio-mod--circuit-hud
+    - Reset Circuit-HUD mod version to 1.0
+  Bugfixes:
+    - Updated Factorio version dependency to 1.1
+---------------------------------------------------------------------------------------------------
 Version: 0.7.0
 Date: 2020-09-04
   Changes:
