@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2021-03-06
+  Changes:
+    - Major refactor and rewrite of this mod, this improves maintainablity and performance.
+    - Added setting for changing the Circuit HUD position
+    - Added setting to change the max columns shown in the Circuit HUD
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2021-03-05
   Changes:
