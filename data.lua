@@ -34,11 +34,11 @@ hudCombinatorEntity.sprites = {
 	east = {
 		layers = {
 			{
-				filename = "__CircuitHUD-V2__/graphics/entity/combinator/hud-combinator.png",
+				filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hud-combinator.png",
 				frame_count = 1,
 				height = 52,
 				hr_version = {
-					filename = "__CircuitHUD-V2__/graphics/entity/combinator/hr-hud-combinator.png",
+					filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hr-hud-combinator.png",
 					frame_count = 1,
 					height = 102,
 					priority = "high",
@@ -63,12 +63,12 @@ hudCombinatorEntity.sprites = {
 			},
 			{
 				draw_as_shadow = true,
-				filename = "__CircuitHUD-V2__/graphics/entity/combinator/hud-combinator-shadow.png",
+				filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hud-combinator-shadow.png",
 				frame_count = 1,
 				height = 34,
 				hr_version = {
 					draw_as_shadow = true,
-					filename = "__CircuitHUD-V2__/graphics/entity/combinator/hr-hud-combinator-shadow.png",
+					filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hr-hud-combinator-shadow.png",
 					frame_count = 1,
 					height = 66,
 					priority = "high",
@@ -96,11 +96,11 @@ hudCombinatorEntity.sprites = {
 	north = {
 		layers = {
 			{
-				filename = "__CircuitHUD-V2__/graphics/entity/combinator/hud-combinator.png",
+				filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hud-combinator.png",
 				frame_count = 1,
 				height = 52,
 				hr_version = {
-					filename = "__CircuitHUD-V2__/graphics/entity/combinator/hr-hud-combinator.png",
+					filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hr-hud-combinator.png",
 					frame_count = 1,
 					height = 102,
 					priority = "high",
@@ -125,12 +125,12 @@ hudCombinatorEntity.sprites = {
 			},
 			{
 				draw_as_shadow = true,
-				filename = "__CircuitHUD-V2__/graphics/entity/combinator/hud-combinator-shadow.png",
+				filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hud-combinator-shadow.png",
 				frame_count = 1,
 				height = 34,
 				hr_version = {
 					draw_as_shadow = true,
-					filename = "__CircuitHUD-V2__/graphics/entity/combinator/hr-hud-combinator-shadow.png",
+					filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hr-hud-combinator-shadow.png",
 					frame_count = 1,
 					height = 66,
 					priority = "high",
@@ -158,11 +158,11 @@ hudCombinatorEntity.sprites = {
 	south = {
 		layers = {
 			{
-				filename = "__CircuitHUD-V2__/graphics/entity/combinator/hud-combinator.png",
+				filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hud-combinator.png",
 				frame_count = 1,
 				height = 52,
 				hr_version = {
-					filename = "__CircuitHUD-V2__/graphics/entity/combinator/hr-hud-combinator.png",
+					filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hr-hud-combinator.png",
 					frame_count = 1,
 					height = 102,
 					priority = "high",
@@ -187,12 +187,12 @@ hudCombinatorEntity.sprites = {
 			},
 			{
 				draw_as_shadow = true,
-				filename = "__CircuitHUD-V2__/graphics/entity/combinator/hud-combinator-shadow.png",
+				filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hud-combinator-shadow.png",
 				frame_count = 1,
 				height = 34,
 				hr_version = {
 					draw_as_shadow = true,
-					filename = "__CircuitHUD-V2__/graphics/entity/combinator/hr-hud-combinator-shadow.png",
+					filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hr-hud-combinator-shadow.png",
 					frame_count = 1,
 					height = 66,
 					priority = "high",
@@ -220,11 +220,11 @@ hudCombinatorEntity.sprites = {
 	west = {
 		layers = {
 			{
-				filename = "__CircuitHUD-V2__/graphics/entity/combinator/hud-combinator.png",
+				filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hud-combinator.png",
 				frame_count = 1,
 				height = 52,
 				hr_version = {
-					filename = "__CircuitHUD-V2__/graphics/entity/combinator/hr-hud-combinator.png",
+					filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hr-hud-combinator.png",
 					frame_count = 1,
 					height = 102,
 					priority = "high",
@@ -249,12 +249,12 @@ hudCombinatorEntity.sprites = {
 			},
 			{
 				draw_as_shadow = true,
-				filename = "__CircuitHUD-V2__/graphics/entity/combinator/hud-combinator-shadow.png",
+				filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hud-combinator-shadow.png",
 				frame_count = 1,
 				height = 34,
 				hr_version = {
 					draw_as_shadow = true,
-					filename = "__CircuitHUD-V2__/graphics/entity/combinator/hr-hud-combinator-shadow.png",
+					filename = "__Circuit-HUD-V2__/graphics/entity/combinator/hr-hud-combinator-shadow.png",
 					frame_count = 1,
 					height = 66,
 					priority = "high",
@@ -288,7 +288,7 @@ hudCombinatorItem.name = "hud-combinator"
 hudCombinatorItem.place_result = "hud-combinator"
 hudCombinatorItem.icons = {
 	{
-		icon = "__CircuitHUD-V2__/graphics/icon/hud-combinator.png"
+		icon = "__Circuit-HUD-V2__/graphics/icon/hud-combinator.png"
 	}
 }
 
@@ -315,7 +315,7 @@ local hud_comparator_signal_subgroup = {
 local hide_hud_comparator_signal = {
 	type = "virtual-signal",
 	name = "signal-hide-hud-comparator",
-	icon = "__CircuitHUD-V2__/graphics/icon/signal/signal-hide-hud-comparator.png",
+	icon = "__Circuit-HUD-V2__/graphics/icon/signal/signal-hide-hud-comparator.png",
 	icon_size = 64,
 	icon_mipmaps = 4,
 	subgroup = "circuit-hid-signals",
