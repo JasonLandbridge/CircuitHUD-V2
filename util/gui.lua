@@ -75,29 +75,15 @@ local function render_combinator(parent, entity)
 	return true
 end
 
-function get_hud(player)
-	for index, value in ipairs(player.gui.screen.children) do
-		if value.name == root_frame_name then
-			return value
-		end
-	end
-	return nil
-end
-
-function get_hud_inner(player)
-	local root_frame = get_hud(player)
-
-	for index, value in ipairs(root_frame.children) do
-		if value.name == inner_frame_name then
-			return value
-		end
-	end
-	return nil
+function reset_hud(player_index)
+	destroy_hud(player_index)
+	build_interface(player_index)
 end
 
 -- Build the HUD with the signals
 -- @param player The player object
-function build_interface(player)
+function build_interface(player_index)
+	local player = get_player(player_index)
 	-- Create frame in which to put the other GUI elements
 	local hud_position = get_hud_position_setting(player)
 	local root_frame = nil
@@ -124,11 +110,11 @@ function build_interface(player)
 	-- local title_flow = create_frame_title(root_frame, "Circuit HUD")
 
 	-- add a "toggle" button
-	global.toggle_button =
+	local toggle_button =
 		root_frame.add {
 		type = "sprite-button",
 		style = "frame_action_button",
-		sprite = (global.hud_collapsed_map[player.index] == true) and "utility/expand" or "utility/collapse",
+		sprite = (get_hud_collapsed(player.index) == true) and "utility/expand" or "utility/collapse",
 		name = "toggle-circuit-hud"
 	}
 
@@ -147,14 +133,14 @@ function build_interface(player)
 		direction = "vertical"
 	}
 
-	global["last_frame"][player.index] = root_frame
-	global["inner_frame"][player.index] = inner_frame
+	set_hud_refs(player.index, root_frame, inner_frame, toggle_button)
 end
 
 function update_hud(player)
-	local inner_frame = get_hud_inner(player)
-
-	inner_frame.clear()
+	local inner_frame = get_hud_inner(player.index)
+	if inner_frame then
+		inner_frame.clear()
+	end
 
 	local child = inner_frame.add {type = "flow", direction = "vertical"}
 
@@ -185,4 +171,15 @@ function update_hud(player)
 	end
 
 	return did_render_any_combinator
+end
+
+function update_collapse_button(player_index)
+	local toggle_ref = get_hud_toggle(player_index)
+	if toggle_ref then
+		if get_hud_collapsed(player_index) then
+			toggle_ref.sprite = "utility/expand"
+		else
+			toggle_ref.sprite = "utility/collapse"
+		end
+	end
 end

@@ -42,3 +42,23 @@ function should_show_network(entity)
 	-- No "Hide HUD Combinator Signal" found
 	return true
 end
+
+function register_combinator(entity, player_index)
+	ensure_global_state()
+
+	global.hud_combinators[entity.unit_number] = {
+		["entity"] = entity,
+		name = "HUD Comparator #" .. entity.unit_number -- todo: use backer names here
+	}
+
+	if player_index then
+		set_hud_collapsed(player_index, false)
+		update_collapse_button(player_index)
+	end
+end
+
+function unregister_combinator(entity)
+	ensure_global_state()
+
+	global.hud_combinators[entity.unit_number] = nil
+end

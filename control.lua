@@ -4,6 +4,7 @@ require "commands/reload"
 require "util/reset_hud"
 
 require "util/log"
+require "util/general"
 require "util/global"
 require "util/settings"
 require "util/player"
@@ -12,23 +13,17 @@ require "util/combinator"
 
 local Event = require("__stdlib__/stdlib/event/event")
 
+-- Enable Lua API global Variable Viewer
+-- https://mods.factorio.com/mod/gvv
+if script.active_mods["gvv"] then
+	require("__gvv__.gvv")()
+end
+
 --#region Globals
 
-global.did_initial_render = false
-global.toggle_button = nil
 global.did_cleanup_and_discovery = false
 
 --#endregion
-
-local function update_collapse_button(player_index)
-	if global.toggle_button then
-		if global.hud_collapsed_map[player_index] then
-			global.toggle_button.sprite = "utility/expand"
-		else
-			global.toggle_button.sprite = "utility/collapse"
-		end
-	end
-end
 
 local function set_hud_position(player)
 	local root_frame = get_hud(player)
@@ -40,26 +35,6 @@ local function set_hud_position(player)
 	end
 end
 
-local function register_entity(entity, maybe_player_index)
-	ensure_global_state()
-
-	global.hud_combinators[entity.unit_number] = {
-		["entity"] = entity,
-		name = "HUD Comparator #" .. entity.unit_number -- todo: use backer names here
-	}
-
-	if maybe_player_index then
-		global.hud_collapsed_map[maybe_player_index] = false
-		update_collapse_button(maybe_player_index)
-	end
-end
-
-local function unregister_entity(entity)
-	ensure_global_state()
-
-	global.hud_combinators[entity.unit_number] = nil
-end
-
 --#region OnInit
 
 Event.on_init(
@@ -68,22 +43,19 @@ Event.on_init(
 
 		-- ensure we have created the HUD for all players
 		for _, player in pairs(game.players) do
-			log(player, "HUD Created on player created")
-			build_interface(player)
+			debug_log(player, "On Init")
+			build_interface(player.index)
 		end
 	end
 )
 --#endregion
 
---#region OnInit
+--#region On Configuration Changed
 Event.on_configuration_changed(
 	function(config_changed_data)
 		if config_changed_data.mod_changes["CircuitHUD-V2"] then
 			for _, player in pairs(game.players) do
-				local main_frame = player.gui.screen.main_frame
-				if main_frame ~= nil then
-					toggle_interface(player)
-				end
+				reset_hud(player.index)
 			end
 		end
 	end
@@ -99,8 +71,8 @@ Event.register(
 	function(event)
 		local player = get_player(event.player_index)
 		initialize_global_for_player(player)
-		build_interface(player)
-		log(player, "HUD Created on player created")
+		build_interface(event.player_index)
+		debug_log(player, "HUD Created on player created")
 	end
 )
 
@@ -121,26 +93,29 @@ Event.register(
 Event.register(
 	defines.events.on_runtime_mod_setting_changed,
 	function(event)
-		local player = game.get_player(event.player_index)
+		local player = get_player(event.player_index)
 		local hud_position = get_hud_position_setting(event.player_index)
 		player.print("postion: " .. hud_position)
-		global.did_initial_render = false
 	end
 )
 --#endregion
+
+--#region On Tick
 
 Event.register(
 	defines.events.on_tick,
 	function(event)
 		-- go through each player
 		for i, player in pairs(game.players) do
-			local player_global = get_player_global(player)
+			local player_global = get_player_global(player.index)
 			if not player_global.hud_collapsed_map and get_hud_combinators then
 				update_hud(player)
 			end
 		end
 	end
 )
+
+--#endregion
 
 -- Event.register(
 -- 	defines.events.on_tick,
@@ -259,10 +234,8 @@ Event.register(
 	defines.events.on_gui_location_changed,
 	function(event)
 		if event.element.name == "hud-root-frame" then
-			ensure_global_state()
-
 			-- save the state
-			global.hud_position_map[event.player_index] = event.element.location
+			set_hud_location(event.player_index, event.element.location)
 		end
 	end
 )
@@ -294,7 +267,7 @@ Event.register(
 	defines.events.on_built_entity,
 	function(event)
 		if event.created_entity.name == "hud-combinator" then
-			register_entity(event.created_entity, event.player_index)
+			register_combinator(event.created_entity, event.player_index)
 		end
 	end
 )
@@ -303,7 +276,7 @@ Event.register(
 	defines.events.on_robot_built_entity,
 	function(event)
 		if event.created_entity.name == "hud-combinator" then
-			register_entity(event.created_entity, event.player_index)
+			register_combinator(event.created_entity, event.player_index)
 		end
 	end
 )
@@ -312,7 +285,7 @@ Event.register(
 	defines.events.on_player_mined_entity,
 	function(event)
 		if event.entity.name == "hud-combinator" then
-			unregister_entity(event.entity)
+			unregister_combinator(event.entity)
 		end
 	end
 )
@@ -321,7 +294,7 @@ Event.register(
 	defines.events.on_robot_mined_entity,
 	function(event)
 		if event.entity.name == "hud-combinator" then
-			unregister_entity(event.entity)
+			unregister_combinator(event.entity)
 		end
 	end
 )
@@ -329,12 +302,11 @@ Event.register(
 Event.register(
 	defines.events.on_gui_click,
 	function(event)
-		if global.toggle_button and event.element.name == "toggle-circuit-hud" then
-			ensure_global_state()
-			global.hud_collapsed_map[event.player_index] = not global.hud_collapsed_map[event.player_index]
+		if event.element.name == "toggle-circuit-hud" then
+			local toggle_state = not get_hud_collapsed(event.player_index)
+			set_hud_collapsed(event.player_index, toggle_state)
 			update_collapse_button(event.player_index)
-
-			set_hud_position(game.get_player(event.player_index))
+			debug_log(event.player_index, "Toggle button clicked! - " .. tostring(toggle_state))
 		end
 	end
 )
