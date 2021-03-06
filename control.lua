@@ -19,22 +19,6 @@ if script.active_mods["gvv"] then
 	require("__gvv__.gvv")()
 end
 
---#region Globals
-
-global.did_cleanup_and_discovery = false
-
---#endregion
-
-local function set_hud_position(player)
-	local root_frame = get_hud(player)
-	if root_frame then
-		local x = player.display_resolution.width - 250
-		local y = root_frame.location.y
-		root_frame.location = {x, y}
-		player.print("gui location: x: " .. x)
-	end
-end
-
 --#region OnInit
 
 Event.on_init(
@@ -112,7 +96,7 @@ Event.register(
 		for i, player in pairs(game.players) do
 			local player_global = get_player_global(player.index)
 			if not player_global.hud_collapsed_map and get_hud_combinators then
-				update_hud(player)
+				update_hud(player.index)
 			end
 		end
 	end

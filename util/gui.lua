@@ -1,3 +1,5 @@
+local math = require("__stdlib__/stdlib/utils/math")
+
 --#region Constants
 
 local root_frame_name = "hud-root-frame"
@@ -71,8 +73,6 @@ local function render_combinator(parent, entity)
 	else
 		child.add {type = "label", caption = "No signal"}
 	end
-
-	return true
 end
 
 -- Create frame in which to put the other GUI elements
@@ -119,7 +119,7 @@ local function create_root_frame(player_index)
 			pusher.drag_target = root_frame
 			title.drag_target = root_frame
 		else
-			title_flow.add {type = "empty-widget", style = "frame_style"}
+			-- title_flow.add {type = "empty-widget", style = "frame_style"}
 		end
 
 		-- add a "toggle" button
@@ -166,14 +166,19 @@ function build_interface(player_index)
 	set_hud_refs(player_index, root_frame, inner_frame)
 end
 
-function update_hud(player)
-	local inner_frame = get_hud_inner(player.index)
+function update_hud(player_index)
+	local inner_frame = get_hud_inner(player_index)
 	if inner_frame then
 		inner_frame.clear()
 	end
 
 	local child = inner_frame.add {type = "flow", direction = "vertical"}
 
+	local hud_position = get_hud_position_setting(player_index)
+	local max_columns_allowed = get_hud_columns_setting(player_index)
+	local max_columns_found = 0
+	local row_count = 0
+	local combinator_count = 0
 	-- loop over every HUD Combinator provided
 	for i, meta_entity in pairs(get_hud_combinators()) do
 		local entity = meta_entity.entity
@@ -183,24 +188,50 @@ function update_hud(player)
 			break
 		end
 
-		local spacer = nil
-		if i > 1 and did_render_any_combinator then
-			spacer = child.add {type = "empty-widget", style = "empty_widget_distance"} -- todo: correctly add some space
+		-- Calculate size when hud position is bottom-right
+		if hud_position == "bottom-right" then
+			local red_network = entity.get_circuit_network(defines.wire_type.red)
+			local green_network = entity.get_circuit_network(defines.wire_type.green)
+
+			if red_network and red_network.signals then
+				local red_signal_count = array_length(red_network.signals)
+				max_columns_found = math.clamp(red_signal_count, max_columns_found, max_columns_allowed)
+				if max_columns_found > 0 then
+					row_count = row_count + math.floor((red_signal_count / max_columns_found) + 0.5)
+				end
+			end
+			if green_network and green_network.signals then
+				local green_signal_count = array_length(green_network.signals)
+				max_columns_found = math.clamp(green_signal_count, max_columns_found, max_columns_allowed)
+				if max_columns_found > 0 then
+					row_count = row_count + math.floor((green_signal_count / max_columns_found) + 0.5)
+				end
+			end
 		end
 
-		local did_render_combinator = render_combinator(child, entity)
-		did_render_any_combinator = did_render_any_combinator or did_render_combinator
+		render_combinator(child, entity)
+		combinator_count = combinator_count + 1
+	end
 
-		if spacer and (not did_render_combinator) then
-			spacer.destroy()
+	if hud_position == "bottom-right" then
+		local player = get_player(player_index)
+		-- Formula => (<button-size> + <padding>) * <total button rows> + (<combinator count> * <label-height>)
+		local width = 36 * math.min(get_hud_columns_setting(player_index), max_columns_found) + 75
+		-- Formula => (<button-size> + <padding>) * <total button rows> + (<combinator count> * <label-height>)
+		local height = (36 + 4) * row_count + (combinator_count * 20)
+
+		height = math.min(height, 400)
+
+		-- Add header height if enabled
+		if not get_hide_hud_header_setting(player_index) then
+			height = height + 36 + 56
 		end
-	end
 
-	if not did_render_any_combinator then
-		child.destroy()
+		width = math.round(width * player.display_scale)
+		height = math.round(height * player.display_scale)
+		set_hud_size(player_index, {width = width, height = height})
+		move_hud(player_index)
 	end
-
-	return did_render_any_combinator
 end
 
 function update_collapse_button(player_index)
@@ -217,4 +248,24 @@ end
 function reset_hud(player_index)
 	destroy_hud(player_index)
 	build_interface(player_index)
+end
+
+function move_hud(player_index)
+	local root_frame = get_hud(player_index)
+	if root_frame then
+		local player = get_player(player_index)
+		local size = get_hud_size(player_index)
+		local x = player.display_resolution.width - size.width
+		local y = player.display_resolution.height - size.height
+
+		if x ~= root_frame.location.x or y ~= root_frame.location.y then
+			root_frame.location = {x, y}
+			player.print("HUD size: width: " .. size.width .. ", height: " .. size.height)
+			player.print("HUD location: x: " .. x .. ", y: " .. y)
+			player.print(
+				"Display Resolution: width: " .. player.display_resolution.width .. ", height: " .. player.display_resolution.height
+			)
+			player.print("Display scale: x: " .. player.display_scale)
+		end
+	end
 end

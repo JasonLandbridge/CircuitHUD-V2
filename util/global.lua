@@ -49,12 +49,20 @@ function get_hud_location(player_index)
 	return get_player_global(player_index).hud_location
 end
 
+function get_hud_size(player_index)
+	return get_player_global(player_index).hud_size
+end
+
 --#endregion
 
 --#region Set Player Properties
 
 function set_hud_location(player_index, location)
 	get_player_global(player_index).hud_location = location
+end
+
+function set_hud_size(player_index, size)
+	get_player_global(player_index).hud_size = size
 end
 
 function set_hud_collapsed(player_index, state)
