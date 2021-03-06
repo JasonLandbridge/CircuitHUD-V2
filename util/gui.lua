@@ -75,32 +75,71 @@ local function render_combinator(parent, entity)
 	return true
 end
 
-function reset_hud(player_index)
-	destroy_hud(player_index)
-	build_interface(player_index)
-end
+-- Create frame in which to put the other GUI elements
 
--- Build the HUD with the signals
--- @param player The player object
-function build_interface(player_index)
+local function create_root_frame(player_index)
 	local player = get_player(player_index)
-	-- Create frame in which to put the other GUI elements
-	local hud_position = get_hud_position_setting(player)
+
 	local root_frame = nil
+	local frame_template = {type = "frame", direction = "vertical", name = "hud-root-frame"}
+	local hud_position = get_hud_position_setting(player_index)
 
 	-- Set HUD on the left or top side of screen
 	if hud_position == "left" or hud_position == "top" then
-		root_frame = player.gui[hud_position].add {type = "frame", direction = "vertical", name = "hud-root-frame"}
+		root_frame = player.gui[hud_position].add(frame_template)
+	end
+
+	-- Set HUD to be draggable
+	if hud_position == "draggable" then
+		root_frame = player.gui.screen.add(frame_template)
+		root_frame.location = get_hud_location(player_index)
 	end
 
 	-- Set HUD on the left side of screen
 	if hud_position == "bottom-right" then
-		root_frame = player.gui.screen.add {type = "frame", direction = "vertical", name = "hud-root-frame"}
+		root_frame = player.gui.screen.add(frame_template)
 		local x = player.display_resolution.width - 250
 		local y = player.display_resolution.height - 250
 		root_frame.location = {x, y}
-		player.print("gui location: x: " .. x)
+		player.print("gui location: x: " .. x .. ", y: " .. y)
 	end
+
+	-- Only create header when the settings allow for it
+	if not get_hide_hud_header_setting(player_index) then
+		-- create a title_flow
+		local title_flow = root_frame.add {type = "flow"}
+
+		-- add the title label
+		local title = title_flow.add {type = "label", caption = get_hud_title_setting(player_index), style = "frame_title"}
+
+		-- Set frame to be draggable
+		if get_hud_position_setting(player_index) == "draggable" then
+			local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_hud_header"}
+			pusher.style.horizontally_stretchable = true
+			pusher.drag_target = root_frame
+			title.drag_target = root_frame
+		else
+			title_flow.add {type = "empty-widget", style = "frame_style"}
+		end
+
+		-- add a "toggle" button
+		local toggle_button =
+			title_flow.add {
+			type = "sprite-button",
+			style = "frame_action_button",
+			sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
+			name = "toggle-circuit-hud"
+		}
+		set_toggle_ref(player_index, toggle_button)
+	end
+
+	return root_frame
+end
+
+-- Build the HUD with the signals
+-- @param player_index The index of the player
+function build_interface(player_index)
+	local root_frame = create_root_frame(player_index)
 
 	-- if global.hud_position_map[player.index] then
 	-- 	local new_location = global.hud_position_map[player.index]
@@ -108,15 +147,6 @@ function build_interface(player_index)
 	-- end
 
 	-- local title_flow = create_frame_title(root_frame, "Circuit HUD")
-
-	-- add a "toggle" button
-	local toggle_button =
-		root_frame.add {
-		type = "sprite-button",
-		style = "frame_action_button",
-		sprite = (get_hud_collapsed(player.index) == true) and "utility/expand" or "utility/collapse",
-		name = "toggle-circuit-hud"
-	}
 
 	local scroll_pane =
 		root_frame.add {
@@ -133,7 +163,7 @@ function build_interface(player_index)
 		direction = "vertical"
 	}
 
-	set_hud_refs(player.index, root_frame, inner_frame, toggle_button)
+	set_hud_refs(player_index, root_frame, inner_frame)
 end
 
 function update_hud(player)
@@ -182,4 +212,9 @@ function update_collapse_button(player_index)
 			toggle_ref.sprite = "utility/collapse"
 		end
 	end
+end
+
+function reset_hud(player_index)
+	destroy_hud(player_index)
+	build_interface(player_index)
 end

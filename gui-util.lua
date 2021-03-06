@@ -1,64 +1,58 @@
 local Event = require("__stdlib__/stdlib/event/event")
 
-function create_frame_title(parent, title)
-  -- create a title_flow
-  local title_flow = parent.add {type = "flow"}
+function create_frame(root_frame, title, close_name)
+	-- find a unique event name
+	local ui_name = "frame_" .. Event.generate_event_name("frame-event")
+	local close_button_name = ui_name .. "_button"
 
-  -- add the title label
-  local title = title_flow.add {type = "label", caption = title, style = "frame_title"}
-  title.drag_target = parent
+	-- add the frame
+	local frame = root_frame.add {type = "frame", name = ui_name, direction = "vertical"}
 
-  -- add a pusher (so the close button becomes right-aligned)
-  local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_hud_header"}
-  -- pusher.style.vertically_stretchable = true
-  pusher.style.horizontally_stretchable = true
-  pusher.drag_target = parent
+	-- create a title_flow
+	local title_flow = frame.add {type = "flow"}
 
-  return title_flow
-end
+	-- add the title label
+	local title = title_flow.add {type = "label", caption = title, style = "frame_title"}
+	title.drag_target = frame
 
-function create_frame(parent, title, close_name)
-  -- find a unique event name
-  local ui_name = "frame_" .. Event.generate_event_name("frame-event")
-  local close_button_name = ui_name .. "_button"
+	-- add a pusher (so the close button becomes right-aligned)
+	local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_hud_header"}
+	-- pusher.style.vertically_stretchable = true
+	pusher.style.horizontally_stretchable = true
+	pusher.drag_target = frame
 
-  -- add the frame
-  local frame = parent.add {type = "frame", name = ui_name, direction = "vertical"}
+	-- add a close button
+	title_flow.add {
+		type = "sprite-button",
+		style = "frame_action_button",
+		sprite = "utility/close_white",
+		name = close_button_name
+	}
 
-  local title_flow = create_frame_title(frame, title)
+	local on_gui_click = nil
+	local on_gui_closed = nil
 
-  -- add a close button
-  title_flow.add {
-    type = "sprite-button",
-    style = "frame_action_button",
-    sprite = "utility/close_white",
-    name = close_button_name
-  }
+	local function close()
+		frame.destroy()
+		Event.remove(defines.events.on_gui_click, on_gui_click)
+		Event.remove(defines.events.on_gui_closed, on_gui_closed)
+	end
 
-  local on_gui_click = nil
-  local on_gui_closed = nil
+	on_gui_click = function(event)
+		if (event.element and event.element.name == close_button_name) then
+			close()
+		end
+	end
 
-  local function close()
-    frame.destroy()
-    Event.remove(defines.events.on_gui_click, on_gui_click)
-    Event.remove(defines.events.on_gui_closed, on_gui_closed)
-  end
+	on_gui_close = function(event)
+		if (event.element and event.element.name == ui_name) then
+			close()
+		end
+	end
 
-  on_gui_click = function(event)
-    if (event.element and event.element.name == close_button_name) then
-      close()
-    end
-  end
+	Event.register(defines.events.on_gui_click, on_gui_click)
+	Event.register(defines.events.on_gui_closed, on_gui_close)
 
-  on_gui_close = function(event)
-    if (event.element and event.element.name == ui_name) then
-      close()
-    end
-  end
-
-  Event.register(defines.events.on_gui_click, on_gui_click)
-  Event.register(defines.events.on_gui_closed, on_gui_close)
-
-  -- return the frame and ui_name for further work
-  return frame, ui_name
+	-- return the frame and ui_name for further work
+	return frame, ui_name
 end

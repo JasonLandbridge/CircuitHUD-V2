@@ -45,6 +45,10 @@ function get_hud_collapsed(player_index)
 	return get_player_global(player_index).hud_collapsed
 end
 
+function get_hud_location(player_index)
+	return get_player_global(player_index).hud_location
+end
+
 --#endregion
 
 --#region Set Player Properties
@@ -57,9 +61,12 @@ function set_hud_collapsed(player_index, state)
 	get_player_global(player_index).hud_collapsed = state
 end
 
-function set_hud_refs(player_index, root_frame, inner_frame, toggle_button)
+function set_hud_refs(player_index, root_frame, inner_frame)
 	get_player_global(player_index).root_frame = root_frame
 	get_player_global(player_index).inner_frame = inner_frame
+end
+
+function set_toggle_ref(player_index, toggle_button)
 	get_player_global(player_index).toggle_button = toggle_button
 end
 
@@ -75,6 +82,7 @@ function destroy_hud(player_index)
 		inner_frame.destroy()
 	end
 	set_hud_refs(player_index)
+	set_toggle_ref(player_index)
 end
 
 function ensure_global_state()

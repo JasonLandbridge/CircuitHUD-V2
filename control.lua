@@ -94,8 +94,11 @@ Event.register(
 	defines.events.on_runtime_mod_setting_changed,
 	function(event)
 		local player = get_player(event.player_index)
-		local hud_position = get_hud_position_setting(event.player_index)
-		player.print("postion: " .. hud_position)
+		reset_hud(event.player_index)
+		if get_debug_mode_setting(event.player_index) then
+			local hud_position = get_hud_position_setting(event.player_index)
+			player.print("postion: " .. hud_position)
+		end
 	end
 )
 --#endregion
@@ -206,6 +209,8 @@ Event.register(
 			local label = frame.add({type = "label", caption = "Name", style = "heading_2_label"})
 
 			local textbox = vertical_flow.add {type = "textfield", style = "production_gui_search_textfield"}
+			-- textbox.add {type = "button", name = "test_picker1", style = "choose_chat_icon_button"}
+
 			ensure_global_state()
 			textbox.text = global.hud_combinators[event.entity.unit_number]["name"]
 			textbox.select(0, 0)
@@ -233,7 +238,7 @@ Event.register(
 Event.register(
 	defines.events.on_gui_location_changed,
 	function(event)
-		if event.element.name == "hud-root-frame" then
+		if event.element.name == "hud-root-frame" and get_hud_position_setting(event.player_index) == "draggable" then
 			-- save the state
 			set_hud_location(event.player_index, event.element.location)
 		end
