@@ -286,13 +286,14 @@ function calculate_hud_size(player_index)
 				end
 			end
 
-			-- count if HUD combinator has no signals
+			-- count as empty if HUD combinator has no signals
 			if counts[1] == 0 and counts[2] == 0 then
 				empty_combinators = empty_combinators + 1
+			else
+				-- else count as a combinator with at least 1 signal
+				combinator_count = combinator_count + 1
 			end
 		end
-
-		combinator_count = combinator_count + 1
 	end
 
 	local player = get_player(player_index)
