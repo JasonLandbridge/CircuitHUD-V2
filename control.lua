@@ -27,18 +27,35 @@ Event.on_init(
 
 		-- ensure we have created the HUD for all players
 		for _, player in pairs(game.players) do
-			debug_log(player, "On Init")
+			debug_log(player.index, "On Init")
 			build_interface(player.index)
 		end
 	end
 )
 --#endregion
 
+--#region On Nth Tick
+
+Event.on_nth_tick(
+	30,
+	function(event)
+		-- go through each player and update their HUD
+		for i, player in pairs(game.players) do
+			update_hud(player.index)
+		end
+	end
+)
+
+--#endregion
+
 --#region On Configuration Changed
 Event.on_configuration_changed(
 	function(config_changed_data)
 		if config_changed_data.mod_changes["CircuitHUD-V2"] then
+			-- Reset all Combinator HUD references
+			reset_combinator_registrations()
 			for _, player in pairs(game.players) do
+				-- Reset the HUD for all players
 				reset_hud(player.index)
 			end
 		end
@@ -54,9 +71,9 @@ Event.register(
 	defines.events.on_player_created,
 	function(event)
 		local player = get_player(event.player_index)
-		initialize_global_for_player(player)
+		add_player_global(player)
 		build_interface(event.player_index)
-		debug_log(player, "HUD Created on player created")
+		debug_log(event.player_index, "HUD Created on player created")
 	end
 )
 
@@ -67,7 +84,7 @@ Event.register(
 Event.register(
 	defines.events.on_player_removed,
 	function(event)
-		global.players[event.player_index] = nil
+		remove_player_global(event.player_index)
 	end
 )
 --#endregion
@@ -81,57 +98,6 @@ Event.register(
 	end
 )
 --#endregion
-
---#region On Tick
-
-Event.register(
-	defines.events.on_tick,
-	function(event)
-		-- go through each player
-		for i, player in pairs(game.players) do
-			local player_global = get_player_global(player.index)
-			if not player_global.hud_collapsed_map and get_hud_combinators then
-				update_hud(player.index)
-			end
-		end
-	end
-)
-
---#endregion
-
--- Event.register(
--- 	defines.events.on_tick,
--- 	function(event)
--- 		if not global.did_cleanup_and_discovery then
--- 			global.did_cleanup_and_discovery = true
--- 			ensure_global_state()
-
--- 			-- clean the map for invalid entities
--- 			for i, meta_entity in pairs(global.hud_combinators) do
--- 				if (not meta_entity.entity) or (not meta_entity.entity.valid) then
--- 					global.hud_combinators[i] = nil
--- 				end
--- 			end
-
--- 			-- find entities not discovered
--- 			for i, surface in pairs(game.surfaces) do
--- 				-- find all hud combinator
--- 				local hud_combinators = surface.find_entities_filtered {name = "hud-combinator"}
-
--- 				if hud_combinators then
--- 					for i, hud_combinator in pairs(hud_combinators) do
--- 						if not global.hud_combinators[hud_combinator.unit_number] then
--- 							global.hud_combinators[hud_combinator.unit_number] = {
--- 								["entity"] = hud_combinator,
--- 								["name"] = "HUD Combinator #" .. hud_combinator.unit_number -- todo: use backer names here
--- 							}
--- 						end
--- 					end
--- 				end
--- 			end
--- 		end
--- 	end
--- )
 
 --#region On GUI Opened
 
@@ -261,7 +227,7 @@ Event.register(
 	function(event)
 		if event.element.name == "toggle-circuit-hud" then
 			local toggle_state = not get_hud_collapsed(event.player_index)
-			update_collapse_button(event.player_index, toggle_state)
+			update_collapse_state(event.player_index, toggle_state)
 		end
 	end
 )

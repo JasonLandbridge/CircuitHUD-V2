@@ -2,8 +2,6 @@ local math = require("__stdlib__/stdlib/utils/math")
 
 --#region Constants
 
-local root_frame_name = "hud-root-frame"
-local inner_frame_name = "inner_frame"
 local SIGNAL_TYPE_MAP = {
 	["item"] = "item",
 	["virtual"] = "virtual-signal",
@@ -85,7 +83,8 @@ local function create_root_frame(player_index)
 		type = "frame",
 		direction = "vertical",
 		name = "hud-root-frame",
-		style = "hud-root-frame-style"
+		style = "hud-root-frame-style",
+		maximal_height = get_hud_max_height_setting(player_index)
 	}
 
 	local hud_position = get_hud_position_setting(player_index)
@@ -205,7 +204,7 @@ function update_hud(player_index)
 	end
 end
 
-function update_collapse_button(player_index, toggle_state)
+function update_collapse_state(player_index, toggle_state)
 	set_hud_collapsed(player_index, toggle_state)
 
 	local toggle_ref = get_hud_toggle_ref(player_index)
@@ -308,7 +307,8 @@ function calculate_hud_size(player_index)
 	end
 
 	width = math.clamp(width, 250, 1000)
-	height = math.clamp(height, 30, 400)
+	-- clamp height at the max-height setting, or if lower the height of the screen resolution
+	height = math.clamp(height, 30, math.min(get_hud_max_height_setting(player_index), player.display_resolution.height))
 
 	local size = {width = math.round(width * player.display_scale), height = math.round(height * player.display_scale)}
 	set_hud_size(player_index, size)

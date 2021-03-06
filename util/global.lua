@@ -7,17 +7,13 @@ local global_default = {
 	toggle_button = nil
 }
 
-function initialize_global_for_player(player_index)
-	global.players[player_index] = global_default
-end
-
 -- Returns the global object for the player with this index
 -- Will create a global object if the "player_index" is not yet created
 -- @param player_index The index of the player
 function get_player_global(player_index)
 	local global_player = global.players[player_index]
 	if not global_player then
-		initialize_global_for_player(player_index)
+		add_player_global(player_index)
 		debug_log(player_index, "initialize global for player" .. player_index)
 	end
 	return global.players[player_index]
@@ -79,6 +75,19 @@ end
 
 function set_toggle_ref(player_index, toggle_button)
 	get_player_global(player_index).toggle_button = toggle_button
+end
+
+--#endregion
+
+--#region Add Properties
+function add_player_global(player_index)
+	global.players[player_index] = global_default
+end
+--#endregion
+
+--#region Remove Properties
+function remove_player_global(player_index)
+	global.players[player_index] = nil
 end
 
 --#endregion

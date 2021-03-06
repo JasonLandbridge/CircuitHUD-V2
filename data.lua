@@ -2,8 +2,8 @@ local default_gui = data.raw["gui-style"].default
 default_gui["hud-root-frame-style"] = {
 	type = "frame_style",
 	minimal_width = 250,
-	minimal_height = 30,
-	maximal_height = 400,
+	minimal_height = 50,
+	-- maximal_height = 400,
 	top_padding = 4,
 	right_padding = 4,
 	bottom_padding = 4,
@@ -306,8 +306,6 @@ hudCombinatorRecipe.ingredients = {{"electronic-circuit", 2}, {"copper-cable", 5
 hudCombinatorRecipe.result = "hud-combinator"
 
 data:extend {hudCombinatorEntity, hudCombinatorItem, hudCombinatorRecipe}
-
---
 
 --
 -- SIGNALS

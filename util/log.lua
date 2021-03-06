@@ -1,17 +1,15 @@
 local Is = require("__stdlib__/stdlib/utils/is")
 
 -- Logs the message to the player in the console.
--- @param player LuaPlayer
-function log(player, message)
-	player.print(message)
+-- @param player_index LuaPlayer
+function log(player_index, message)
+	get_player(player_index).print(message)
 end
 
-function debug_log(player, message)
-	-- TODO check if debugging is enabled
-	if Is.UInt(player) then
-		get_player(player).print(message)
-		return
+-- Logs the message to the player in the console only if debug_mode is enabled.
+-- @param player_index LuaPlayer
+function debug_log(player_index, message)
+	if get_debug_mode_setting(player_index) then
+		get_player(player_index).print(message)
 	end
-
-	player.print(message)
 end
