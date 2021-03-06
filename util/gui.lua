@@ -51,7 +51,7 @@ local function render_combinator(parent, entity)
 		return false -- skip rendering this combinator
 	end
 
-	local child = parent.add {type = "flow", direction = "vertical"}
+	local child = parent.add {type = "flow", direction = "vertical", style = "combinator_flow_style"}
 
 	-- Add HUD Combinator title to HUD category
 	local title =
@@ -81,7 +81,13 @@ local function create_root_frame(player_index)
 	local player = get_player(player_index)
 
 	local root_frame = nil
-	local frame_template = {type = "frame", direction = "vertical", name = "hud-root-frame"}
+	local frame_template = {
+		type = "frame",
+		direction = "vertical",
+		name = "hud-root-frame",
+		style = "hud-root-frame-style"
+	}
+
 	local hud_position = get_hud_position_setting(player_index)
 
 	-- Set HUD on the left or top side of screen
@@ -95,7 +101,7 @@ local function create_root_frame(player_index)
 		root_frame.location = get_hud_location(player_index)
 	end
 
-	-- Set HUD on the left side of screen
+	-- Set HUD on the bottom-right corner of the screen
 	if hud_position == "bottom-right" then
 		root_frame = player.gui.screen.add(frame_template)
 		calculate_hud_size(player_index)
@@ -117,7 +123,8 @@ local function create_root_frame(player_index)
 			pusher.drag_target = root_frame
 			title.drag_target = root_frame
 		else
-			-- title_flow.add {type = "empty-widget", style = "frame_style"}
+			local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_hud_header"}
+			pusher.style.horizontally_stretchable = true
 		end
 
 		-- add a "toggle" button
@@ -177,7 +184,7 @@ function update_hud(player_index)
 		return
 	end
 
-	local child = inner_frame.add {type = "flow", direction = "vertical"}
+	local combinator_flow = inner_frame.add({type = "flow", direction = "vertical"})
 
 	-- loop over every HUD Combinator provided
 	for i, meta_entity in pairs(get_hud_combinators()) do
@@ -188,7 +195,7 @@ function update_hud(player_index)
 			break
 		end
 
-		render_combinator(child, entity)
+		render_combinator(combinator_flow, entity)
 	end
 
 	local hud_position = get_hud_position_setting(player_index)
@@ -235,6 +242,7 @@ function calculate_hud_size(player_index)
 	local max_columns_found = 0
 	local row_count = 0
 	local combinator_count = 0
+	local empty_combinators = 0
 	-- loop over every HUD Combinator provided
 	for i, meta_entity in pairs(get_hud_combinators()) do
 		local entity = meta_entity.entity
@@ -249,19 +257,38 @@ function calculate_hud_size(player_index)
 			local red_network = entity.get_circuit_network(defines.wire_type.red)
 			local green_network = entity.get_circuit_network(defines.wire_type.green)
 
+			local counts = {0, 0}
+
 			if red_network and red_network.signals then
-				local red_signal_count = array_length(red_network.signals)
-				max_columns_found = math.clamp(red_signal_count, max_columns_found, max_columns_allowed)
-				if max_columns_found > 0 then
-					row_count = row_count + math.floor((red_signal_count / max_columns_found) + 0.5)
+				counts[1] = array_length(red_network.signals)
+			end
+
+			if green_network and green_network.signals then
+				counts[2] = array_length(green_network.signals)
+			end
+
+			-- loop and calculate the green and red signals highest column width and total row count
+			for j = 1, 2, 1 do
+				local signal_count = counts[j]
+				if signal_count > max_columns_allowed then
+					-- we know its at least 1 row, and the max column width has been reached
+					max_columns_found = max_columns_allowed
+					-- divide by max_columns_allowed and round down, add 1 to row_cound if the remainder is > 0
+					local x = math.floor(signal_count / max_columns_allowed) + math.clamp(signal_count % max_columns_allowed, 0, 1)
+					row_count = row_count + x
+				elseif signal_count > 0 and signal_count <= max_columns_allowed then
+					-- if less than 1 row, then simplify
+					if signal_count > max_columns_found then
+						max_columns_found = signal_count
+					end
+					-- with signal_count > 0 && <= max_columns_allowed we know its always 1 row
+					row_count = row_count + 1
 				end
 			end
-			if green_network and green_network.signals then
-				local green_signal_count = array_length(green_network.signals)
-				max_columns_found = math.clamp(green_signal_count, max_columns_found, max_columns_allowed)
-				if max_columns_found > 0 then
-					row_count = row_count + math.floor((green_signal_count / max_columns_found) + 0.5)
-				end
+
+			-- count if HUD combinator has no signals
+			if counts[1] == 0 and counts[2] == 0 then
+				empty_combinators = empty_combinators + 1
 			end
 		end
 
@@ -269,17 +296,18 @@ function calculate_hud_size(player_index)
 	end
 
 	local player = get_player(player_index)
-	-- Formula => (<button-size> + <padding>) * <total button rows> + (<combinator count> * <label-height>)
-	local width = 36 * math.min(get_hud_columns_setting(player_index), max_columns_found) + 75
-	-- Formula => (<button-size> + <padding>) * <total button rows> + (<combinator count> * <label-height>)
-	local height = (36 + 4) * row_count + (combinator_count * 20)
-
-	height = math.min(height, 400)
+	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
+	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 40
+	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
+	local height = ((36 + 4) * row_count) + (combinator_count * 20) + (empty_combinators * 50) + 48
 
 	-- Add header height if enabled
 	if not get_hide_hud_header_setting(player_index) then
-		height = height + 36 + 56
+		height = height + 28
 	end
+
+	width = math.clamp(width, 250, 1000)
+	height = math.clamp(height, 30, 400)
 
 	local size = {width = math.round(width * player.display_scale), height = math.round(height * player.display_scale)}
 	set_hud_size(player_index, size)

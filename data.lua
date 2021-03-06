@@ -1,13 +1,28 @@
 local default_gui = data.raw["gui-style"].default
-default_gui["bras-scrollpane"] = {
+default_gui["hud-root-frame-style"] = {
 	type = "frame_style",
-	top_padding = 0,
-	bottom_padding = 0
+	minimal_width = 250,
+	minimal_height = 30,
+	maximal_height = 400,
+	top_padding = 4,
+	right_padding = 4,
+	bottom_padding = 4,
+	left_padding = 4,
+	header_filler_style = {
+		type = "empty_widget_style",
+		height = 24
+	},
+	use_header_filler = true
 }
 
 default_gui["hud_scrollpane_style"] = {
 	type = "scroll_pane_style",
-	maximal_height = 400,
+	extra_padding_when_activated = 0
+}
+
+default_gui["combinator_flow_style"] = {
+	type = "vertical_flow_style",
+	minimal_height = 50,
 	extra_padding_when_activated = 0
 }
 
@@ -19,11 +34,6 @@ default_gui["draggable_space_hud_header"] = {
 	right_margin = 8,
 	minimal_width = 32,
 	minimal_height = 24
-}
-
-default_gui["empty_widget_distance"] = {
-	type = "empty_widget_style",
-	size = {100, 10}
 }
 
 local hudCombinatorEntity = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
