@@ -30,7 +30,7 @@ data:extend(
 			setting_type = "runtime-per-user",
 			default_value = 8,
 			minimum_value = 1,
-			maximum_value = 10,
+			maximum_value = 20,
 			order = "a-d"
 		},
 		{

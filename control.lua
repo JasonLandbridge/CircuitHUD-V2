@@ -37,7 +37,7 @@ Event.on_init(
 --#region On Nth Tick
 
 Event.on_nth_tick(
-	30,
+	60,
 	function(event)
 		-- go through each player and update their HUD
 		for i, player in pairs(game.players) do
@@ -55,6 +55,9 @@ Event.on_configuration_changed(
 			-- Reset all Combinator HUD references
 			reset_combinator_registrations()
 			for _, player in pairs(game.players) do
+				if get_hide_hud_header_setting(player.index) then
+					update_collapse_state(player.index, false)
+				end
 				-- Reset the HUD for all players
 				reset_hud(player.index)
 			end

@@ -25,7 +25,8 @@
 	],
 	"Lua.runtime.version": "Lua 5.2",
 	"Lua.diagnostics.disable": [
-		"lowercase-global"
+		"lowercase-global",
+		"undefined-global"
 	],
 	"Lua.workspace.library": {
 		/* Adjust these to match your Factorio install path */

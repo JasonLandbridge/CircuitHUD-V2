@@ -83,14 +83,13 @@ local function create_root_frame(player_index)
 		type = "frame",
 		direction = "vertical",
 		name = "hud-root-frame",
-		style = "hud-root-frame-style",
-		maximal_height = get_hud_max_height_setting(player_index)
+		style = "hud-root-frame-style"
 	}
 
 	local hud_position = get_hud_position_setting(player_index)
 
 	-- Set HUD on the left or top side of screen
-	if hud_position == "left" or hud_position == "top" then
+	if hud_position == "left" or hud_position == "top" or hud_position == "goal" then
 		root_frame = player.gui[hud_position].add(frame_template)
 	end
 
@@ -136,6 +135,8 @@ local function create_root_frame(player_index)
 		}
 		set_toggle_ref(player_index, toggle_button)
 	end
+
+	root_frame.style.maximal_height = get_hud_max_height_setting(player_index)
 
 	return root_frame
 end
@@ -233,6 +234,7 @@ end
 function reset_hud(player_index)
 	destroy_hud(player_index)
 	build_interface(player_index)
+	update_hud(player_index)
 end
 
 function calculate_hud_size(player_index)
@@ -297,7 +299,7 @@ function calculate_hud_size(player_index)
 
 	local player = get_player(player_index)
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
-	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 40
+	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 44
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
 	local height = ((36 + 4) * row_count) + (combinator_count * 20) + (empty_combinators * 50) + 48
 
