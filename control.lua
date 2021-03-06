@@ -77,12 +77,7 @@ Event.register(
 Event.register(
 	defines.events.on_runtime_mod_setting_changed,
 	function(event)
-		local player = get_player(event.player_index)
 		reset_hud(event.player_index)
-		if get_debug_mode_setting(event.player_index) then
-			local hud_position = get_hud_position_setting(event.player_index)
-			player.print("postion: " .. hud_position)
-		end
 	end
 )
 --#endregion
@@ -138,32 +133,6 @@ Event.register(
 -- 	end
 -- )
 
--- Event.register(
--- 	defines.events.on_tick,
--- 	function()
--- 		if not global.did_initial_render then
--- 			ensure_global_state()
--- 			reset_hud()
--- 			global.did_initial_render = true
--- 		end
-
--- 		if (global["last_frame"] == nil) then
--- 			global["last_frame"] = {}
--- 		end
-
--- 		if (global["inner_frame"] == nil) then
--- 			global["inner_frame"] = {}
--- 		end
-
--- 		-- go through each player
--- 		for i, player in pairs(game.players) do
--- 			if global["last_frame"][player.index] == nil then
--- 				build_interface(player)
--- 			end
--- 		end
--- 	end
--- )
-
 --#region On GUI Opened
 
 Event.register(
@@ -193,9 +162,7 @@ Event.register(
 			local label = frame.add({type = "label", caption = "Name", style = "heading_2_label"})
 
 			local textbox = vertical_flow.add {type = "textfield", style = "production_gui_search_textfield"}
-			-- textbox.add {type = "button", name = "test_picker1", style = "choose_chat_icon_button"}
 
-			ensure_global_state()
 			textbox.text = global.hud_combinators[event.entity.unit_number]["name"]
 			textbox.select(0, 0)
 
@@ -210,7 +177,6 @@ Event.register(
 Event.register(
 	defines.events.on_gui_text_changed,
 	function(event)
-		ensure_global_state()
 		local entity = global.textbox_hud_entity_map[event.element.index]
 		if entity and (global.textbox_hud_entity_map[event.element.index]) then
 			-- save the reference
@@ -222,9 +188,11 @@ Event.register(
 Event.register(
 	defines.events.on_gui_location_changed,
 	function(event)
-		if event.element.name == "hud-root-frame" and get_hud_position_setting(event.player_index) == "draggable" then
-			-- save the state
-			set_hud_location(event.player_index, event.element.location)
+		if event.element.name == "hud-root-frame" then
+			-- save the coordinates if the hud is draggable
+			if get_hud_position_setting(event.player_index) == "draggable" then
+				set_hud_location(event.player_index, event.element.location)
+			end
 		end
 	end
 )
@@ -293,9 +261,7 @@ Event.register(
 	function(event)
 		if event.element.name == "toggle-circuit-hud" then
 			local toggle_state = not get_hud_collapsed(event.player_index)
-			set_hud_collapsed(event.player_index, toggle_state)
-			update_collapse_button(event.player_index)
-			debug_log(event.player_index, "Toggle button clicked! - " .. tostring(toggle_state))
+			update_collapse_button(event.player_index, toggle_state)
 		end
 	end
 )

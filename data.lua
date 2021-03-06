@@ -1,8 +1,6 @@
 local default_gui = data.raw["gui-style"].default
 default_gui["bras-scrollpane"] = {
 	type = "frame_style",
-	--minimal_width = 70,
-	--maximal_height = 70,
 	top_padding = 0,
 	bottom_padding = 0
 }

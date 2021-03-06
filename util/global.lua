@@ -29,15 +29,15 @@ end
 
 --#region Get Player Properties
 
-function get_hud(player_index)
+function get_hud_ref(player_index)
 	return get_player_global(player_index).root_frame
 end
 
-function get_hud_inner(player_index)
+function get_hud_inner_ref(player_index)
 	return get_player_global(player_index).inner_frame
 end
 
-function get_hud_toggle(player_index)
+function get_hud_toggle_ref(player_index)
 	return get_player_global(player_index).toggle_button
 end
 
@@ -69,8 +69,11 @@ function set_hud_collapsed(player_index, state)
 	get_player_global(player_index).hud_collapsed = state
 end
 
-function set_hud_refs(player_index, root_frame, inner_frame)
+function set_hud_root_frame_ref(player_index, root_frame)
 	get_player_global(player_index).root_frame = root_frame
+end
+
+function set_hud_inner_frame_ref(player_index, inner_frame)
 	get_player_global(player_index).inner_frame = inner_frame
 end
 
@@ -81,16 +84,22 @@ end
 --#endregion
 
 function destroy_hud(player_index)
-	local root_frame = get_hud(player_index)
+	local root_frame = get_hud_ref(player_index)
 	if root_frame then
 		root_frame.destroy()
 	end
-	local inner_frame = get_hud_inner(player_index)
+	local inner_frame = get_hud_inner_ref(player_index)
 	if inner_frame then
 		inner_frame.destroy()
 	end
-	set_hud_refs(player_index)
-	set_toggle_ref(player_index)
+	local toggle_red = get_hud_toggle_ref(player_index)
+	if toggle_red then
+		toggle_red.destroy()
+	end
+
+	set_hud_root_frame_ref(player_index, nil)
+	set_hud_inner_frame_ref(player_index, nil)
+	set_toggle_ref(player_index, nil)
 end
 
 function ensure_global_state()

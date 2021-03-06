@@ -98,10 +98,8 @@ local function create_root_frame(player_index)
 	-- Set HUD on the left side of screen
 	if hud_position == "bottom-right" then
 		root_frame = player.gui.screen.add(frame_template)
-		local x = player.display_resolution.width - 250
-		local y = player.display_resolution.height - 250
-		root_frame.location = {x, y}
-		player.print("gui location: x: " .. x .. ", y: " .. y)
+		calculate_hud_size(player_index)
+		move_hud_bottom_right(player_index)
 	end
 
 	-- Only create header when the settings allow for it
@@ -136,17 +134,18 @@ local function create_root_frame(player_index)
 	return root_frame
 end
 
+function clear_hud_display(player_index)
+	local inner_frame = get_hud_inner_ref(player_index)
+	if inner_frame then
+		inner_frame.clear()
+	end
+	return inner_frame
+end
+
 -- Build the HUD with the signals
 -- @param player_index The index of the player
 function build_interface(player_index)
 	local root_frame = create_root_frame(player_index)
-
-	-- if global.hud_position_map[player.index] then
-	-- 	local new_location = global.hud_position_map[player.index]
-	-- 	root_frame.location = new_location
-	-- end
-
-	-- local title_flow = create_frame_title(root_frame, "Circuit HUD")
 
 	local scroll_pane =
 		root_frame.add {
@@ -163,17 +162,74 @@ function build_interface(player_index)
 		direction = "vertical"
 	}
 
-	set_hud_refs(player_index, root_frame, inner_frame)
+	set_hud_root_frame_ref(player_index, root_frame)
+	set_hud_inner_frame_ref(player_index, inner_frame)
 end
 
 function update_hud(player_index)
-	local inner_frame = get_hud_inner(player_index)
-	if inner_frame then
-		inner_frame.clear()
+	if get_hud_collapsed(player_index) then
+		return
+	end
+
+	-- Clear the frame which has the signals displayed to start the update
+	local inner_frame = clear_hud_display(player_index)
+	if not inner_frame.valid then
+		return
 	end
 
 	local child = inner_frame.add {type = "flow", direction = "vertical"}
 
+	-- loop over every HUD Combinator provided
+	for i, meta_entity in pairs(get_hud_combinators()) do
+		local entity = meta_entity.entity
+
+		if not entity.valid then
+			-- the entity has probably just been deconstructed
+			break
+		end
+
+		render_combinator(child, entity)
+	end
+
+	local hud_position = get_hud_position_setting(player_index)
+	if hud_position == "bottom-right" then
+		local size = calculate_hud_size(player_index)
+		move_hud_bottom_right(player_index)
+	end
+end
+
+function update_collapse_button(player_index, toggle_state)
+	set_hud_collapsed(player_index, toggle_state)
+
+	local toggle_ref = get_hud_toggle_ref(player_index)
+	if toggle_ref then
+		if get_hud_collapsed(player_index) then
+			toggle_ref.sprite = "utility/expand"
+		else
+			toggle_ref.sprite = "utility/collapse"
+		end
+	end
+
+	-- true is collapsed, false is visible
+	if toggle_state then
+		local inner_frame = get_hud_inner_ref(player_index)
+		if inner_frame then
+			inner_frame.destroy()
+			set_hud_inner_frame_ref(player_index, nil)
+		end
+	else
+		reset_hud(player_index)
+	end
+
+	debug_log(player_index, "Toggle button clicked! - " .. tostring(toggle_state))
+end
+
+function reset_hud(player_index)
+	destroy_hud(player_index)
+	build_interface(player_index)
+end
+
+function calculate_hud_size(player_index)
 	local hud_position = get_hud_position_setting(player_index)
 	local max_columns_allowed = get_hud_columns_setting(player_index)
 	local max_columns_found = 0
@@ -209,49 +265,29 @@ function update_hud(player_index)
 			end
 		end
 
-		render_combinator(child, entity)
 		combinator_count = combinator_count + 1
 	end
 
-	if hud_position == "bottom-right" then
-		local player = get_player(player_index)
-		-- Formula => (<button-size> + <padding>) * <total button rows> + (<combinator count> * <label-height>)
-		local width = 36 * math.min(get_hud_columns_setting(player_index), max_columns_found) + 75
-		-- Formula => (<button-size> + <padding>) * <total button rows> + (<combinator count> * <label-height>)
-		local height = (36 + 4) * row_count + (combinator_count * 20)
+	local player = get_player(player_index)
+	-- Formula => (<button-size> + <padding>) * <total button rows> + (<combinator count> * <label-height>)
+	local width = 36 * math.min(get_hud_columns_setting(player_index), max_columns_found) + 75
+	-- Formula => (<button-size> + <padding>) * <total button rows> + (<combinator count> * <label-height>)
+	local height = (36 + 4) * row_count + (combinator_count * 20)
 
-		height = math.min(height, 400)
+	height = math.min(height, 400)
 
-		-- Add header height if enabled
-		if not get_hide_hud_header_setting(player_index) then
-			height = height + 36 + 56
-		end
-
-		width = math.round(width * player.display_scale)
-		height = math.round(height * player.display_scale)
-		set_hud_size(player_index, {width = width, height = height})
-		move_hud(player_index)
+	-- Add header height if enabled
+	if not get_hide_hud_header_setting(player_index) then
+		height = height + 36 + 56
 	end
+
+	local size = {width = math.round(width * player.display_scale), height = math.round(height * player.display_scale)}
+	set_hud_size(player_index, size)
+	return size
 end
 
-function update_collapse_button(player_index)
-	local toggle_ref = get_hud_toggle(player_index)
-	if toggle_ref then
-		if get_hud_collapsed(player_index) then
-			toggle_ref.sprite = "utility/expand"
-		else
-			toggle_ref.sprite = "utility/collapse"
-		end
-	end
-end
-
-function reset_hud(player_index)
-	destroy_hud(player_index)
-	build_interface(player_index)
-end
-
-function move_hud(player_index)
-	local root_frame = get_hud(player_index)
+function move_hud_bottom_right(player_index)
+	local root_frame = get_hud_ref(player_index)
 	if root_frame then
 		local player = get_player(player_index)
 		local size = get_hud_size(player_index)
