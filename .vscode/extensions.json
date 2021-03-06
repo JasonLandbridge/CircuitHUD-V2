@@ -1,6 +1,7 @@
 {
 	"recommendations": [
 		"justarandomgeek.factoriomod-debug",
-		"sumneko.lua"
+		"sumneko.lua",
+		"adamerose.better-outline"
 	]
 }

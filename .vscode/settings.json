@@ -1,9 +1,35 @@
 {
 	"Lua.diagnostics.globals": [
-		"defines",
-		"global",
 		"game",
-		"data",
-		"commands"
-	]
+		"script",
+		"remote",
+		"commands",
+		"settings",
+		"rcon",
+		"rendering",
+		"global",
+		"log",
+		"localised_print",
+		"defines",
+		"data", /* data */
+		"mods", /* data */
+		"serpent",
+		"table_size",
+		"bit32",
+		"util",
+		/* data stage has a *lot* of globals,
+		 * you may need to add more if you use them
+		 */
+		"circuit_connector_definitions", /* data */
+		"universal_connector_template", /* data */
+	],
+	"Lua.runtime.version": "Lua 5.2",
+	"Lua.diagnostics.disable": [
+		"lowercase-global"
+	],
+	"Lua.workspace.library": {
+		/* Adjust these to match your Factorio install path */
+		"C:/path/to/factorio/data/": true, /* for __base__ and __core__ */
+		"C:/path/to/factorio/data/core/lualib": true, /* some basic libs can be required directly*/
+	},
 }
