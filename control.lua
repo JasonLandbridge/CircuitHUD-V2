@@ -55,7 +55,6 @@ Event.on_configuration_changed(
 	function(config_changed_data)
 		local old_circuit_hud_changes = config_changed_data.mod_changes["CircuitHUD"]
 		if old_circuit_hud_changes then
-			
 		end
 
 		local circuit_hud_v2_changes = config_changed_data.mod_changes["CircuitHUD-V2"]
@@ -254,6 +253,20 @@ Event.register(
 			local toggle_state = not get_hud_collapsed(event.player_index)
 			update_collapse_state(event.player_index, toggle_state)
 		end
+	end
+)
+
+Event.register(
+	defines.events.on_player_display_resolution_changed,
+	function(event)
+		reset_hud(event.player_index)
+	end
+)
+
+Event.register(
+	defines.events.on_player_display_scale_changed,
+	function(event)
+		reset_hud(event.player_index)
 	end
 )
 
