@@ -305,7 +305,7 @@ function calculate_hud_size(player_index)
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
 	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 20
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
-	local height = ((36 + 4) * row_count) + (combinator_count * 20) + (empty_combinators * 50) + 48
+	local height = ((36 + 4) * row_count) + (combinator_count * 20) + (empty_combinators * 50) + 40
 	-- get the max height of the HUD based on the user setting or display resolution
 	local max_height = math.min(get_hud_max_height_setting(player_index), player.display_resolution.height)
 
