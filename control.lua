@@ -3,6 +3,7 @@ require "gui-util"
 require "commands/reload"
 require "util/reset_hud"
 
+require "util/constants"
 require "util/log"
 require "util/general"
 require "util/global"
@@ -122,7 +123,7 @@ Event.register(
 Event.register(
 	defines.events.on_gui_opened,
 	function(event)
-		if (not (event.entity == nil)) and (event.entity.name == "hud-combinator") then
+		if (not (event.entity == nil)) and (event.entity.name == HUD_COMBINATOR_NAME) then
 			local player = game.get_player(event.player_index)
 
 			-- create the new gui
@@ -172,7 +173,7 @@ Event.register(
 Event.register(
 	defines.events.on_gui_location_changed,
 	function(event)
-		if event.element.name == "hud-root-frame" then
+		if event.element.name == HUD_NAMES.hud_root_frame then
 			-- save the coordinates if the hud is draggable
 			if get_hud_position_setting(event.player_index) == "draggable" then
 				set_hud_location(event.player_index, event.element.location)
@@ -207,7 +208,7 @@ Event.register(
 Event.register(
 	defines.events.on_built_entity,
 	function(event)
-		if event.created_entity.name == "hud-combinator" then
+		if event.created_entity.name == HUD_COMBINATOR_NAME then
 			register_combinator(event.created_entity, event.player_index)
 		end
 	end
@@ -216,7 +217,7 @@ Event.register(
 Event.register(
 	defines.events.on_robot_built_entity,
 	function(event)
-		if event.created_entity.name == "hud-combinator" then
+		if event.created_entity.name == HUD_COMBINATOR_NAME then
 			register_combinator(event.created_entity, event.player_index)
 		end
 	end
@@ -225,7 +226,7 @@ Event.register(
 Event.register(
 	defines.events.on_player_mined_entity,
 	function(event)
-		if event.entity.name == "hud-combinator" then
+		if event.entity.name == HUD_COMBINATOR_NAME then
 			unregister_combinator(event.entity)
 		end
 	end
@@ -234,7 +235,7 @@ Event.register(
 Event.register(
 	defines.events.on_robot_mined_entity,
 	function(event)
-		if event.entity.name == "hud-combinator" then
+		if event.entity.name == HUD_COMBINATOR_NAME then
 			unregister_combinator(event.entity)
 		end
 	end
@@ -243,7 +244,7 @@ Event.register(
 Event.register(
 	defines.events.on_gui_click,
 	function(event)
-		if event.element.name == "toggle-circuit-hud" then
+		if event.element.name == HUD_NAMES.hud_toggle_button then
 			local toggle_state = not get_hud_collapsed(event.player_index)
 			update_collapse_state(event.player_index, toggle_state)
 		end

@@ -37,7 +37,7 @@ default_gui["draggable_space_hud_header"] = {
 }
 
 local hudCombinatorEntity = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
-hudCombinatorEntity.name = "hud-combinator"
+hudCombinatorEntity.name = HUD_COMBINATOR_NAME
 hudCombinatorEntity.sprites = {
 	east = {
 		layers = {
@@ -289,11 +289,11 @@ hudCombinatorEntity.sprites = {
 	}
 }
 hudCombinatorEntity.item_slot_count = 0
-hudCombinatorEntity.minable = {mining_time = 0.1, result = "hud-combinator"}
+hudCombinatorEntity.minable = {mining_time = 0.1, result = HUD_COMBINATOR_NAME}
 
 local hudCombinatorItem = table.deepcopy(data.raw.item["constant-combinator"])
-hudCombinatorItem.name = "hud-combinator"
-hudCombinatorItem.place_result = "hud-combinator"
+hudCombinatorItem.name = HUD_COMBINATOR_NAME
+hudCombinatorItem.place_result = HUD_COMBINATOR_NAME
 hudCombinatorItem.icons = {
 	{
 		icon = "__CircuitHUD-V2__/graphics/icon/hud-combinator.png"
@@ -301,9 +301,9 @@ hudCombinatorItem.icons = {
 }
 
 local hudCombinatorRecipe = table.deepcopy(data.raw.recipe["iron-chest"])
-hudCombinatorRecipe.name = "hud-combinator"
+hudCombinatorRecipe.name = HUD_COMBINATOR_NAME
 hudCombinatorRecipe.ingredients = {{"electronic-circuit", 2}, {"copper-cable", 5}}
-hudCombinatorRecipe.result = "hud-combinator"
+hudCombinatorRecipe.result = HUD_COMBINATOR_NAME
 
 data:extend {hudCombinatorEntity, hudCombinatorItem, hudCombinatorRecipe}
 

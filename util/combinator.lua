@@ -65,7 +65,7 @@ function reset_combinator_registrations()
 	-- find entities not discovered
 	for i, surface in pairs(game.surfaces) do
 		-- find all hud combinator
-		local hud_combinators = surface.find_entities_filtered {name = "hud-combinator"}
+		local hud_combinators = surface.find_entities_filtered {name = HUD_COMBINATOR_NAME}
 
 		if hud_combinators then
 			for i, hud_combinator in pairs(hud_combinators) do

@@ -82,7 +82,7 @@ local function create_root_frame(player_index)
 	local frame_template = {
 		type = "frame",
 		direction = "vertical",
-		name = "hud-root-frame",
+		name = HUD_NAMES.hud_root_frame,
 		style = "hud-root-frame-style"
 	}
 
@@ -116,13 +116,17 @@ local function create_root_frame(player_index)
 
 		-- Set frame to be draggable
 		if get_hud_position_setting(player_index) == "draggable" then
-			local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_hud_header"}
+			local pusher =
+				title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
 			pusher.style.horizontally_stretchable = true
 			pusher.drag_target = root_frame
 			title.drag_target = root_frame
+			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
 		else
-			local pusher = title_flow.add {type = "empty-widget", style = "draggable_space_hud_header"}
+			local pusher =
+				title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
 			pusher.style.horizontally_stretchable = true
+			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
 		end
 
 		-- add a "toggle" button
@@ -131,9 +135,11 @@ local function create_root_frame(player_index)
 			type = "sprite-button",
 			style = "frame_action_button",
 			sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
-			name = "toggle-circuit-hud"
+			name = HUD_NAMES.hud_toggle_button
 		}
-		set_toggle_ref(player_index, toggle_button)
+
+		set_hud_element_ref(player_index, HUD_NAMES.hud_title_label, title)
+		set_hud_element_ref(player_index, HUD_NAMES.hud_toggle_button, toggle_button)
 	end
 
 	root_frame.style.maximal_height = get_hud_max_height_setting(player_index)
@@ -142,11 +148,11 @@ local function create_root_frame(player_index)
 end
 
 function clear_hud_display(player_index)
-	local inner_frame = get_hud_inner_ref(player_index)
-	if inner_frame then
-		inner_frame.clear()
+	local scroll_pane = get_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
+	if scroll_pane then
+		scroll_pane.clear()
 	end
-	return inner_frame
+	return scroll_pane
 end
 
 -- Build the HUD with the signals
@@ -156,21 +162,23 @@ function build_interface(player_index)
 
 	local scroll_pane =
 		root_frame.add {
+		name = HUD_NAMES.hud_scroll_pane,
 		type = "scroll-pane",
 		vertical_scroll_policy = "auto",
 		style = "hud_scrollpane_style"
 	}
 
-	local inner_frame =
+	local scroll_pane_frame =
 		scroll_pane.add {
-		name = "inner_frame",
+		name = HUD_NAMES.hud_scroll_pane_frame,
 		type = "frame",
 		style = "inside_shallow_frame_with_padding",
 		direction = "vertical"
 	}
 
-	set_hud_root_frame_ref(player_index, root_frame)
-	set_hud_inner_frame_ref(player_index, inner_frame)
+	set_hud_element_ref(player_index, HUD_NAMES.hud_root_frame, root_frame)
+	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane, scroll_pane)
+	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane_frame, scroll_pane_frame)
 end
 
 function update_hud(player_index)
@@ -208,7 +216,7 @@ end
 function update_collapse_state(player_index, toggle_state)
 	set_hud_collapsed(player_index, toggle_state)
 
-	local toggle_ref = get_hud_toggle_ref(player_index)
+	local toggle_ref = get_hud_ref(player_index, HUD_NAMES.hud_toggle_button)
 	if toggle_ref then
 		if get_hud_collapsed(player_index) then
 			toggle_ref.sprite = "utility/expand"
@@ -219,11 +227,9 @@ function update_collapse_state(player_index, toggle_state)
 
 	-- true is collapsed, false is visible
 	if toggle_state then
-		local inner_frame = get_hud_inner_ref(player_index)
-		if inner_frame then
-			inner_frame.destroy()
-			set_hud_inner_frame_ref(player_index, nil)
-		end
+		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
+		destroy_hud_ref(player_index, HUD_NAMES.hud_title_label)
+		destroy_hud_ref(player_index, HUD_NAMES.hud_header_spacer)
 	else
 		reset_hud(player_index)
 	end
