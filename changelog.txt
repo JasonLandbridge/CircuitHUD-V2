@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 2021-03-07
+  Bugfixes:
+    - Minor height adjustment of the HUD placed in bottom-right corner when in full screen.
+    - The HUD will now immediately correct itself on resolution or scale change of the Factorio window.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.0
 Date: 2021-03-07
   Changes:
