@@ -59,6 +59,7 @@ Event.on_configuration_changed(
 			if circuit_hud_changes.old_version == "1.0.1" and circuit_hud_changes.new_version == "1.1.0" then
 				-- Original version had a fuck-ton of unneeded on_tick events, which are now refactored away
 				Event.remove(defines.events.on_tick)
+				-- clear global and recreate
 				reset_global_state()
 				-- recreate all global state for players
 				for _, player in pairs(game.players) do

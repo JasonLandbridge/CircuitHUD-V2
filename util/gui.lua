@@ -1,23 +1,5 @@
 local math = require("__stdlib__/stdlib/utils/math")
 
---#region Constants
-
-local SIGNAL_TYPE_MAP = {
-	["item"] = "item",
-	["virtual"] = "virtual-signal",
-	["fluid"] = "fluid"
-}
-
-local GET_SIGNAL_NAME_MAP = function()
-	return {
-		["item"] = game.item_prototypes,
-		["virtual"] = game.virtual_signal_prototypes,
-		["fluid"] = game.fluid_prototypes
-	}
-end
-
---#endregion
-
 -- Converts all circuit signals to icons displayed in the HUD under that network
 -- @param parent The parent GUI Element
 local function render_network_in_HUD(parent, network, signal_style)
@@ -28,14 +10,13 @@ local function render_network_in_HUD(parent, network, signal_style)
 
 	local table = parent.add {type = "table", column_count = get_hud_columns_setting(parent.player_index)}
 
-	local signal_name_map = GET_SIGNAL_NAME_MAP()
 	for i, signal in ipairs(network.signals) do
 		table.add {
 			type = "sprite-button",
 			sprite = SIGNAL_TYPE_MAP[signal.signal.type] .. "/" .. signal.signal.name,
 			number = signal.count,
 			style = signal_style,
-			tooltip = signal_name_map[signal.signal.type][signal.signal.name].localised_name
+			tooltip = GET_SIGNAL_NAME_MAP[signal.signal.type][signal.signal.name].localised_name
 		}
 	end
 end
@@ -89,18 +70,18 @@ local function create_root_frame(player_index)
 	local hud_position = get_hud_position_setting(player_index)
 
 	-- Set HUD on the left or top side of screen
-	if hud_position == "left" or hud_position == "top" or hud_position == "goal" then
+	if hud_position == HUD_POSITION.left or hud_position == HUD_POSITION.top or hud_position == HUD_POSITION.goal then
 		root_frame = player.gui[hud_position].add(frame_template)
 	end
 
 	-- Set HUD to be draggable
-	if hud_position == "draggable" then
+	if hud_position == HUD_POSITION.draggable then
 		root_frame = player.gui.screen.add(frame_template)
 		root_frame.location = get_hud_location(player_index)
 	end
 
 	-- Set HUD on the bottom-right corner of the screen
-	if hud_position == "bottom-right" then
+	if hud_position == HUD_POSITION.bottom_right then
 		root_frame = player.gui.screen.add(frame_template)
 		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
@@ -115,7 +96,7 @@ local function create_root_frame(player_index)
 		local title = title_flow.add {type = "label", caption = get_hud_title_setting(player_index), style = "frame_title"}
 
 		-- Set frame to be draggable
-		if get_hud_position_setting(player_index) == "draggable" then
+		if get_hud_position_setting(player_index) == HUD_POSITION.draggable then
 			local pusher =
 				title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
 			pusher.style.horizontally_stretchable = true
@@ -207,7 +188,7 @@ function update_hud(player_index)
 	end
 
 	local hud_position = get_hud_position_setting(player_index)
-	if hud_position == "bottom-right" then
+	if hud_position == HUD_POSITION.bottom_right then
 		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
 	end
@@ -235,7 +216,7 @@ function update_collapse_state(player_index, toggle_state)
 	end
 
 	-- If bottom-right fixed than align
-	if get_hud_position_setting(player_index) == "bottom-right" then
+	if get_hud_position_setting(player_index) == HUD_POSITION.bottom_right then
 		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
 	end

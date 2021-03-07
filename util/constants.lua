@@ -12,3 +12,34 @@ HUD_COMBINATOR_GUI = {
 }
 
 HUD_COMBINATOR_NAME = "hud-combinator"
+
+SETTINGS = {
+	prefix = "CircuitHUD",
+	hide_hud_header = "_hide_hud_header",
+	hud_title = "_hud_title",
+	hud_position = "_hud_position",
+	hud_columns = "_hud_columns",
+	hud_max_height = "_hud_max_height",
+	uncollapse_hud_on_register_combinator = "_uncollapse_hud_on_register_combinator",
+	debug_mode = "_debug_mode"
+}
+
+HUD_POSITION = {
+	top = "top",
+	left = "left",
+	goal = "goal",
+	bottom_right = "bottom-right",
+	draggable = "draggable"
+}
+
+SIGNAL_TYPE_MAP = {
+	["item"] = "item",
+	["virtual"] = "virtual-signal",
+	["fluid"] = "fluid"
+}
+
+GET_SIGNAL_NAME_MAP = {
+	["item"] = game.item_prototypes,
+	["virtual"] = game.virtual_signal_prototypes,
+	["fluid"] = game.fluid_prototypes
+}
