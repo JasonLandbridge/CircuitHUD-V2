@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 2021-03-07
+  Bugfixes:
+    - Possible fix for HUD Combinator names reverting to their default when migrating/updating CircuitHUD
+---------------------------------------------------------------------------------------------------
 Version: 1.1.1
 Date: 2021-03-07
   Bugfixes:

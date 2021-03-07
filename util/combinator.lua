@@ -10,10 +10,6 @@ local function remove_hud_combinator_ref(hud_combinator)
 	global.hud_combinators[hud_combinator.unit_number] = nil
 end
 
-local function reset_hud_combinator_refs()
-	global.hud_combinators = {}
-end
-
 -- Check if this HUD Combinator has any signals coming in to show in the HUD.
 -- @param entity The HUD Combinator
 function has_network_signals(entity)
@@ -59,9 +55,13 @@ function should_show_network(entity)
 	return true
 end
 
-function reset_combinator_registrations()
-	reset_hud_combinator_refs()
-
+function check_combinator_registrations()
+	-- clean the map for invalid entities
+	for i, meta_entity in pairs(global.hud_combinators) do
+		if (not meta_entity.entity) or (not meta_entity.entity.valid) then
+			remove_hud_combinator_ref(meta_entity.entity)
+		end
+	end
 	-- find entities not discovered
 	for i, surface in pairs(game.surfaces) do
 		-- find all hud combinator

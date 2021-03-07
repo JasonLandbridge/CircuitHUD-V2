@@ -26,7 +26,7 @@ Event.on_init(
 	function()
 		ensure_global_state()
 		-- Reset all Combinator HUD references
-		reset_combinator_registrations()
+		check_combinator_registrations()
 		-- Ensure we have created the HUD for all players
 		for _, player in pairs(game.players) do
 			debug_log(player.index, "On Init")
@@ -65,13 +65,16 @@ Event.on_configuration_changed(
 				Event.remove(defines.events.on_tick)
 				-- clear global and recreate
 				reset_global_state()
+
 				-- recreate all global state for players
 				for _, player in pairs(game.players) do
 					add_player_global(player.index)
 				end
 			end
+
 			-- Reset all Combinator HUD references
-			reset_combinator_registrations()
+			check_combinator_registrations()
+
 			for _, player in pairs(game.players) do
 				-- Ensure all HUDS are visible
 				if get_hide_hud_header_setting(player.index) then
