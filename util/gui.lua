@@ -208,7 +208,7 @@ function update_hud(player_index)
 
 	local hud_position = get_hud_position_setting(player_index)
 	if hud_position == "bottom-right" then
-		local size = calculate_hud_size(player_index)
+		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
 	end
 end
@@ -234,6 +234,12 @@ function update_collapse_state(player_index, toggle_state)
 		reset_hud(player_index)
 	end
 
+	-- If bottom-right fixed than align
+	if get_hud_position_setting(player_index) == "bottom-right" then
+		calculate_hud_size(player_index)
+		move_hud_bottom_right(player_index)
+	end
+
 	debug_log(player_index, "Toggle button clicked! - " .. tostring(toggle_state))
 end
 
@@ -244,7 +250,11 @@ function reset_hud(player_index)
 end
 
 function calculate_hud_size(player_index)
-	local hud_position = get_hud_position_setting(player_index)
+	if get_hud_collapsed(player_index) then
+		set_hud_size(player_index, {width = 40, height = 40})
+		return size
+	end
+
 	local max_columns_allowed = get_hud_columns_setting(player_index)
 	local max_columns_found = 0
 	local row_count = 0
@@ -260,52 +270,50 @@ function calculate_hud_size(player_index)
 		end
 
 		-- Calculate size when hud position is bottom-right
-		if hud_position == "bottom-right" then
-			local red_network = entity.get_circuit_network(defines.wire_type.red)
-			local green_network = entity.get_circuit_network(defines.wire_type.green)
+		local red_network = entity.get_circuit_network(defines.wire_type.red)
+		local green_network = entity.get_circuit_network(defines.wire_type.green)
 
-			local counts = {0, 0}
+		local counts = {0, 0}
 
-			if red_network and red_network.signals then
-				counts[1] = array_length(red_network.signals)
-			end
+		if red_network and red_network.signals then
+			counts[1] = array_length(red_network.signals)
+		end
 
-			if green_network and green_network.signals then
-				counts[2] = array_length(green_network.signals)
-			end
+		if green_network and green_network.signals then
+			counts[2] = array_length(green_network.signals)
+		end
 
-			-- loop and calculate the green and red signals highest column width and total row count
-			for j = 1, 2, 1 do
-				local signal_count = counts[j]
-				if signal_count > max_columns_allowed then
-					-- we know its at least 1 row, and the max column width has been reached
-					max_columns_found = max_columns_allowed
-					-- divide by max_columns_allowed and round down, add 1 to row_cound if the remainder is > 0
-					local x = math.floor(signal_count / max_columns_allowed) + math.clamp(signal_count % max_columns_allowed, 0, 1)
-					row_count = row_count + x
-				elseif signal_count > 0 and signal_count <= max_columns_allowed then
-					-- if less than 1 row, then simplify
-					if signal_count > max_columns_found then
-						max_columns_found = signal_count
-					end
-					-- with signal_count > 0 && <= max_columns_allowed we know its always 1 row
-					row_count = row_count + 1
+		-- loop and calculate the green and red signals highest column width and total row count
+		for j = 1, 2, 1 do
+			local signal_count = counts[j]
+			if signal_count > max_columns_allowed then
+				-- we know its at least 1 row, and the max column width has been reached
+				max_columns_found = max_columns_allowed
+				-- divide by max_columns_allowed and round down, add 1 to row_cound if the remainder is > 0
+				local x = math.floor(signal_count / max_columns_allowed) + math.clamp(signal_count % max_columns_allowed, 0, 1)
+				row_count = row_count + x
+			elseif signal_count > 0 and signal_count <= max_columns_allowed then
+				-- if less than 1 row, then simplify
+				if signal_count > max_columns_found then
+					max_columns_found = signal_count
 				end
+				-- with signal_count > 0 && <= max_columns_allowed we know its always 1 row
+				row_count = row_count + 1
 			end
+		end
 
-			-- count as empty if HUD combinator has no signals
-			if counts[1] == 0 and counts[2] == 0 then
-				empty_combinators = empty_combinators + 1
-			else
-				-- else count as a combinator with at least 1 signal
-				combinator_count = combinator_count + 1
-			end
+		-- count as empty if HUD combinator has no signals
+		if counts[1] == 0 and counts[2] == 0 then
+			empty_combinators = empty_combinators + 1
+		else
+			-- else count as a combinator with at least 1 signal
+			combinator_count = combinator_count + 1
 		end
 	end
 
 	local player = get_player(player_index)
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
-	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 44
+	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 32
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
 	local height = ((36 + 4) * row_count) + (combinator_count * 20) + (empty_combinators * 50) + 48
 
@@ -324,7 +332,7 @@ function calculate_hud_size(player_index)
 end
 
 function move_hud_bottom_right(player_index)
-	local root_frame = get_hud_ref(player_index)
+	local root_frame = get_hud_ref(player_index, HUD_NAMES.hud_root_frame)
 	if root_frame then
 		local player = get_player(player_index)
 		local size = get_hud_size(player_index)

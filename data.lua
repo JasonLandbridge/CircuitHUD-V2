@@ -1,3 +1,5 @@
+require "util/constants"
+
 local default_gui = data.raw["gui-style"].default
 default_gui["hud-root-frame-style"] = {
 	type = "frame_style",
@@ -23,7 +25,10 @@ default_gui["hud_scrollpane_style"] = {
 default_gui["combinator_flow_style"] = {
 	type = "vertical_flow_style",
 	minimal_height = 50,
-	extra_padding_when_activated = 0
+	top_padding = 4,
+	right_padding = 4,
+	bottom_padding = 4,
+	left_padding = 4
 }
 
 default_gui["draggable_space_hud_header"] = {
