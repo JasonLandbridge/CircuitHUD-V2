@@ -303,18 +303,25 @@ function calculate_hud_size(player_index)
 
 	local player = get_player(player_index)
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
-	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 32
+	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 20
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
 	local height = ((36 + 4) * row_count) + (combinator_count * 20) + (empty_combinators * 50) + 48
+	-- get the max height of the HUD based on the user setting or display resolution
+	local max_height = math.min(get_hud_max_height_setting(player_index), player.display_resolution.height)
 
 	-- Add header height if enabled
 	if not get_hide_hud_header_setting(player_index) then
 		height = height + 28
 	end
 
+	-- check if there is a scrollbar and add that width
+	if height > max_height then
+		width = width + 12
+	end
+
 	width = math.clamp(width, 250, 1000)
 	-- clamp height at the max-height setting, or if lower the height of the screen resolution
-	height = math.clamp(height, 30, math.min(get_hud_max_height_setting(player_index), player.display_resolution.height))
+	height = math.clamp(height, 30, max_height)
 
 	local size = {width = math.round(width * player.display_scale), height = math.round(height * player.display_scale)}
 	set_hud_size(player_index, size)

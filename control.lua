@@ -53,10 +53,15 @@ Event.on_nth_tick(
 --#region On Configuration Changed
 Event.on_configuration_changed(
 	function(config_changed_data)
-		local circuit_hud_changes = config_changed_data.mod_changes["CircuitHUD-V2"]
-		if circuit_hud_changes then
+		local old_circuit_hud_changes = config_changed_data.mod_changes["CircuitHUD"]
+		if old_circuit_hud_changes then
+			
+		end
+
+		local circuit_hud_v2_changes = config_changed_data.mod_changes["CircuitHUD-V2"]
+		if circuit_hud_v2_changes then
 			-- patch for 1.0.1 to 1.1.0
-			if circuit_hud_changes.old_version == "1.0.1" and circuit_hud_changes.new_version == "1.1.0" then
+			if circuit_hud_v2_changes.old_version == "1.0.1" and circuit_hud_v2_changes.new_version == "1.1.0" then
 				-- Original version had a fuck-ton of unneeded on_tick events, which are now refactored away
 				Event.remove(defines.events.on_tick)
 				-- clear global and recreate
