@@ -327,12 +327,16 @@ function move_hud_bottom_right(player_index)
 
 		if x ~= root_frame.location.x or y ~= root_frame.location.y then
 			root_frame.location = {x, y}
-			player.print("HUD size: width: " .. size.width .. ", height: " .. size.height)
-			player.print("HUD location: x: " .. x .. ", y: " .. y)
-			player.print(
-				"Display Resolution: width: " .. player.display_resolution.width .. ", height: " .. player.display_resolution.height
-			)
-			player.print("Display scale: x: " .. player.display_scale)
+
+			if get_debug_mode_setting(player_index) then
+				player.print("HUD size: width: " .. size.width .. ", height: " .. size.height)
+				player.print("HUD location: x: " .. x .. ", y: " .. y)
+				player.print(
+					"Display Resolution: width: " ..
+						player.display_resolution.width .. ", height: " .. player.display_resolution.height
+				)
+				player.print("Display scale: x: " .. player.display_scale)
+			end
 		end
 	end
 end
