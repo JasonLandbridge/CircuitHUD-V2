@@ -82,6 +82,7 @@ end
 --#region Add Properties
 function add_player_global(player_index)
 	global.players[player_index] = global_default
+	debug_log(player_index, "initialize global for player" .. player_index)
 end
 --#endregion
 
@@ -125,4 +126,9 @@ function ensure_global_state()
 	if (not global.textbox_hud_entity_map) then
 		global.textbox_hud_entity_map = {}
 	end
+end
+
+function reset_global_state()
+	global = {}
+	ensure_global_state()
 end

@@ -24,11 +24,12 @@ end
 Event.on_init(
 	function()
 		ensure_global_state()
-
-		-- ensure we have created the HUD for all players
+		-- Reset all Combinator HUD references
+		reset_combinator_registrations()
+		-- Ensure we have created the HUD for all players
 		for _, player in pairs(game.players) do
 			debug_log(player.index, "On Init")
-			build_interface(player.index)
+			reset_hud(player.index)
 		end
 	end
 )
@@ -51,10 +52,22 @@ Event.on_nth_tick(
 --#region On Configuration Changed
 Event.on_configuration_changed(
 	function(config_changed_data)
-		if config_changed_data.mod_changes["CircuitHUD-V2"] then
+		local circuit_hud_changes = config_changed_data.mod_changes["CircuitHUD-V2"]
+		if circuit_hud_changes then
+			-- patch for 1.0.1 to 1.1.0
+			if circuit_hud_changes.old_version == "1.0.1" and circuit_hud_changes.new_version == "1.1.0" then
+				-- Original version had a fuck-ton of unneeded on_tick events, which are now refactored away
+				Event.remove(defines.events.on_tick)
+				reset_global_state()
+				-- recreate all global state for players
+				for _, player in pairs(game.players) do
+					add_player_global(player.index)
+				end
+			end
 			-- Reset all Combinator HUD references
 			reset_combinator_registrations()
 			for _, player in pairs(game.players) do
+				-- Ensure all HUDS are visible
 				if get_hide_hud_header_setting(player.index) then
 					update_collapse_state(player.index, false)
 				end
@@ -76,7 +89,7 @@ Event.register(
 		local player = get_player(event.player_index)
 		add_player_global(player)
 		build_interface(event.player_index)
-		debug_log(event.player_index, "HUD Created on player created")
+		debug_log(event.player_index, "Circuit HUD created for player " .. player.name)
 	end
 )
 
@@ -98,6 +111,8 @@ Event.register(
 	defines.events.on_runtime_mod_setting_changed,
 	function(event)
 		reset_hud(event.player_index)
+		-- Ensure the HUD is visible on mod setting change
+		update_collapse_state(event.player_index, false)
 	end
 )
 --#endregion
