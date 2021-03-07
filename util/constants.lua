@@ -37,9 +37,3 @@ SIGNAL_TYPE_MAP = {
 	["virtual"] = "virtual-signal",
 	["fluid"] = "fluid"
 }
-
-GET_SIGNAL_NAME_MAP = {
-	["item"] = game.item_prototypes,
-	["virtual"] = game.virtual_signal_prototypes,
-	["fluid"] = game.fluid_prototypes
-}

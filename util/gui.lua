@@ -1,5 +1,13 @@
 local math = require("__stdlib__/stdlib/utils/math")
 
+local GET_SIGNAL_NAME_MAP = function()
+	return {
+		["item"] = game.item_prototypes,
+		["virtual"] = game.virtual_signal_prototypes,
+		["fluid"] = game.fluid_prototypes
+	}
+end
+
 -- Converts all circuit signals to icons displayed in the HUD under that network
 -- @param parent The parent GUI Element
 local function render_network_in_HUD(parent, network, signal_style)
@@ -9,14 +17,15 @@ local function render_network_in_HUD(parent, network, signal_style)
 	end
 
 	local table = parent.add {type = "table", column_count = get_hud_columns_setting(parent.player_index)}
-
+	-- TODO this might be cached as the signals rarely change
+	local signal_name_map = GET_SIGNAL_NAME_MAP()
 	for i, signal in ipairs(network.signals) do
 		table.add {
 			type = "sprite-button",
 			sprite = SIGNAL_TYPE_MAP[signal.signal.type] .. "/" .. signal.signal.name,
 			number = signal.count,
 			style = signal_style,
-			tooltip = GET_SIGNAL_NAME_MAP[signal.signal.type][signal.signal.name].localised_name
+			tooltip = signal_name_map[signal.signal.type][signal.signal.name].localised_name
 		}
 	end
 end

@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0
-Date: 2021-03-06
+Date: 2021-03-07
   Changes:
-    - Major refactor and rewrite of this mod, this improves maintainablity and performance.
-    - Added setting for changing the Circuit HUD position
-    - Added setting to change the max columns shown in the Circuit HUD
+    - Near complete rewrite of the code resulting in a literally 100 times performance increase!
+    - Added many settings to customize Circuit HUD behavior and appearance!
+    - CHECK https://mods.factorio.com/mod/CircuitHUD-V2 FOR MORE INFO ON THIS HUGE UPDATE!
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2021-03-05

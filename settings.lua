@@ -1,3 +1,5 @@
+require "util/constants"
+
 data:extend(
 	{
 		{
