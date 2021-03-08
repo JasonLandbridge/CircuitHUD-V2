@@ -99,27 +99,27 @@ local function create_root_frame(player_index)
 	-- Only create header when the settings allow for it
 	if not get_hide_hud_header_setting(player_index) then
 		-- create a title_flow
-		local title_flow = root_frame.add {type = "flow"}
+		local header_flow = root_frame.add {type = "flow", direction = "horizontal"}
 
 		-- add the title label
-		local title = title_flow.add {type = "label", caption = get_hud_title_setting(player_index), style = "frame_title"}
+		local title = header_flow.add {type = "label", caption = get_hud_title_setting(player_index), style = "frame_title"}
 
 		-- Set frame to be draggable
 		if get_hud_position_setting(player_index) == HUD_POSITION.draggable then
-			local pusher = title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
+			local pusher = header_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
 			pusher.style.horizontally_stretchable = true
 			pusher.drag_target = root_frame
 			title.drag_target = root_frame
 			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
 		else
-			local pusher = title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
+			local pusher = header_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "space_hud_header"})
 			pusher.style.horizontally_stretchable = true
 			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
 		end
 
 		-- add a "toggle" button
 		local toggle_button =
-			title_flow.add {
+			header_flow.add {
 			type = "sprite-button",
 			style = "frame_action_button",
 			sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
