@@ -19,6 +19,7 @@ SETTINGS = {
 	hud_title = "_hud_title",
 	hud_position = "_hud_position",
 	hud_columns = "_hud_columns",
+	hud_refresh_rate = "_hud_refresh_rate",
 	hud_max_height = "_hud_max_height",
 	uncollapse_hud_on_register_combinator = "_uncollapse_hud_on_register_combinator",
 	debug_mode = "_debug_mode"
