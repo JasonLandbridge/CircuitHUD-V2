@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.4
+Date: 2021-03-08
+  Changes:
+    - Tweaked the HUD to be correctly visible when set to the bottom-right corner
+    - Added several debug messages and safety checks when creating and updating the HUD
+  Bugfixes:
+    - Fixed the HUD being shown before any HUD Combinator is placed
+    - Fixed the HUD not being hidden when the last HUD Combinator is removed/destroyed
+    - Fixed the "HUD open on HUD Combinator placement setting" not always being used for all players
+---------------------------------------------------------------------------------------------------
 Version: 1.1.3
 Date: 2021-03-08
   Bugfixes:
