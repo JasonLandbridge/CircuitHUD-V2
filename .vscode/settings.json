@@ -33,4 +33,5 @@
 		"C:/path/to/factorio/data/": true, /* for __base__ and __core__ */
 		"C:/path/to/factorio/data/core/lualib": true, /* some basic libs can be required directly*/
 	},
+	"lua.format.lineWidth": 150,
 }
