@@ -73,6 +73,36 @@ Event.on_configuration_changed(
 				end
 			end
 
+			ensure_global_state()
+
+			if circuit_hud_v2_changes.old_version == "1.1.0" then
+				for _, player in pairs(game.players) do
+					local player_global = global.players[player.index]
+
+					if player_global then
+						-- Migrate to elements system instead of seperate HUD references
+						if not player_global.elements then
+							player_global.elements = {}
+						end
+						-- Move the toggle_button ref
+						if player_global["toggle_button"] then
+							set_hud_element_ref(player.index, HUD_NAMES.hud_toggle_button, player_global["toggle_button"])
+							player_global["toggle_button"] = nil
+						end
+						-- Move the root_frame ref
+						if player_global["root_frame"] then
+							set_hud_element_ref(player.index, HUD_NAMES.hud_root_frame, player_global["root_frame"])
+							player_global["root_frame"] = nil
+						end
+						-- Move the inner_frame ref
+						if player_global["inner_frame"] then
+							set_hud_element_ref(player.index, HUD_NAMES.hud_scroll_pane_frame, player_global["inner_frame"])
+							player_global["inner_frame"] = nil
+						end
+					end
+				end
+			end
+
 			-- Reset all Combinator HUD references
 			check_combinator_registrations()
 
