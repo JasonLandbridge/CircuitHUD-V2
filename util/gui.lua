@@ -148,6 +148,17 @@ end
 -- Build the HUD with the signals
 -- @param player_index The index of the player
 function build_interface(player_index)
+	-- First check if there are any existing HUD combinator
+	if not has_hud_combinators() then
+		debug_log(player_index, "There are no HUD Combinators registered so we can't create the HUD")
+		return
+	end
+
+	if get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+		debug_log(player_index, "Can't create a new HUD while the old one still exists")
+		return
+	end
+
 	local root_frame = create_root_frame(player_index)
 
 	local scroll_pane =
@@ -171,8 +182,41 @@ function build_interface(player_index)
 	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane_frame, scroll_pane_frame)
 end
 
+-- Go over each player and ensure that their HUD is either visible or hidden based on the existense of HUD combinators.
+function check_all_player_hud_visibility()
+	-- go through each player and update their HUD
+	for i, player in pairs(game.players) do
+		should_hud_root_exist(player.index)
+	end
+end
+
+-- Check  and ensure if the player has their HUD either visible or hidden based on the existense of HUD combinators.
+function should_hud_root_exist(player_index)
+	if has_hud_combinators() then
+		-- Ensure we have created the HUD for all players
+		if not get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+			build_interface(player_index)
+		end
+		update_hud(player_index)
+	else
+		-- Ensure all HUDS are destroyed
+		if get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+			destroy_hud(player_index)
+		end
+	end
+end
+
+-- Update the HUD combinator categories and values in the HUD
 function update_hud(player_index)
-	if get_hud_collapsed(player_index) then
+	if not has_hud_combinators() or get_hud_collapsed(player_index) then
+		return
+	end
+
+	if not get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+		debug_log(
+			player_index,
+			"Can't update HUD because the HUD root does not exist for player with index: " .. player_index
+		)
 		return
 	end
 

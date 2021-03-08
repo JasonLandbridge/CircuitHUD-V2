@@ -24,6 +24,10 @@ function get_hud_combinators()
 	return global.hud_combinators
 end
 
+function has_hud_combinators()
+	return array_length(get_hud_combinators()) > 0
+end
+
 --#region Get Player Properties
 
 function get_hud_collapsed(player_index)

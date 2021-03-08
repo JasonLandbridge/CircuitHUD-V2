@@ -24,14 +24,15 @@ end
 
 Event.on_init(
 	function()
+		for i, player in pairs(game.players) do
+			debug_log(player.index, "On Init")
+		end
+		-- Ensure the global state has been initialized
 		ensure_global_state()
 		-- Reset all Combinator HUD references
 		check_combinator_registrations()
 		-- Ensure we have created the HUD for all players
-		for _, player in pairs(game.players) do
-			debug_log(player.index, "On Init")
-			reset_hud(player.index)
-		end
+		check_all_player_hud_visibility()
 	end
 )
 --#endregion
@@ -213,41 +214,47 @@ Event.register(
 	end
 )
 
+--#region Register / De-register HUD Combinator
+
+local function set_combinator_registration(event, state)
+	if event.created_entity.name == HUD_COMBINATOR_NAME then
+		if state then
+			register_combinator(event.created_entity, event.player_index)
+		else
+			unregister_combinator(event.entity)
+		end
+		check_all_player_hud_visibility()
+	end
+end
+
 Event.register(
 	defines.events.on_built_entity,
 	function(event)
-		if event.created_entity.name == HUD_COMBINATOR_NAME then
-			register_combinator(event.created_entity, event.player_index)
-		end
+		set_combinator_registration(event, true)
 	end
 )
 
 Event.register(
 	defines.events.on_robot_built_entity,
 	function(event)
-		if event.created_entity.name == HUD_COMBINATOR_NAME then
-			register_combinator(event.created_entity, event.player_index)
-		end
+		set_combinator_registration(event, true)
 	end
 )
 
 Event.register(
 	defines.events.on_player_mined_entity,
 	function(event)
-		if event.entity.name == HUD_COMBINATOR_NAME then
-			unregister_combinator(event.entity)
-		end
+		set_combinator_registration(event, false)
 	end
 )
 
 Event.register(
 	defines.events.on_robot_mined_entity,
 	function(event)
-		if event.entity.name == HUD_COMBINATOR_NAME then
-			unregister_combinator(event.entity)
-		end
+		set_combinator_registration(event, false)
 	end
 )
+--#endregion
 
 Event.register(
 	defines.events.on_gui_click,
@@ -262,14 +269,14 @@ Event.register(
 Event.register(
 	defines.events.on_player_display_resolution_changed,
 	function(event)
-		reset_hud(event.player_index)
+		should_hud_root_exist(event.player_index)
 	end
 )
 
 Event.register(
 	defines.events.on_player_display_scale_changed,
 	function(event)
-		reset_hud(event.player_index)
+		should_hud_root_exist(event.player_index)
 	end
 )
 
