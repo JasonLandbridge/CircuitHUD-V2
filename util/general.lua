@@ -12,6 +12,15 @@ function array_length(array)
 	return count
 end
 
+function has_value(table, value)
+	for k, v in pairs(table) do
+		if v == value then
+			return k
+		end
+	end
+	return nil
+end
+
 function sum(array)
 	local sum = 0
 	for key, value in pairs(array) do
@@ -38,4 +47,26 @@ function max(array)
 		end
 	end
 	return max
+end
+
+function valid(object)
+	if object == nil then
+		return false
+	end
+	if object == {} then
+		return false
+	end
+	return Is(object)
+end
+
+function find_child(table, name)
+	if table == {} then
+		return nil
+	end
+	
+	for key, value in pairs(table) do
+		if value.name == name then
+			return value
+		end
+	end
 end

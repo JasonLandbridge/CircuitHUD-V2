@@ -122,16 +122,16 @@ end
 
 function ensure_global_state()
 	-- A collection of all players with their individual data
-	if (not global.players) then
+	if not valid(global.players) then
 		global.players = {}
 	end
 
 	-- A collection of all HUD Combinators entities in game
-	if (not global.hud_combinators) then
+	if not valid(global.hud_combinators) then
 		global.hud_combinators = {}
 	end
 
-	if (not global.textbox_hud_entity_map) then
+	if not valid(global.textbox_hud_entity_map) then
 		global.textbox_hud_entity_map = {}
 	end
 end
