@@ -1,3 +1,4 @@
+--#region Per User Settings
 local function get_setting(player_index, string_path)
 	return settings.get_player_settings(player_index)[SETTINGS.prefix .. string_path].value
 end
@@ -30,3 +31,13 @@ end
 function get_debug_mode_setting(player_index)
 	return get_setting(player_index, SETTINGS.debug_mode) == "debug"
 end
+
+--#endregion
+
+--#region Map Settings
+
+function get_refresh_rate_setting()
+	return settings.global[SETTINGS.prefix .. SETTINGS.hud_refresh_rate].value
+end
+
+--#endregion

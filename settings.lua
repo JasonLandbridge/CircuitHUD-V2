@@ -1,5 +1,6 @@
 require "util/constants"
 
+-- Per Player Settings
 data:extend(
 	{
 		{
@@ -49,6 +50,15 @@ data:extend(
 			order = "a-e"
 		},
 		{
+			type = "int-setting",
+			name = SETTINGS.prefix .. SETTINGS.hud_refresh_rate,
+			setting_type = "runtime-per-user",
+			default_value = 60,
+			minimum_value = 1,
+			maximum_value = 3600,
+			order = "a-e"
+		},
+		{
 			type = "bool-setting",
 			name = SETTINGS.prefix .. SETTINGS.uncollapse_hud_on_register_combinator,
 			setting_type = "runtime-per-user",
@@ -62,6 +72,20 @@ data:extend(
 			default_value = "off",
 			allowed_values = {"off", "debug"},
 			order = "b-a"
+		}
+	}
+)
+-- Runtime Global Settings
+data:extend(
+	{
+		{
+			type = "int-setting",
+			name = SETTINGS.prefix .. SETTINGS.hud_refresh_rate,
+			setting_type = "runtime-global",
+			default_value = 60,
+			minimum_value = 1,
+			maximum_value = 3600,
+			order = "a-e"
 		}
 	}
 )
