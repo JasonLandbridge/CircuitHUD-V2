@@ -45,8 +45,8 @@ local function render_combinator(parent, entity)
 	local title =
 		child.add {
 		type = "label",
+		style = "hud_combinator_label",
 		caption = global.hud_combinators[entity.unit_number]["name"],
-		style = "heading_3_label",
 		name = "hudcombinatortitle--" .. entity.unit_number
 	}
 
@@ -59,7 +59,7 @@ local function render_combinator(parent, entity)
 		render_network_in_HUD(child, green_network, "green_circuit_network_content_slot")
 		render_network_in_HUD(child, red_network, "red_circuit_network_content_slot")
 	else
-		child.add {type = "label", caption = "No signal"}
+		child.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
 	end
 end
 
@@ -106,15 +106,13 @@ local function create_root_frame(player_index)
 
 		-- Set frame to be draggable
 		if get_hud_position_setting(player_index) == HUD_POSITION.draggable then
-			local pusher =
-				title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
+			local pusher = title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
 			pusher.style.horizontally_stretchable = true
 			pusher.drag_target = root_frame
 			title.drag_target = root_frame
 			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
 		else
-			local pusher =
-				title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
+			local pusher = title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
 			pusher.style.horizontally_stretchable = true
 			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
 		end
@@ -213,10 +211,7 @@ function update_hud(player_index)
 	end
 
 	if not get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
-		debug_log(
-			player_index,
-			"Can't update HUD because the HUD root does not exist for player with index: " .. player_index
-		)
+		debug_log(player_index, "Can't update HUD because the HUD root does not exist for player with index: " .. player_index)
 		return
 	end
 
@@ -283,19 +278,23 @@ function reset_hud(player_index)
 	update_hud(player_index)
 end
 
+-- Calculate the width and height of the HUD due to GUIElement.size not being available
 function calculate_hud_size(player_index)
 	if get_hud_collapsed(player_index) then
 		set_hud_size(player_index, {width = 40, height = 40})
 		return size
 	end
 
+	debug_log(player_index, "Start calculating HUD size:")
+
 	local max_columns_allowed = get_hud_columns_setting(player_index)
-	local max_columns_found = 0
-	local row_count = 0
 	local combinator_count = 0
-	local empty_combinators = 0
+
+	local combinator_cat_width = {}
+	local combinator_cat_height = {}
+	local i = 0
 	-- loop over every HUD Combinator provided
-	for i, meta_entity in pairs(get_hud_combinators()) do
+	for k, meta_entity in pairs(get_hud_combinators()) do
 		local entity = meta_entity.entity
 
 		if not entity.valid then
@@ -303,59 +302,84 @@ function calculate_hud_size(player_index)
 			break
 		end
 
-		-- Calculate size when hud position is bottom-right
+		debug_log(player_index, " - Combinator (" .. meta_entity.name .. "):")
+
+		local total_row_count = 0
+		local max_columns_found = 0
 		local red_network = entity.get_circuit_network(defines.wire_type.red)
 		local green_network = entity.get_circuit_network(defines.wire_type.green)
 
+		local network_types = {"Green", "Red"}
 		local counts = {0, 0}
 
-		if red_network and red_network.signals then
-			counts[1] = array_length(red_network.signals)
+		if green_network and green_network.signals then
+			counts[1] = array_length(green_network.signals)
 		end
 
-		if green_network and green_network.signals then
-			counts[2] = array_length(green_network.signals)
+		if red_network and red_network.signals then
+			counts[2] = array_length(red_network.signals)
 		end
 
 		-- loop and calculate the green and red signals highest column width and total row count
 		for j = 1, 2, 1 do
 			local signal_count = counts[j]
+			local network_rows = 0
+			local network_columns = 0
 			if signal_count > max_columns_allowed then
 				-- we know its at least 1 row, and the max column width has been reached
-				max_columns_found = max_columns_allowed
+				network_columns = max_columns_allowed
 				-- divide by max_columns_allowed and round down, add 1 to row_cound if the remainder is > 0
-				local x = math.floor(signal_count / max_columns_allowed) + math.clamp(signal_count % max_columns_allowed, 0, 1)
-				row_count = row_count + x
+				network_rows = math.floor(signal_count / max_columns_allowed) + math.clamp(signal_count % max_columns_allowed, 0, 1)
 			elseif signal_count > 0 and signal_count <= max_columns_allowed then
 				-- if less than 1 row, then simplify
-				if signal_count > max_columns_found then
-					max_columns_found = signal_count
-				end
+				network_columns = signal_count
 				-- with signal_count > 0 && <= max_columns_allowed we know its always 1 row
-				row_count = row_count + 1
+				network_rows = 1
+			end
+
+			-- Debug summary
+			debug_log(
+				player_index,
+				" - - " .. network_types[j] .. " Network has " .. signal_count .. " signals " .. network_rows .. " rows  and " .. network_columns .. " columns."
+			)
+			-- Process result
+			total_row_count = total_row_count + network_rows
+			if max_columns_found < network_columns then
+				max_columns_found = math.clamp(network_columns, 0, max_columns_allowed)
 			end
 		end
 
 		-- count as empty if HUD combinator has no signals
 		if counts[1] == 0 and counts[2] == 0 then
-			empty_combinators = empty_combinators + 1
+			-- Max width and height of empty HUD combinator category
+			combinator_cat_width[i] = 208
+			combinator_cat_height[i] = 60
+			debug_log(player_index, " - - Combinator (" .. meta_entity.name .. ") has no signals")
 		else
 			-- else count as a combinator with at least 1 signal
 			combinator_count = combinator_count + 1
+			combinator_cat_width[i] = (36 + 4) * max_columns_found + 4
+			combinator_cat_height[i] = (36 + 4) * total_row_count + 24 + 8 -- 24 = label height, 8 = padding
 		end
+
+		local summary_string = " - - Summary: width: " .. tostring(combinator_cat_width[i]) .. ", height: " .. tostring(combinator_cat_height[i])
+		summary_string = summary_string .. ", max_columns_found is " .. tostring(max_columns_found) .. ", total_row_count is " .. tostring(total_row_count)
+		debug_log(player_index, summary_string)
+		i = i + 1
 	end
 
 	local player = get_player(player_index)
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
-	local width = (36 + 4) * math.min(get_hud_columns_setting(player_index), max_columns_found) + 20
+	local width = max(combinator_cat_width) + 16
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
-	local height = ((36 + 4) * row_count) + (combinator_count * 20) + (empty_combinators * 50) + 60
+	local height = sum(combinator_cat_height) + 24
+
 	-- get the max height of the HUD based on the user setting or display resolution
 	local max_height = math.min(get_hud_max_height_setting(player_index), player.display_resolution.height)
 
 	-- Add header height if enabled
 	if not get_hide_hud_header_setting(player_index) then
-		height = height + 28
+		height = height + 28 + 4
 	end
 
 	-- check if there is a scrollbar and add that width
@@ -363,11 +387,12 @@ function calculate_hud_size(player_index)
 		width = width + 12
 	end
 
-	width = math.clamp(width, 250, 1000)
+	width = math.clamp(width, 200, 1000)
 	-- clamp height at the max-height setting, or if lower the height of the screen resolution
 	height = math.clamp(height, 30, max_height)
 
 	local size = {width = math.round(width * player.display_scale), height = math.round(height * player.display_scale)}
+	debug_log(player_index, "HUD size, width: " .. tostring(size.width) .. ", height: " .. tostring(size.height))
 	set_hud_size(player_index, size)
 	return size
 end
@@ -386,10 +411,7 @@ function move_hud_bottom_right(player_index)
 			if get_debug_mode_setting(player_index) then
 				player.print("HUD size: width: " .. size.width .. ", height: " .. size.height)
 				player.print("HUD location: x: " .. x .. ", y: " .. y)
-				player.print(
-					"Display Resolution: width: " ..
-						player.display_resolution.width .. ", height: " .. player.display_resolution.height
-				)
+				player.print("Display Resolution: width: " .. player.display_resolution.width .. ", height: " .. player.display_resolution.height)
 				player.print("Display scale: x: " .. player.display_scale)
 			end
 		end

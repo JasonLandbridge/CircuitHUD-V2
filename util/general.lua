@@ -11,3 +11,31 @@ function array_length(array)
 	end
 	return count
 end
+
+function sum(array)
+	local sum = 0
+	for key, value in pairs(array) do
+		sum = sum + value
+	end
+	return sum
+end
+
+function min(array)
+	local min = 0
+	for key, value in pairs(array) do
+		if min == 0 or value < min then
+			min = value
+		end
+	end
+	return min
+end
+
+function max(array)
+	local max = 0
+	for key, value in pairs(array) do
+		if value > max then
+			max = value
+		end
+	end
+	return max
+end

@@ -41,6 +41,19 @@ default_gui["draggable_space_hud_header"] = {
 	minimal_height = 24
 }
 
+default_gui["hud_combinator_label"] = {
+	type = "label_style",
+	parent = "label",
+	top_margin = 0,
+	left_padding = 4,
+	right_padding = 4,
+	minimal_width = 200,
+	minimal_height = 24,
+	maximal_width = 200,
+	maximal_height = 24,
+	want_ellipsis = true
+}
+
 local hudCombinatorEntity = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 hudCombinatorEntity.name = HUD_COMBINATOR_NAME
 hudCombinatorEntity.sprites = {
