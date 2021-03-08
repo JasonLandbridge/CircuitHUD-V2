@@ -2,14 +2,29 @@ local math = require("__stdlib__/stdlib/utils/math")
 
 local signal_name_map = nil
 
--- Converts all circuit signals to icons displayed in the HUD under that network
--- @param parent The parent GUI Element
-local function render_network_in_HUD(parent, network, signal_style)
-	-- skip this one, if the network has no signals
-	if network == nil or network.signals == nil then
-		return
+-- Takes the data from HUD Combinator and display it in the HUD
+-- @param parent The Root frame
+-- @param entity The HUD Combinator to process
+local function render_combinator(scroll_pane_frame, hud_combinator)
+	-- Check if this HUD Combinator should be shown in the HUD
+	if not should_show_network(hud_combinator) then
+		return false -- skip rendering this combinator
 	end
 
+	-- Check flow container for the HUD Combinator category if it doesnt exist
+	local flow_id = "hud_combinator_flow_" .. tostring(hud_combinator.unit_number)
+	local hud_combinator_flow = scroll_pane_frame.add {type = "flow", direction = "vertical", name = flow_id, style = "combinator_flow_style"}
+
+	-- Check HUD Combinator title to HUD category
+	local title_label_id = "hud_combinator_title_" .. tostring(hud_combinator.unit_number)
+	hud_combinator_flow.add {
+		type = "label",
+		style = "hud_combinator_label",
+		caption = global.hud_combinators[hud_combinator.unit_number]["name"],
+		name = title_label_id
+	}
+
+	-- Check if tooltips for signals have already been cached
 	if not signal_name_map then
 		signal_name_map = {
 			["item"] = game.item_prototypes,
@@ -18,48 +33,41 @@ local function render_network_in_HUD(parent, network, signal_style)
 		}
 	end
 
-	local table = parent.add {type = "table", column_count = get_hud_columns_setting(parent.player_index)}
-	for i, signal in ipairs(network.signals) do
-		table.add {
-			type = "sprite-button",
-			sprite = SIGNAL_TYPE_MAP[signal.signal.type] .. "/" .. signal.signal.name,
-			number = signal.count,
-			style = signal_style,
-			tooltip = signal_name_map[signal.signal.type][signal.signal.name].localised_name
-		}
-	end
-end
-
--- Takes the data from HUD Combinator and display it in the HUD
--- @param parent The Root frame
--- @param entity The HUD Combinator to process
-local function render_combinator(parent, entity)
-	-- Check if this HUD Combinator should be shown in the HUD
-	if not should_show_network(entity) then
-		return false -- skip rendering this combinator
-	end
-
-	local child = parent.add {type = "flow", direction = "vertical", style = "combinator_flow_style"}
-
-	-- Add HUD Combinator title to HUD category
-	local title =
-		child.add {
-		type = "label",
-		style = "hud_combinator_label",
-		caption = global.hud_combinators[entity.unit_number]["name"],
-		name = "hudcombinatortitle--" .. entity.unit_number
-	}
-
 	-- Check if this HUD Combinator has any signals coming in to show in the HUD.
-	if has_network_signals(entity) then
-		local red_network = entity.get_circuit_network(defines.wire_type.red)
-		local green_network = entity.get_circuit_network(defines.wire_type.green)
+	if has_network_signals(hud_combinator) then
+		local max_columns = get_hud_columns_setting(scroll_pane_frame.player_index)
+
+		local red_network = hud_combinator.get_circuit_network(defines.wire_type.red)
+		local green_network = hud_combinator.get_circuit_network(defines.wire_type.green)
+
+		local networks = {green_network, red_network}
+		local network_colors = {"green", "red"}
+		local network_styles = {"green_circuit_network_content_slot", "red_circuit_network_content_slot"}
 
 		-- Display the item signals coming from the red and green circuit if any
-		render_network_in_HUD(child, green_network, "green_circuit_network_content_slot")
-		render_network_in_HUD(child, red_network, "red_circuit_network_content_slot")
+		for i = 1, 2, 1 do
+			-- Check if this color table already exists
+			local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
+			local table = hud_combinator_flow.add {type = "table", name = table_name, column_count = max_columns}
+
+			-- Check if there are signals
+			if networks[i] and networks[i].signals then
+				for j, signal in ipairs(networks[i].signals) do
+					local signal_type = signal.signal.type
+					local signal_name = signal.signal.name
+					-- Check if the signal already exist
+					table.add {
+						type = "sprite-button",
+						sprite = SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
+						number = signal.count,
+						style = network_styles[i],
+						tooltip = signal_name_map[signal_type][signal_name].localised_name
+					}
+				end
+			end
+		end
 	else
-		child.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
+		hud_combinator_flow.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
 	end
 end
 
@@ -135,14 +143,6 @@ local function create_root_frame(player_index)
 	return root_frame
 end
 
-function clear_hud_display(player_index)
-	local scroll_pane = get_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
-	if scroll_pane then
-		scroll_pane.clear()
-	end
-	return scroll_pane
-end
-
 -- Build the HUD with the signals
 -- @param player_index The index of the player
 function build_interface(player_index)
@@ -215,24 +215,24 @@ function update_hud(player_index)
 		return
 	end
 
-	-- Clear the frame which has the signals displayed to start the update
-	local inner_frame = clear_hud_display(player_index)
-	if not inner_frame.valid then
-		return
+	local scroll_pane_frame = get_hud_ref(player_index, HUD_NAMES.hud_scroll_pane_frame)
+	if not scroll_pane_frame or not scroll_pane_frame.valid then
+		debug_log(player_index, "Can't update HUD because the scroll_pane_frame does not exist for player with index: " .. player_index)
 	end
 
-	local combinator_flow = inner_frame.add({type = "flow", direction = "vertical"})
+	-- Clear the frame which has the signals displayed to start the update
+	scroll_pane_frame.clear()
 
 	-- loop over every HUD Combinator provided
 	for i, meta_entity in pairs(get_hud_combinators()) do
-		local entity = meta_entity.entity
+		local hud_combinator = meta_entity.entity
 
-		if not entity.valid then
+		if not hud_combinator.valid then
 			-- the entity has probably just been deconstructed
 			break
 		end
 
-		render_combinator(combinator_flow, entity)
+		render_combinator(scroll_pane_frame, hud_combinator)
 	end
 
 	local hud_position = get_hud_position_setting(player_index)
