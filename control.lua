@@ -216,12 +216,12 @@ Event.register(
 
 --#region Register / De-register HUD Combinator
 
-local function set_combinator_registration(event, state)
-	if event.created_entity.name == HUD_COMBINATOR_NAME then
+local function set_combinator_registration(entity, state)
+	if entity.name == HUD_COMBINATOR_NAME then
 		if state then
-			register_combinator(event.created_entity, event.player_index)
+			register_combinator(entity)
 		else
-			unregister_combinator(event.entity)
+			unregister_combinator(entity)
 		end
 		check_all_player_hud_visibility()
 	end
@@ -230,28 +230,28 @@ end
 Event.register(
 	defines.events.on_built_entity,
 	function(event)
-		set_combinator_registration(event, true)
+		set_combinator_registration(event.created_entity, true)
 	end
 )
 
 Event.register(
 	defines.events.on_robot_built_entity,
 	function(event)
-		set_combinator_registration(event, true)
+		set_combinator_registration(event.created_entity, true)
 	end
 )
 
 Event.register(
 	defines.events.on_player_mined_entity,
 	function(event)
-		set_combinator_registration(event, false)
+		set_combinator_registration(event.entity, false)
 	end
 )
 
 Event.register(
 	defines.events.on_robot_mined_entity,
 	function(event)
-		set_combinator_registration(event, false)
+		set_combinator_registration(event.entity, false)
 	end
 )
 --#endregion

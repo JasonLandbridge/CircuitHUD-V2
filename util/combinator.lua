@@ -77,11 +77,14 @@ function check_combinator_registrations()
 	end
 end
 
-function register_combinator(entity, player_index)
+function register_combinator(entity)
 	add_hud_combinator_ref(entity)
-	-- Uncollapse the HUD when a new combinator is registered
-	if player_index and get_uncollapse_hud_on_register_combinator_setting(player_index) then
-		update_collapse_state(player_index, false)
+
+	for k, player in pairs(game.players) do
+		-- Uncollapse the HUD when a new combinator is registered
+		if get_uncollapse_hud_on_register_combinator_setting(player.index) then
+			update_collapse_state(player.index, false)
+		end
 	end
 end
 
