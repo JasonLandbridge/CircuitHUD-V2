@@ -70,8 +70,9 @@ end
 
 --#region Add Properties
 function add_player_global(player_index)
+	local player = get_player(player_index)
 	global.players[player_index] = global_default
-	debug_log(player_index, "initialize global for player" .. player_index)
+	debug_log(player_index, "initialize global for player" .. player.name)
 end
 --#endregion
 

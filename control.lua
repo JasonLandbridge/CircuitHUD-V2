@@ -96,7 +96,7 @@ Event.register(
 	defines.events.on_player_created,
 	function(event)
 		local player = get_player(event.player_index)
-		add_player_global(player)
+		add_player_global(event.player_index)
 		build_interface(event.player_index)
 		debug_log(event.player_index, "Circuit HUD created for player " .. player.name)
 	end
