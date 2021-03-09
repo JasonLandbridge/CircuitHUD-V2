@@ -22,6 +22,13 @@ default_gui["hud_scrollpane_style"] = {
 	extra_padding_when_activated = 0
 }
 
+default_gui["hud_scrollpane_frame_style"] = {
+	type = "frame_style",
+	style = "inside_shallow_frame",
+	padding = 0,
+	extra_padding_when_activated = 0
+}
+
 default_gui["combinator_flow_style"] = {
 	type = "vertical_flow_style",
 	minimal_height = 50,

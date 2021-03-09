@@ -167,7 +167,7 @@ function build_interface(player_index)
 		scroll_pane.add {
 		name = HUD_NAMES.hud_scroll_pane_frame,
 		type = "frame",
-		style = "inside_shallow_frame_with_padding",
+		style = "hud_scrollpane_frame_style",
 		direction = "vertical"
 	}
 
@@ -366,7 +366,7 @@ function calculate_hud_size(player_index)
 
 	local player = get_player(player_index)
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
-	local width = max(combinator_cat_width) + 16
+	local width = max(combinator_cat_width) + 24
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
 	local height = sum(combinator_cat_height) + 24
 
