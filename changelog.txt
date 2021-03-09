@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.1
+Date: 2021-03-09
+  Bugfixes:
+    - Fixed the bottom-right hud not displaying correctly when less than 6 columns were shown
+    - Fixed the HUD having a double border frame when "hide HUD" was turned on
+---------------------------------------------------------------------------------------------------
 Version: 1.2.0
 Date: 2021-03-09
   Changes:
