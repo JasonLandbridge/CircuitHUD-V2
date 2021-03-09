@@ -13,23 +13,11 @@ require "util/combinator"
 
 local Event = require("__stdlib__/stdlib/event/event")
 
---#region local cache
-
-local refresh_rate = 60
-
---#endregion
-
 -- Enable Lua API global Variable Viewer
 -- https://mods.factorio.com/mod/gvv
 if script.active_mods["gvv"] then
 	require("__gvv__.gvv")()
 end
-
---#region local cache
-
-local refresh_rate = 60
-
---#endregion
 
 --#region OnInit
 
@@ -48,19 +36,12 @@ Event.on_init(
 )
 --#endregion
 
-Event.on_load(
-	function()
-		-- Set the refresh rate from the map settings to local cache
-		refresh_rate = get_refresh_rate_setting()
-	end
-)
-
 --#region On Nth Tick
 
 Event.register(
 	defines.events.on_tick,
 	function(event)
-		if event.tick % refresh_rate == 0 then
+		if event.tick % global.refresh_rate == 0 then
 			-- go through each player and update their HUD
 			for i, player in pairs(game.players) do
 				update_hud(player.index)
@@ -170,7 +151,7 @@ Event.register(
 Event.register(
 	defines.events.on_runtime_mod_setting_changed,
 	function(event)
-		refresh_rate = get_refresh_rate_setting()
+		global.refresh_rate = get_refresh_rate_setting()
 
 		reset_hud(event.player_index)
 		-- Ensure the HUD is visible on mod setting change

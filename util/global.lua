@@ -134,6 +134,8 @@ function ensure_global_state()
 	if not valid(global.textbox_hud_entity_map) then
 		global.textbox_hud_entity_map = {}
 	end
+
+	global.refresh_rate = 60
 end
 
 function reset_global_state()
