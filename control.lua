@@ -151,7 +151,7 @@ Event.register(
 Event.register(
 	defines.events.on_runtime_mod_setting_changed,
 	function(event)
-		-- Only update when a CircuitHUD change has been mader
+		-- Only update when a CircuitHUD change has been made
 		if event.player_index and string.find(event.setting, SETTINGS.prefix) then
 			if event.setting == "CircuitHUD_hud_refresh_rate" then
 				global.refresh_rate = get_refresh_rate_setting()

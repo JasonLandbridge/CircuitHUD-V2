@@ -23,8 +23,7 @@ default_gui["hud_scrollpane_style"] = {
 }
 
 default_gui["hud_scrollpane_frame_style"] = {
-	type = "frame_style",
-	style = "inside_shallow_frame",
+	type = "vertical_flow_style",
 	padding = 0,
 	extra_padding_when_activated = 0
 }

@@ -108,8 +108,8 @@ function destroy_hud(player_index)
 
 	-- Ensure we delete any remnants of stray HUD's we created
 	local locations = {HUD_POSITION.top, HUD_POSITION.left, HUD_POSITION.center, HUD_POSITION.goal, HUD_POSITION.screen, HUD_POSITION.relative}
-	for i, location in pairs(locations) do
-		for j, child in pairs(player.gui[location].children) do
+	for _, location in pairs(locations) do
+		for _, child in pairs(player.gui[location].children) do
 			if child.name == HUD_NAMES.hud_root_frame then
 				child.destroy()
 			end

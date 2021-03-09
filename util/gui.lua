@@ -166,7 +166,7 @@ function build_interface(player_index)
 	local scroll_pane_frame =
 		scroll_pane.add {
 		name = HUD_NAMES.hud_scroll_pane_frame,
-		type = "frame",
+		type = "flow",
 		style = "hud_scrollpane_frame_style",
 		direction = "vertical"
 	}
@@ -253,6 +253,7 @@ function update_collapse_state(player_index, toggle_state)
 	-- true is collapsed, false is visible
 	if toggle_state then
 		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
+		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane_frame)
 		destroy_hud_ref(player_index, HUD_NAMES.hud_title_label)
 		destroy_hud_ref(player_index, HUD_NAMES.hud_header_spacer)
 	else
@@ -383,7 +384,7 @@ function calculate_hud_size(player_index)
 		width = width + 12
 	end
 
-	width = math.clamp(width, 200, 1000)
+	width = math.clamp(width, 240, 1000)
 	-- clamp height at the max-height setting, or if lower the height of the screen resolution
 	height = math.clamp(height, 30, max_height)
 
