@@ -151,11 +151,15 @@ Event.register(
 Event.register(
 	defines.events.on_runtime_mod_setting_changed,
 	function(event)
-		global.refresh_rate = get_refresh_rate_setting()
-
-		reset_hud(event.player_index)
-		-- Ensure the HUD is visible on mod setting change
-		update_collapse_state(event.player_index, false)
+		-- Only update when a CircuitHUD change has been mader
+		if event.player_index and string.find(event.setting, SETTINGS.prefix) then
+			if event.setting == "CircuitHUD_hud_refresh_rate" then
+				global.refresh_rate = get_refresh_rate_setting()
+			end
+			reset_hud(event.player_index)
+			-- Ensure the HUD is visible on mod setting change
+			update_collapse_state(event.player_index, false)
+		end
 	end
 )
 --#endregion
