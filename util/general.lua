@@ -4,14 +4,6 @@ function is_player_index(player_index)
 	return Is.Assert.UInt(player_index).True(player_index > 0)
 end
 
-function array_length(array)
-	local count = 0
-	for i, v in pairs(array) do
-		count = count + 1
-	end
-	return count
-end
-
 function has_value(table, value)
 	for k, v in pairs(table) do
 		if v == value then
@@ -63,7 +55,7 @@ function find_child(table, name)
 	if table == {} then
 		return nil
 	end
-	
+
 	for key, value in pairs(table) do
 		if value.name == name then
 			return value

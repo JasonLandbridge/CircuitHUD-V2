@@ -25,7 +25,7 @@ function get_hud_combinators()
 end
 
 function has_hud_combinators()
-	return array_length(get_hud_combinators()) > 0
+	return table_size(get_hud_combinators()) > 0
 end
 
 --#region Get Player Properties
@@ -107,9 +107,9 @@ function destroy_hud(player_index)
 	local player = get_player(player_index)
 
 	-- Ensure we delete any remnants of stray HUD's we created
-	local locations = {"top", "left", "center", "goal", "screen", "relative"}
-	for i, location in ipairs(locations) do
-		for j, child in ipairs(player.gui[location].children) do
+	local locations = {HUD_POSITION.top, HUD_POSITION.left, HUD_POSITION.center, HUD_POSITION.goal, HUD_POSITION.screen, HUD_POSITION.relative}
+	for i, location in pairs(locations) do
+		for j, child in pairs(player.gui[location].children) do
 			if child.name == HUD_NAMES.hud_root_frame then
 				child.destroy()
 			end

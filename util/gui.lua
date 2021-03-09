@@ -48,7 +48,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 
 			-- Check if there are signals
 			if networks[i] and networks[i].signals then
-				for j, signal in ipairs(networks[i].signals) do
+				for j, signal in pairs(networks[i].signals) do
 					local signal_type = signal.signal.type
 					local signal_name = signal.signal.name
 					-- Check if the signal already exist
@@ -309,11 +309,11 @@ function calculate_hud_size(player_index)
 		local counts = {0, 0}
 
 		if green_network and green_network.signals then
-			counts[1] = array_length(green_network.signals)
+			counts[1] = table_size(green_network.signals)
 		end
 
 		if red_network and red_network.signals then
-			counts[2] = array_length(red_network.signals)
+			counts[2] = table_size(red_network.signals)
 		end
 
 		-- loop and calculate the green and red signals highest column width and total row count
