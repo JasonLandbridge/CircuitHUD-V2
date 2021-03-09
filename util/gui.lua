@@ -1,7 +1,5 @@
 local math = require("__stdlib__/stdlib/utils/math")
 
-local signal_name_map = nil
-
 -- Takes the data from HUD Combinator and display it in the HUD
 -- @param parent The Root frame
 -- @param entity The HUD Combinator to process
@@ -24,14 +22,12 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 		name = title_label_id
 	}
 
-	-- Check if tooltips for signals have already been cached
-	if not signal_name_map then
-		signal_name_map = {
-			["item"] = game.item_prototypes,
-			["virtual"] = game.virtual_signal_prototypes,
-			["fluid"] = game.fluid_prototypes
-		}
-	end
+	-- NOTE: This should remain local as it causes desync and save/load issues if moved elsewhere
+	local signal_name_map = {
+		["item"] = game.item_prototypes,
+		["virtual"] = game.virtual_signal_prototypes,
+		["fluid"] = game.fluid_prototypes
+	}
 
 	-- Check if this HUD Combinator has any signals coming in to show in the HUD.
 	if has_network_signals(hud_combinator) then
