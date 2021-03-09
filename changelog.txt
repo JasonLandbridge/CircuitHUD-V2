@@ -2,7 +2,15 @@
 Version: 1.2.0
 Date: 2021-03-09
   Changes:
-    - Performance improvements on updating the HUD 
+    - Corrected the bottom-right layout and tweaked the padding a bit.
+  Bugfixes:
+    - Fixed (most likely) a crash when a setting was changed programmatically by a different mod, this did not include player_index and would cause a crash: https://mods.factorio.com/mod/CircuitHUD-V2/discussion/604748330bd4c069e8a7cb71
+    - Fixed (most likely) a save/load issue when working in editor that prevented the scenario from being saved due to a "LuaCustomTable cannot be serialized."
+
+  Optimisations:
+    - Minor performance improvements on updating the HUD.
+    - Replaced all ipairs with pairs and replaced custom array_length function with the factorio native table_size
+
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.5
 Date: 2021-03-09
