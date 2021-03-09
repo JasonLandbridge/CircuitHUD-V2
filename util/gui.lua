@@ -1,65 +1,69 @@
 local math = require("__stdlib__/stdlib/utils/math")
 
-local GET_SIGNAL_NAME_MAP = function()
-	return {
+-- Takes the data from HUD Combinator and display it in the HUD
+-- @param parent The Root frame
+-- @param entity The HUD Combinator to process
+local function render_combinator(scroll_pane_frame, hud_combinator)
+	-- Check if this HUD Combinator should be shown in the HUD
+	if not should_show_network(hud_combinator) then
+		return false -- skip rendering this combinator
+	end
+
+	-- Check flow container for the HUD Combinator category if it doesnt exist
+	local flow_id = "hud_combinator_flow_" .. tostring(hud_combinator.unit_number)
+	local hud_combinator_flow = scroll_pane_frame.add {type = "flow", direction = "vertical", name = flow_id, style = "combinator_flow_style"}
+
+	-- Check HUD Combinator title to HUD category
+	local title_label_id = "hud_combinator_title_" .. tostring(hud_combinator.unit_number)
+	hud_combinator_flow.add {
+		type = "label",
+		style = "hud_combinator_label",
+		caption = global.hud_combinators[hud_combinator.unit_number]["name"],
+		name = title_label_id
+	}
+
+	-- NOTE: This should remain local as it causes desync and save/load issues if moved elsewhere
+	local signal_name_map = {
 		["item"] = game.item_prototypes,
 		["virtual"] = game.virtual_signal_prototypes,
 		["fluid"] = game.fluid_prototypes
 	}
-end
-
--- Converts all circuit signals to icons displayed in the HUD under that network
--- @param parent The parent GUI Element
-local function render_network_in_HUD(parent, network, signal_style)
-	-- skip this one, if the network has no signals
-	if network == nil or network.signals == nil then
-		return
-	end
-
-	local table = parent.add {type = "table", column_count = get_hud_columns_setting(parent.player_index)}
-	-- TODO this might be cached as the signals rarely change
-	local signal_name_map = GET_SIGNAL_NAME_MAP()
-	for i, signal in ipairs(network.signals) do
-		table.add {
-			type = "sprite-button",
-			sprite = SIGNAL_TYPE_MAP[signal.signal.type] .. "/" .. signal.signal.name,
-			number = signal.count,
-			style = signal_style,
-			tooltip = signal_name_map[signal.signal.type][signal.signal.name].localised_name
-		}
-	end
-end
-
--- Takes the data from HUD Combinator and display it in the HUD
--- @param parent The Root frame
--- @param entity The HUD Combinator to process
-local function render_combinator(parent, entity)
-	-- Check if this HUD Combinator should be shown in the HUD
-	if not should_show_network(entity) then
-		return false -- skip rendering this combinator
-	end
-
-	local child = parent.add {type = "flow", direction = "vertical", style = "combinator_flow_style"}
-
-	-- Add HUD Combinator title to HUD category
-	local title =
-		child.add {
-		type = "label",
-		style = "hud_combinator_label",
-		caption = global.hud_combinators[entity.unit_number]["name"],
-		name = "hudcombinatortitle--" .. entity.unit_number
-	}
 
 	-- Check if this HUD Combinator has any signals coming in to show in the HUD.
-	if has_network_signals(entity) then
-		local red_network = entity.get_circuit_network(defines.wire_type.red)
-		local green_network = entity.get_circuit_network(defines.wire_type.green)
+	if has_network_signals(hud_combinator) then
+		local max_columns = get_hud_columns_setting(scroll_pane_frame.player_index)
+
+		local red_network = hud_combinator.get_circuit_network(defines.wire_type.red)
+		local green_network = hud_combinator.get_circuit_network(defines.wire_type.green)
+
+		local networks = {green_network, red_network}
+		local network_colors = {"green", "red"}
+		local network_styles = {"green_circuit_network_content_slot", "red_circuit_network_content_slot"}
 
 		-- Display the item signals coming from the red and green circuit if any
-		render_network_in_HUD(child, green_network, "green_circuit_network_content_slot")
-		render_network_in_HUD(child, red_network, "red_circuit_network_content_slot")
+		for i = 1, 2, 1 do
+			-- Check if this color table already exists
+			local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
+			local table = hud_combinator_flow.add {type = "table", name = table_name, column_count = max_columns}
+
+			-- Check if there are signals
+			if networks[i] and networks[i].signals then
+				for j, signal in pairs(networks[i].signals) do
+					local signal_type = signal.signal.type
+					local signal_name = signal.signal.name
+					-- Check if the signal already exist
+					table.add {
+						type = "sprite-button",
+						sprite = SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
+						number = signal.count,
+						style = network_styles[i],
+						tooltip = signal_name_map[signal_type][signal_name].localised_name
+					}
+				end
+			end
+		end
 	else
-		child.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
+		hud_combinator_flow.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
 	end
 end
 
@@ -99,27 +103,27 @@ local function create_root_frame(player_index)
 	-- Only create header when the settings allow for it
 	if not get_hide_hud_header_setting(player_index) then
 		-- create a title_flow
-		local title_flow = root_frame.add {type = "flow"}
+		local header_flow = root_frame.add {type = "flow", direction = "horizontal"}
 
 		-- add the title label
-		local title = title_flow.add {type = "label", caption = get_hud_title_setting(player_index), style = "frame_title"}
+		local title = header_flow.add {type = "label", caption = get_hud_title_setting(player_index), style = "frame_title"}
 
 		-- Set frame to be draggable
 		if get_hud_position_setting(player_index) == HUD_POSITION.draggable then
-			local pusher = title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
+			local pusher = header_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
 			pusher.style.horizontally_stretchable = true
 			pusher.drag_target = root_frame
 			title.drag_target = root_frame
 			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
 		else
-			local pusher = title_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
+			local pusher = header_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "space_hud_header"})
 			pusher.style.horizontally_stretchable = true
 			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
 		end
 
 		-- add a "toggle" button
 		local toggle_button =
-			title_flow.add {
+			header_flow.add {
 			type = "sprite-button",
 			style = "frame_action_button",
 			sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
@@ -133,14 +137,6 @@ local function create_root_frame(player_index)
 	root_frame.style.maximal_height = get_hud_max_height_setting(player_index)
 
 	return root_frame
-end
-
-function clear_hud_display(player_index)
-	local scroll_pane = get_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
-	if scroll_pane then
-		scroll_pane.clear()
-	end
-	return scroll_pane
 end
 
 -- Build the HUD with the signals
@@ -170,8 +166,8 @@ function build_interface(player_index)
 	local scroll_pane_frame =
 		scroll_pane.add {
 		name = HUD_NAMES.hud_scroll_pane_frame,
-		type = "frame",
-		style = "inside_shallow_frame_with_padding",
+		type = "flow",
+		style = "hud_scrollpane_frame_style",
 		direction = "vertical"
 	}
 
@@ -215,24 +211,24 @@ function update_hud(player_index)
 		return
 	end
 
-	-- Clear the frame which has the signals displayed to start the update
-	local inner_frame = clear_hud_display(player_index)
-	if not inner_frame.valid then
-		return
+	local scroll_pane_frame = get_hud_ref(player_index, HUD_NAMES.hud_scroll_pane_frame)
+	if not scroll_pane_frame or not scroll_pane_frame.valid then
+		debug_log(player_index, "Can't update HUD because the scroll_pane_frame does not exist for player with index: " .. player_index)
 	end
 
-	local combinator_flow = inner_frame.add({type = "flow", direction = "vertical"})
+	-- Clear the frame which has the signals displayed to start the update
+	scroll_pane_frame.clear()
 
 	-- loop over every HUD Combinator provided
 	for i, meta_entity in pairs(get_hud_combinators()) do
-		local entity = meta_entity.entity
+		local hud_combinator = meta_entity.entity
 
-		if not entity.valid then
+		if not hud_combinator.valid then
 			-- the entity has probably just been deconstructed
 			break
 		end
 
-		render_combinator(combinator_flow, entity)
+		render_combinator(scroll_pane_frame, hud_combinator)
 	end
 
 	local hud_position = get_hud_position_setting(player_index)
@@ -257,6 +253,7 @@ function update_collapse_state(player_index, toggle_state)
 	-- true is collapsed, false is visible
 	if toggle_state then
 		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
+		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane_frame)
 		destroy_hud_ref(player_index, HUD_NAMES.hud_title_label)
 		destroy_hud_ref(player_index, HUD_NAMES.hud_header_spacer)
 	else
@@ -313,11 +310,11 @@ function calculate_hud_size(player_index)
 		local counts = {0, 0}
 
 		if green_network and green_network.signals then
-			counts[1] = array_length(green_network.signals)
+			counts[1] = table_size(green_network.signals)
 		end
 
 		if red_network and red_network.signals then
-			counts[2] = array_length(red_network.signals)
+			counts[2] = table_size(red_network.signals)
 		end
 
 		-- loop and calculate the green and red signals highest column width and total row count
@@ -370,7 +367,7 @@ function calculate_hud_size(player_index)
 
 	local player = get_player(player_index)
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
-	local width = max(combinator_cat_width) + 16
+	local width = max(combinator_cat_width) + 24
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
 	local height = sum(combinator_cat_height) + 24
 
@@ -387,7 +384,7 @@ function calculate_hud_size(player_index)
 		width = width + 12
 	end
 
-	width = math.clamp(width, 200, 1000)
+	width = math.clamp(width, 240, 1000)
 	-- clamp height at the max-height setting, or if lower the height of the screen resolution
 	height = math.clamp(height, 30, max_height)
 
