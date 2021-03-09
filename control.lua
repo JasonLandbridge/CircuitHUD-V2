@@ -26,6 +26,12 @@ if script.active_mods["gvv"] then
 	require("__gvv__.gvv")()
 end
 
+--#region local cache
+
+local refresh_rate = 60
+
+--#endregion
+
 --#region OnInit
 
 Event.on_init(
