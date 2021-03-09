@@ -1,6 +1,5 @@
 require "mod-gui"
 require "gui-util"
-require "commands/reload"
 require "util/reset_hud"
 
 require "util/constants"
