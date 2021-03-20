@@ -173,32 +173,9 @@ Event.register(
 			local player = game.get_player(event.player_index)
 
 			-- create the new gui
-			local root_element = create_frame(player.gui.screen, "HUD Comparator")
+			local root_element = create_combinator_gui(event.player_index, event.entity.unit_number)
 			player.opened = root_element
 			player.opened.force_auto_center()
-
-			local inner_frame = root_element.add {type = "frame", style = "inside_shallow_frame_with_padding"}
-			local vertical_flow = inner_frame.add {type = "flow", direction = "vertical"}
-
-			local preview_frame = vertical_flow.add {type = "frame", style = "deep_frame_in_shallow_frame"}
-			local preview = preview_frame.add {type = "entity-preview"}
-			preview.style.width = 100
-			preview.style.height = 100
-			preview.visible = true
-			preview.entity = event.entity
-
-			local space = vertical_flow.add {type = "empty-widget"}
-
-			local frame = vertical_flow.add {type = "frame", style = "invisible_frame_with_title_for_inventory"}
-			local label = frame.add({type = "label", caption = "Name", style = "heading_2_label"})
-
-			local textbox = vertical_flow.add {type = "textfield", style = "production_gui_search_textfield"}
-
-			textbox.text = global.hud_combinators[event.entity.unit_number]["name"]
-			textbox.select(0, 0)
-
-			-- save the reference
-			global.textbox_hud_entity_map[textbox.index] = event.entity
 		end
 	end
 )
@@ -208,10 +185,15 @@ Event.register(
 Event.register(
 	defines.events.on_gui_text_changed,
 	function(event)
-		local entity = global.textbox_hud_entity_map[event.element.index]
-		if entity and (global.textbox_hud_entity_map[event.element.index]) then
+		-- Check if the event is meant for us
+		local action = flib_gui.read_action(event)
+		if not action then
+			return
+		end
+
+		if get_hud_combinator(action.unit_number) then
 			-- save the reference
-			global.hud_combinators[entity.unit_number]["name"] = event.text
+			get_hud_combinator(action.unit_number)["name"] = event.text
 		end
 	end
 )
@@ -231,23 +213,15 @@ Event.register(
 Event.register(
 	defines.events.on_gui_click,
 	function(event)
-		if not event.element.name then
-			return -- skip this one
+		-- Check if the event is meant for us
+		local action = flib_gui.read_action(event)
+		if not action then
+			return
 		end
 
-		local unit_number = string.match(event.element.name, "hudcombinatortitle%-%-(%d+)")
-
-		if unit_number then
-			-- find the entity
-			local hud_combinator = global.hud_combinators[tonumber(unit_number)]
-			if hud_combinator and hud_combinator.entity.valid then
-				-- open the map on the coordinates
-				local player = game.players[event.player_index]
-				player.zoom_to_world(hud_combinator.entity.position, 2)
-			end
+		if action.gui == GUI_TYPES.combinator then
+			handle_combinator_gui_events(event.player_index, action)
 		end
-		-- find the related HUD combinator
-		local bras = 2
 	end
 )
 
