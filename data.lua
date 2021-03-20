@@ -1,6 +1,7 @@
 require "util/constants"
 require "prototypes/signals"
 require "prototypes/recipe"
+require "prototypes/buttons"
 
 local default_gui = data.raw["gui-style"].default
 default_gui["hud-root-frame-style"] = {
