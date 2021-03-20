@@ -25,14 +25,13 @@
 	],
 	"Lua.runtime.version": "Lua 5.2",
 	"Lua.diagnostics.disable": [
-		"undefined-global",
 		"undefined-field",
 		"lowercase-global"
 	],
-	"Lua.workspace.library": {
+	"Lua.workspace.library": [
 		/* Adjust these to match your Factorio install path */
-		"C:/path/to/factorio/data/": true, /* for __base__ and __core__ */
-		"C:/path/to/factorio/data/core/lualib": true, /* some basic libs can be required directly*/
-	},
+		"T:/SteamLibrary/steamapps/common/Factorio/data/", /* for __base__ and __core__ */
+		"T:/SteamLibrary/steamapps/common/Factorio/data/core/lualib", /* some basic libs can be required directly*/
+	],
 	"lua.format.lineWidth": 150,
 }
