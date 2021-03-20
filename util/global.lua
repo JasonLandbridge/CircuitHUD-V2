@@ -155,11 +155,9 @@ function ensure_global_state()
 		global.hud_combinators = {}
 	end
 
-	if not valid(global.textbox_hud_entity_map) then
-		global.textbox_hud_entity_map = {}
+	if not global.refresh_rate then
+		global.refresh_rate = 60
 	end
-
-	global.refresh_rate = 60
 end
 
 function reset_global_state()

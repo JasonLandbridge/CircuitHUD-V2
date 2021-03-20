@@ -62,13 +62,14 @@ function check_combinator_registrations()
 			remove_hud_combinator_ref(meta_entity.entity)
 		end
 	end
+
 	-- find entities not discovered
 	for i, surface in pairs(game.surfaces) do
 		-- find all hud combinator
 		local hud_combinators = surface.find_entities_filtered {name = HUD_COMBINATOR_NAME}
 
 		if hud_combinators then
-			for i, hud_combinator in pairs(hud_combinators) do
+			for _, hud_combinator in pairs(hud_combinators) do
 				if not global.hud_combinators[hud_combinator.unit_number] then
 					add_hud_combinator_ref(hud_combinator)
 				end
