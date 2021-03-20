@@ -4,15 +4,17 @@ local std_string = require("__stdlib__/stdlib/utils/string")
 
 function create_combinator_gui(player_index, unit_number)
 	-- Check if it doesn't exist already
+	local player = get_player(player_index)
 	local combinator_gui = get_combinator_gui(player_index, unit_number)
 	if combinator_gui then
 		debug_log(player_index, "HUD Combinator GUI with unit_number " .. tostring(unit_number) .. " already has a GUI open/created.")
-		combinator_gui.destroy()
+		-- We need to overwrite the "to be opened GUI" with our own GUI
+		player.opened = combinator_gui
+		player.opened.force_auto_center()
 		return
 	end
 
 	-- add the frame
-	local player = get_player(player_index)
 	local ui_name = HUD_NAMES.combinator_root_frame .. "_" .. tostring(unit_number)
 	local refs =
 		flib_gui.build(
@@ -95,6 +97,7 @@ function create_combinator_gui(player_index, unit_number)
 	refs.titlebar_flow.drag_target = root_frame
 	refs.name_field.select(0, 0)
 
+	-- We need to overwrite the "to be opened GUI" with our own GUI
 	player.opened = root_frame
 	player.opened.force_auto_center()
 end
