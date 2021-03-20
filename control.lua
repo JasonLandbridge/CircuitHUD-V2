@@ -1,6 +1,8 @@
 require "mod-gui"
-require "gui-util"
-require "util/reset_hud"
+
+require "lib/migration.lua"
+
+require "gui/combinator-gui.lua"
 
 require "util/constants"
 require "util/log"
@@ -11,6 +13,7 @@ require "util/player"
 require "util/gui"
 require "util/combinator"
 
+local flib_gui = require("__flib__.gui-beta")
 local Event = require("__stdlib__/stdlib/event/event")
 
 -- Enable Lua API global Variable Viewer
@@ -50,74 +53,6 @@ Event.register(
 	end
 )
 
---#endregion
-
---#region On Configuration Changed
-Event.on_configuration_changed(
-	function(config_changed_data)
-		local old_circuit_hud_changes = config_changed_data.mod_changes["CircuitHUD"]
-		if old_circuit_hud_changes then
-		end
-
-		local circuit_hud_v2_changes = config_changed_data.mod_changes["CircuitHUD-V2"]
-		if circuit_hud_v2_changes then
-			-- patch for 1.0.1 to 1.1.0
-			if circuit_hud_v2_changes.old_version == "1.0.1" and circuit_hud_v2_changes.new_version == "1.1.0" then
-				-- Original version had a fuck-ton of unneeded on_tick events, which are now refactored away
-				Event.remove(defines.events.on_tick)
-				-- clear global and recreate
-				reset_global_state()
-
-				-- recreate all global state for players
-				for _, player in pairs(game.players) do
-					add_player_global(player.index)
-				end
-			end
-
-			ensure_global_state()
-
-			if circuit_hud_v2_changes.old_version == "1.1.0" then
-				for _, player in pairs(game.players) do
-					local player_global = global.players[player.index]
-
-					if player_global then
-						-- Migrate to elements system instead of seperate HUD references
-						if not player_global.elements then
-							player_global.elements = {}
-						end
-						-- Move the toggle_button ref
-						if player_global["toggle_button"] then
-							set_hud_element_ref(player.index, HUD_NAMES.hud_toggle_button, player_global["toggle_button"])
-							player_global["toggle_button"] = nil
-						end
-						-- Move the root_frame ref
-						if player_global["root_frame"] then
-							set_hud_element_ref(player.index, HUD_NAMES.hud_root_frame, player_global["root_frame"])
-							player_global["root_frame"] = nil
-						end
-						-- Move the inner_frame ref
-						if player_global["inner_frame"] then
-							set_hud_element_ref(player.index, HUD_NAMES.hud_scroll_pane_frame, player_global["inner_frame"])
-							player_global["inner_frame"] = nil
-						end
-					end
-				end
-			end
-
-			-- Reset all Combinator HUD references
-			check_combinator_registrations()
-
-			for _, player in pairs(game.players) do
-				-- Ensure all HUDS are visible
-				if get_hide_hud_header_setting(player.index) then
-					update_collapse_state(player.index, false)
-				end
-				-- Reset the HUD for all players
-				reset_hud(player.index)
-			end
-		end
-	end
-)
 --#endregion
 
 --#region Event Registrations
