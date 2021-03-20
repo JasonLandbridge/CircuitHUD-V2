@@ -278,7 +278,8 @@ end
 -- Calculate the width and height of the HUD due to GUIElement.size not being available
 function calculate_hud_size(player_index)
 	if get_hud_collapsed(player_index) then
-		set_hud_size(player_index, {width = 40, height = 40})
+		local size = {width = 40, height = 40}
+		set_hud_size(player_index, size)
 		return size
 	end
 
