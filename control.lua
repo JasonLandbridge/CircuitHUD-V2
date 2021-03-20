@@ -14,6 +14,7 @@ require "util/gui"
 require "util/combinator"
 
 local flib_gui = require("__flib__.gui-beta")
+local std_string = require("__stdlib__/stdlib/utils/string")
 local Event = require("__stdlib__/stdlib/event/event")
 
 -- Enable Lua API global Variable Viewer
@@ -107,6 +108,17 @@ Event.register(
 		if (not (event.entity == nil)) and (event.entity.name == HUD_COMBINATOR_NAME) then
 			-- create the HUD Combinator Gui
 			create_combinator_gui(event.player_index, event.entity.unit_number)
+		end
+	end
+)
+
+Event.register(
+	defines.events.on_gui_closed,
+	function(event)
+		-- check if it's and HUD Combinator GUI and close that
+		if (not (event.element == nil)) and std_string.starts_with(event.element.name, HUD_NAMES.combinator_root_frame) then
+			-- create the HUD Combinator Gui
+			destroy_combinator_gui(event.player_index, event.element.name)
 		end
 	end
 )

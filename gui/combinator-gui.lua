@@ -115,6 +115,26 @@ function get_combinator_gui(player_index, unit_number)
 	return nil
 end
 
+function get_combinator_gui_by_name(player_index, name)
+	local player = get_player(player_index)
+	if player then
+		local gui_windows = player.gui.screen.children
+		for _, value in pairs(gui_windows) do
+			if value.name == name then
+				return value
+			end
+		end
+	end
+	return nil
+end
+
+function destroy_combinator_gui(player_index, name)
+	local combinator_gui = get_combinator_gui_by_name(player_index, name)
+	if combinator_gui then
+		combinator_gui.destroy()
+	end
+end
+
 function handle_combinator_gui_events(player_index, action)
 	local combinator_gui = get_combinator_gui(player_index, action.unit_number)
 	if not combinator_gui then
