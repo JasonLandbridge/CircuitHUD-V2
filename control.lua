@@ -27,7 +27,7 @@ end
 
 Event.on_init(
 	function()
-		for i, player in pairs(game.players) do
+		for _, player in pairs(game.players) do
 			debug_log(player.index, "On Init")
 		end
 		-- Ensure the global state has been initialized
@@ -136,7 +136,8 @@ Event.register(
 
 		if get_hud_combinator(action.unit_number) then
 			-- save the reference
-			get_hud_combinator(action.unit_number)["name"] = event.text
+			set_hud_combinator_name(action.unit_number, event.text)
+			reset_hud_all_players()
 		end
 	end
 )

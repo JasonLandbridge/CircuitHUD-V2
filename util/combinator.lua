@@ -11,11 +11,26 @@ local function remove_hud_combinator_ref(hud_combinator)
 end
 
 function get_hud_combinator(unit_number)
-	return global.hud_combinators[unit_number]
+	local hud_combinator = global.hud_combinators[unit_number]
+	if hud_combinator then
+		return hud_combinator["entity"]
+	end
+	return nil
 end
 
 function get_hud_combinator_name(unit_number)
-	return get_hud_combinator(unit_number)["name"]
+	local hud_combinator = global.hud_combinators[unit_number]
+	if hud_combinator then
+		return hud_combinator["name"]
+	end
+	return nil
+end
+
+function set_hud_combinator_name(unit_number, name)
+	local hud_combinator = global.hud_combinators[unit_number]
+	if hud_combinator then
+		hud_combinator["name"] = name
+	end
 end
 
 -- Check if this HUD Combinator has any signals coming in to show in the HUD.

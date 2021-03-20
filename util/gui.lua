@@ -32,7 +32,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 							{
 								type = "label",
 								style = "hud_combinator_label",
-								caption = global.hud_combinators[unit_number]["name"],
+								caption = get_hud_combinator_name(unit_number),
 								name = "hud_combinator_title_" .. tostring(unit_number)
 							},
 							{type = "empty-widget", style = "flib_horizontal_pusher", ignored_by_interaction = true},
@@ -244,7 +244,7 @@ end
 -- Go over each player and ensure that their HUD is either visible or hidden based on the existense of HUD combinators.
 function check_all_player_hud_visibility()
 	-- go through each player and update their HUD
-	for i, player in pairs(game.players) do
+	for _, player in pairs(game.players) do
 		should_hud_root_exist(player.index)
 	end
 end
@@ -338,6 +338,12 @@ function reset_hud(player_index)
 	destroy_hud(player_index)
 	build_interface(player_index)
 	update_hud(player_index)
+end
+
+function reset_hud_all_players()
+	for _, player in pairs(game.players) do
+		reset_hud(player.index)
+	end
 end
 
 -- Calculate the width and height of the HUD due to GUIElement.size not being available
@@ -492,9 +498,9 @@ function handle_hud_gui_events(player_index, action)
 		if action.unit_number then
 			-- find the entity
 			local hud_combinator = get_hud_combinator(action.unit_number)
-			if hud_combinator and hud_combinator.entity.valid then
+			if hud_combinator and hud_combinator.valid then
 				-- open the map on the coordinates
-				player.zoom_to_world(hud_combinator.entity.position, 2)
+				player.zoom_to_world(hud_combinator.position, 2)
 			end
 		end
 	end
