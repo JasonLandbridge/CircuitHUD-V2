@@ -2,7 +2,6 @@ local flib_data_util = require("__flib__.data-util")
 
 --#region The HUD Combinator Entity
 local hudCombinatorEntity = flib_data_util.copy_prototype(data.raw["constant-combinator"]["constant-combinator"], HUD_COMBINATOR_NAME)
-hudCombinatorEntity.name = HUD_COMBINATOR_NAME
 hudCombinatorEntity.sprites = {
 	east = {
 		layers = {
@@ -261,7 +260,7 @@ hudCombinatorEntity.minable = {mining_time = 3.0, result = HUD_COMBINATOR_NAME}
 --#endregion
 
 --#region The HUD Combinator as shown in a (crafting) menu
-local hudCombinatorItem = flib_data_util.copy_prototype(data.raw.item["constant-combinator"], HUD_COMBINATOR_NAME)
+local hudCombinatorItem = flib_data_util.copy_prototype(data.raw["item"]["constant-combinator"], HUD_COMBINATOR_NAME)
 hudCombinatorItem.place_result = HUD_COMBINATOR_NAME
 hudCombinatorItem.icon = "__CircuitHUD-V2__/graphics/icon/hud-combinator.png"
 hudCombinatorItem.icon_size = 64
