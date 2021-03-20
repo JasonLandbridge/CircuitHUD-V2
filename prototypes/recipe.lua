@@ -251,7 +251,7 @@ hudCombinatorEntity.sprites = {
 	}
 }
 hudCombinatorEntity.item_slot_count = 0
-hudCombinatorEntity.minable = {mining_time = 0.1, result = HUD_COMBINATOR_NAME}
+hudCombinatorEntity.minable = {mining_time = 1.0, result = HUD_COMBINATOR_NAME}
 
 local hudCombinatorItem = table.deepcopy(data.raw.item["constant-combinator"])
 hudCombinatorItem.name = HUD_COMBINATOR_NAME
