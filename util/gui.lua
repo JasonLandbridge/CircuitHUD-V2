@@ -1,8 +1,9 @@
 local math = require("__stdlib__/stdlib/utils/math")
+local flib_gui = require("__flib__.gui-beta")
 
 -- Takes the data from HUD Combinator and display it in the HUD
--- @param parent The Root frame
--- @param entity The HUD Combinator to process
+-- @param scroll_pane_frame The Root frame
+-- @param hud_combinator The HUD Combinator to process
 local function render_combinator(scroll_pane_frame, hud_combinator)
 	-- Check if this HUD Combinator should be shown in the HUD
 	if not should_show_network(hud_combinator) then
@@ -11,16 +12,47 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 
 	-- Check flow container for the HUD Combinator category if it doesnt exist
 	local flow_id = "hud_combinator_flow_" .. tostring(hud_combinator.unit_number)
-	local hud_combinator_flow = scroll_pane_frame.add {type = "flow", direction = "vertical", name = flow_id, style = "combinator_flow_style"}
-
-	-- Check HUD Combinator title to HUD category
-	local title_label_id = "hud_combinator_title_" .. tostring(hud_combinator.unit_number)
-	hud_combinator_flow.add {
-		type = "label",
-		style = "hud_combinator_label",
-		caption = global.hud_combinators[hud_combinator.unit_number]["name"],
-		name = title_label_id
-	}
+	local refs =
+		flib_gui.build(
+		scroll_pane_frame,
+		{
+			{
+				type = "flow",
+				direction = "vertical",
+				name = flow_id,
+				style = "combinator_flow_style",
+				ref = {"hud_combinator_flow"},
+				children = {
+					{
+						type = "flow",
+						direction = "horizontal",
+						style = "flib_titlebar_flow",
+						children = {
+							{
+								type = "label",
+								style = "hud_combinator_label",
+								caption = global.hud_combinators[hud_combinator.unit_number]["name"],
+								name = "hud_combinator_title_" .. tostring(hud_combinator.unit_number)
+							},
+							{type = "empty-widget", style = "flib_horizontal_pusher", ignored_by_interaction = true},
+							{
+								type = "button",
+								name = "CircuitHUD_goto_site_" .. flow_id,
+								tooltip = {"button-tooltips.goto-combinator"},
+								style = "CircuitHUD_goto_site"
+							},
+							{
+								type = "button",
+								name = "CircuitHUD_rename_site_" .. flow_id,
+								tooltip = {"button-tooltips.rename-combinator"},
+								style = "CircuitHUD_rename_site"
+							}
+						}
+					}, 
+				}
+			}
+		}
+	)
 
 	-- NOTE: This should remain local as it causes desync and save/load issues if moved elsewhere
 	local signal_name_map = {
@@ -44,7 +76,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 		for i = 1, 2, 1 do
 			-- Check if this color table already exists
 			local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
-			local table = hud_combinator_flow.add {type = "table", name = table_name, column_count = max_columns}
+			local table = refs.hud_combinator_flow.add 
 
 			-- Check if there are signals
 			if networks[i] and networks[i].signals then
@@ -63,7 +95,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 			end
 		end
 	else
-		hud_combinator_flow.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
+		refs.hud_combinator_flow.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
 	end
 end
 
@@ -72,71 +104,90 @@ end
 local function create_root_frame(player_index)
 	local player = get_player(player_index)
 
-	local root_frame = nil
-	local frame_template = {
-		type = "frame",
-		direction = "vertical",
-		name = HUD_NAMES.hud_root_frame,
-		style = "hud-root-frame-style"
-	}
-
 	local hud_position = get_hud_position_setting(player_index)
+	local parent_ref = nil
 
 	-- Set HUD on the left or top side of screen
-	if hud_position == HUD_POSITION.left or hud_position == HUD_POSITION.top or hud_position == HUD_POSITION.goal then
-		root_frame = player.gui[hud_position].add(frame_template)
+	if get_is_hud_left(player_index) or get_is_hud_top(player_index) or get_is_hud_goal(player_index) then
+		parent_ref = player.gui[hud_position]
 	end
 
 	-- Set HUD to be draggable
-	if hud_position == HUD_POSITION.draggable then
-		root_frame = player.gui.screen.add(frame_template)
-		root_frame.location = get_hud_location(player_index)
+	if get_is_hud_draggable(player_index) or get_is_hud_bottom_right(player_index) then
+		parent_ref = player.gui.screen
 	end
 
-	-- Set HUD on the bottom-right corner of the screen
-	if hud_position == HUD_POSITION.bottom_right then
-		root_frame = player.gui.screen.add(frame_template)
-		calculate_hud_size(player_index)
-		move_hud_bottom_right(player_index)
-	end
+	local refs =
+		flib_gui.build(
+		parent_ref,
+		{
+			{
+				type = "frame",
+				direction = "vertical",
+				name = HUD_NAMES.hud_root_frame,
+				style = "hud-root-frame-style",
+				ref = {"root_frame"},
+				children = {}
+			}
+		}
+	)
 
 	-- Only create header when the settings allow for it
 	if not get_hide_hud_header_setting(player_index) then
 		-- create a title_flow
-		local header_flow = root_frame.add {type = "flow", direction = "horizontal"}
 
-		-- add the title label
-		local title = header_flow.add {type = "label", caption = get_hud_title_setting(player_index), style = "frame_title"}
-
-		-- Set frame to be draggable
-		if get_hud_position_setting(player_index) == HUD_POSITION.draggable then
-			local pusher = header_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "draggable_space_hud_header"})
-			pusher.style.horizontally_stretchable = true
-			pusher.drag_target = root_frame
-			title.drag_target = root_frame
-			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
-		else
-			local pusher = header_flow.add({type = "empty-widget", name = HUD_NAMES.hud_header_spacer, style = "space_hud_header"})
-			pusher.style.horizontally_stretchable = true
-			set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, pusher)
+		local header_style = "flib_horizontal_pusher"
+		if get_is_hud_draggable(player_index) then
+			header_style = "flib_titlebar_drag_handle"
 		end
 
-		-- add a "toggle" button
-		local toggle_button =
-			header_flow.add {
-			type = "sprite-button",
-			style = "frame_action_button",
-			sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
-			name = HUD_NAMES.hud_toggle_button
-		}
+		local header_refs =
+			flib_gui.build(
+			refs.root_frame,
+			{
+				{
+					type = "flow",
+					direction = "horizontal",
+					children = {
+						-- add the title label
+						{type = "label", ref = {"title"}, caption = get_hud_title_setting(player_index), style = "frame_title"},
+						-- either a draggable frame bar or empty space
+						{type = "empty-widget", ref = {"bar"}, name = HUD_NAMES.hud_header_spacer, style = header_style},
+						-- add a "toggle" button
+						{
+							type = "sprite-button",
+							style = "frame_action_button",
+							ref = {"toggle_button"},
+							sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
+							name = HUD_NAMES.hud_toggle_button
+						}
+					}
+				}
+			}
+		)
 
-		set_hud_element_ref(player_index, HUD_NAMES.hud_title_label, title)
-		set_hud_element_ref(player_index, HUD_NAMES.hud_toggle_button, toggle_button)
+		-- Set frame to be draggable
+		if get_is_hud_draggable(player_index) then
+			header_refs["bar"].drag_target = refs.root_frame
+		end
+		set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, header_refs["bar"])
+		set_hud_element_ref(player_index, HUD_NAMES.hud_title_label, header_refs["title"])
+		set_hud_element_ref(player_index, HUD_NAMES.hud_toggle_button, header_refs["toggle_button"])
 	end
 
-	root_frame.style.maximal_height = get_hud_max_height_setting(player_index)
+	if get_is_hud_draggable(player_index) then
+		location = get_hud_location(player_index)
+	end
 
-	return root_frame
+	-- Set HUD on the bottom-right corner of the screen
+	if get_is_hud_bottom_right(player_index) then
+		calculate_hud_size(player_index)
+		move_hud_bottom_right(player_index)
+	end
+
+	refs.root_frame.style.maximal_height = get_hud_max_height_setting(player_index)
+
+	return refs.root_frame
 end
 
 -- Build the HUD with the signals

@@ -52,6 +52,30 @@ end
 
 --#endregion
 
+--#region Get HUD Helpers
+
+function get_is_hud_top(player_index)
+	return get_hud_position_setting(player_index) == HUD_POSITION.top
+end
+
+function get_is_hud_left(player_index)
+	return get_hud_position_setting(player_index) == HUD_POSITION.left
+end
+
+function get_is_hud_goal(player_index)
+	return get_hud_position_setting(player_index) == HUD_POSITION.goal
+end
+
+function get_is_hud_draggable(player_index)
+	return get_hud_position_setting(player_index) == HUD_POSITION.draggable
+end
+
+function get_is_hud_bottom_right(player_index)
+	return get_hud_position_setting(player_index) == HUD_POSITION.bottom_right
+end
+
+--#endregion
+
 --#region Set Player Properties
 
 function set_hud_location(player_index, location)
