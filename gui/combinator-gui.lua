@@ -3,11 +3,17 @@ local Event = require("__stdlib__/stdlib/event/event")
 local std_string = require("__stdlib__/stdlib/utils/string")
 
 function create_combinator_gui(player_index, unit_number)
-	-- find a unique event name
-	local ui_name = HUD_NAMES.combinator_root_frame .. "_" .. tostring(unit_number)
+	-- Check if it doesn't exist already
+	local combinator_gui = get_combinator_gui(player_index, unit_number)
+	if combinator_gui then
+		debug_log(player_index, "HUD Combinator GUI with unit_number " .. tostring(unit_number) .. " already has a GUI open/created.")
+		combinator_gui.destroy()
+		return
+	end
 
 	-- add the frame
 	local player = get_player(player_index)
+	local ui_name = HUD_NAMES.combinator_root_frame .. "_" .. tostring(unit_number)
 	local refs =
 		flib_gui.build(
 		player.gui.screen,
@@ -29,7 +35,7 @@ function create_combinator_gui(player_index, unit_number)
 								-- add the title label
 								type = "label",
 								style = "frame_title",
-								caption = "HUD Comparator",
+								caption = "HUD Combinator",
 								ignored_by_interaction = true
 							},
 							{
@@ -84,10 +90,13 @@ function create_combinator_gui(player_index, unit_number)
 			}
 		}
 	)
-	refs.titlebar_flow.drag_target = refs[HUD_NAMES.combinator_root_frame]
+
+	local root_frame = refs[HUD_NAMES.combinator_root_frame]
+	refs.titlebar_flow.drag_target = root_frame
 	refs.name_field.select(0, 0)
 
-	return refs[HUD_NAMES.combinator_root_frame]
+	player.opened = root_frame
+	player.opened.force_auto_center()
 end
 
 function get_combinator_gui(player_index, unit_number)

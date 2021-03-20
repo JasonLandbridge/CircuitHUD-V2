@@ -41,6 +41,11 @@ local migrations = {
 	end,
 	["1.2.1"] = function()
 		-- remove textbox_hud_entity_map as it became obsolete.
+		for key, value in pairs(global.textbox_hud_entity_map) do
+			if value then
+				value.destroy()
+			end
+		end
 		global.textbox_hud_entity_map = nil
 	end
 }

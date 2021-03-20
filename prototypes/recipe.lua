@@ -1,4 +1,7 @@
-local hudCombinatorEntity = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
+local flib_data_util = require("__flib__.data-util")
+
+--#region The HUD Combinator Entity
+local hudCombinatorEntity = flib_data_util.copy_prototype(data.raw["constant-combinator"]["constant-combinator"], HUD_COMBINATOR_NAME)
 hudCombinatorEntity.name = HUD_COMBINATOR_NAME
 hudCombinatorEntity.sprites = {
 	east = {
@@ -250,21 +253,24 @@ hudCombinatorEntity.sprites = {
 		}
 	}
 }
+hudCombinatorEntity.fast_replaceable_group = "constant-combinator"
+hudCombinatorEntity.next_upgrade = nil
 hudCombinatorEntity.item_slot_count = 0
-hudCombinatorEntity.minable = {mining_time = 1.0, result = HUD_COMBINATOR_NAME}
+hudCombinatorEntity.minable = {mining_time = 3.0, result = HUD_COMBINATOR_NAME}
 
-local hudCombinatorItem = table.deepcopy(data.raw.item["constant-combinator"])
-hudCombinatorItem.name = HUD_COMBINATOR_NAME
+--#endregion
+
+--#region The HUD Combinator as shown in a (crafting) menu
+local hudCombinatorItem = flib_data_util.copy_prototype(data.raw.item["constant-combinator"], HUD_COMBINATOR_NAME)
 hudCombinatorItem.place_result = HUD_COMBINATOR_NAME
-hudCombinatorItem.icons = {
-	{
-		icon = "__CircuitHUD-V2__/graphics/icon/hud-combinator.png"
-	}
-}
+hudCombinatorItem.icon = "__CircuitHUD-V2__/graphics/icon/hud-combinator.png"
+hudCombinatorItem.icon_size = 64
+--#endregion
 
-local hudCombinatorRecipe = table.deepcopy(data.raw.recipe["iron-chest"])
-hudCombinatorRecipe.name = HUD_COMBINATOR_NAME
+--#region  The HUD Combinator Recipe
+local hudCombinatorRecipe = flib_data_util.copy_prototype(data.raw.recipe["iron-chest"], HUD_COMBINATOR_NAME)
 hudCombinatorRecipe.ingredients = {{"electronic-circuit", 2}, {"copper-cable", 5}}
 hudCombinatorRecipe.result = HUD_COMBINATOR_NAME
+--#endregion
 
 data:extend {hudCombinatorEntity, hudCombinatorItem, hudCombinatorRecipe}
