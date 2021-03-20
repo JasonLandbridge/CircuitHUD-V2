@@ -45,5 +45,6 @@ SIGNAL_TYPE_MAP = {
 
 GUI_ACTIONS = {
 	close = "CLOSE",
-	name_change = "NAME_CHANGED"
+	name_change = "NAME_CHANGED",
+	open_combinator = "OPEN_COMBINATOR"
 }

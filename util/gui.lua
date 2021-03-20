@@ -39,7 +39,13 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 								type = "button",
 								name = "CircuitHUD_goto_site_" .. flow_id,
 								tooltip = {"button-tooltips.goto-combinator"},
-								style = "CircuitHUD_goto_site"
+								style = "CircuitHUD_goto_site",
+								actions = {
+									on_click = {
+										gui = GUI_TYPES.hud,
+										action = GUI_ACTIONS.open_combinator
+									}
+								}
 							},
 							{
 								type = "button",
@@ -48,7 +54,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 								style = "CircuitHUD_rename_site"
 							}
 						}
-					}, 
+					}
 				}
 			}
 		}
@@ -76,7 +82,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 		for i = 1, 2, 1 do
 			-- Check if this color table already exists
 			local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
-			local table = refs.hud_combinator_flow.add 
+			local table = refs.hud_combinator_flow.add {type = "table", name = table_name, column_count = max_columns}
 
 			-- Check if there are signals
 			if networks[i] and networks[i].signals then

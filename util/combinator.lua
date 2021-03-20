@@ -10,6 +10,14 @@ local function remove_hud_combinator_ref(hud_combinator)
 	global.hud_combinators[hud_combinator.unit_number] = nil
 end
 
+function get_hud_combinator(unit_number)
+	return global.hud_combinators[unit_number]
+end
+
+function get_hud_combinator_name(unit_number)
+	return get_hud_combinator(unit_number)["name"]
+end
+
 -- Check if this HUD Combinator has any signals coming in to show in the HUD.
 -- @param entity The HUD Combinator
 function has_network_signals(entity)
