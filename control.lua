@@ -105,12 +105,8 @@ Event.register(
 	defines.events.on_gui_opened,
 	function(event)
 		if (not (event.entity == nil)) and (event.entity.name == HUD_COMBINATOR_NAME) then
-			local player = game.get_player(event.player_index)
-
-			-- create the new gui
-			local root_element = create_combinator_gui(event.player_index, event.entity.unit_number)
-			player.opened = root_element
-			player.opened.force_auto_center()
+			-- create the HUD Combinator Gui
+			create_combinator_gui(event.player_index, event.entity.unit_number)
 		end
 	end
 )
@@ -157,6 +153,10 @@ Event.register(
 		if action.gui == GUI_TYPES.combinator then
 			handle_combinator_gui_events(event.player_index, action)
 		end
+
+		if action.gui == GUI_TYPES.hud then
+			handle_hud_gui_events(event.player_index, action)
+		end
 	end
 )
 
@@ -201,16 +201,6 @@ Event.register(
 	end
 )
 --#endregion
-
-Event.register(
-	defines.events.on_gui_click,
-	function(event)
-		if event.element.name == HUD_NAMES.hud_toggle_button then
-			local toggle_state = not get_hud_collapsed(event.player_index)
-			update_collapse_state(event.player_index, toggle_state)
-		end
-	end
-)
 
 Event.register(
 	defines.events.on_player_display_resolution_changed,

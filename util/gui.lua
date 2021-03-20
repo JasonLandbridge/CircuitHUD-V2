@@ -165,7 +165,13 @@ local function create_root_frame(player_index)
 							style = "frame_action_button",
 							ref = {"toggle_button"},
 							sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
-							name = HUD_NAMES.hud_toggle_button
+							name = HUD_NAMES.hud_toggle_button,
+							actions = {
+								on_click = {
+									gui = GUI_TYPES.hud,
+									action = GUI_ACTIONS.toggle
+								}
+							}
 						}
 					}
 				}
@@ -470,5 +476,12 @@ function move_hud_bottom_right(player_index)
 				player.print("Display scale: x: " .. player.display_scale)
 			end
 		end
+	end
+end
+
+function handle_hud_gui_events(player_index, action)
+	if action.action == GUI_ACTIONS.toggle then
+		local toggle_state = not get_hud_collapsed(player_index)
+		update_collapse_state(player_index, toggle_state)
 	end
 end
