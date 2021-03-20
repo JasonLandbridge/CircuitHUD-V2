@@ -145,17 +145,4 @@ function handle_combinator_gui_events(player_index, action)
 		combinator_gui.destroy()
 	end
 
-	if "lol" == "test" then
-		local unit_number = string.match(event.element.name, "hudcombinatortitle%-%-(%d+)")
-
-		if unit_number then
-			-- find the entity
-			local hud_combinator = get_hud_combinator(tonumber(unit_number))
-			if hud_combinator and hud_combinator.entity.valid then
-				-- open the map on the coordinates
-				local player = game.players[event.player_index]
-				player.zoom_to_world(hud_combinator.entity.position, 2)
-			end
-		end
-	end
 end

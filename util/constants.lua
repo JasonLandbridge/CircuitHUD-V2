@@ -47,5 +47,6 @@ GUI_ACTIONS = {
 	toggle = "TOGGLE",
 	close = "CLOSE",
 	name_change = "NAME_CHANGED",
-	open_combinator = "OPEN_COMBINATOR"
+	open_combinator = "OPEN_COMBINATOR",
+	go_to_combinator = "GO_TO_COMBINATOR"
 }

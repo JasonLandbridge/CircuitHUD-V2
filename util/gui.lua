@@ -11,7 +11,8 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 	end
 
 	-- Check flow container for the HUD Combinator category if it doesnt exist
-	local flow_id = "hud_combinator_flow_" .. tostring(hud_combinator.unit_number)
+	local unit_number = hud_combinator.unit_number
+	local flow_id = "hud_combinator_flow_" .. tostring(unit_number)
 	local refs =
 		flib_gui.build(
 		scroll_pane_frame,
@@ -31,8 +32,8 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 							{
 								type = "label",
 								style = "hud_combinator_label",
-								caption = global.hud_combinators[hud_combinator.unit_number]["name"],
-								name = "hud_combinator_title_" .. tostring(hud_combinator.unit_number)
+								caption = global.hud_combinators[unit_number]["name"],
+								name = "hud_combinator_title_" .. tostring(unit_number)
 							},
 							{type = "empty-widget", style = "flib_horizontal_pusher", ignored_by_interaction = true},
 							{
@@ -43,7 +44,8 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 								actions = {
 									on_click = {
 										gui = GUI_TYPES.hud,
-										action = GUI_ACTIONS.open_combinator
+										action = GUI_ACTIONS.go_to_combinator,
+										unit_number = unit_number
 									}
 								}
 							},
@@ -480,8 +482,20 @@ function move_hud_bottom_right(player_index)
 end
 
 function handle_hud_gui_events(player_index, action)
+	local player = get_player(player_index)
 	if action.action == GUI_ACTIONS.toggle then
 		local toggle_state = not get_hud_collapsed(player_index)
 		update_collapse_state(player_index, toggle_state)
+	end
+
+	if action.action == GUI_ACTIONS.go_to_combinator then
+		if action.unit_number then
+			-- find the entity
+			local hud_combinator = get_hud_combinator(action.unit_number)
+			if hud_combinator and hud_combinator.entity.valid then
+				-- open the map on the coordinates
+				player.zoom_to_world(hud_combinator.entity.position, 2)
+			end
+		end
 	end
 end
