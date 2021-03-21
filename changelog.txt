@@ -4,10 +4,13 @@ Date: 2021-03-21
   Changes:
     - HUD Combinators have signal filtering functionality, this avoids long chains of arithmetic combinators to get the right signal display!
     - The HUD now has buttons for each HUD Combinator, which means you can now edit from anywhere, zoom to and hide each HUD Combinator!
+    - You can now search and filter for HUD Combinators straight from the HUD itself (Thanks @Taurondir for the idea!)
     - Added more helpful messages in the HUD based on the HUD Combinator state!
+    - Player specific settings are no longer accessible in the Mod settings but are now configurable from the Circuit HUD directly (Thanks @AngrySlipper for the idea!)
   Bugfixes:
     - Fixed the collapsed button going off-screen when UI Scale is above 100% 
-
+  Optimisations:
+    - Major refactor, mainly ensuring less methods are stored on the lua global level and that most methods are now in a wrapping object. Also deleted unused methods and empty files.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.1
 Date: 2021-03-09
