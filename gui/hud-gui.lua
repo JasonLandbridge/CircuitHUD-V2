@@ -2,6 +2,8 @@ local stdlib_math = require("__stdlib__/stdlib/utils/math")
 local stdlib_string = require("__stdlib__/stdlib/utils/string")
 local flib_gui = require("__flib__.gui-beta")
 
+local const = require("lib.constants")
+
 -- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
 -- @returns if signal is allowed to be shown
 local function filter_signal(signals, name)
@@ -53,8 +55,8 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 								style = "CircuitHUD_goto_site",
 								actions = {
 									on_click = {
-										gui = GUI_TYPES.hud,
-										action = GUI_ACTIONS.go_to_combinator,
+										gui = const.GUI_TYPES.hud,
+										action = const.GUI_ACTIONS.go_to_combinator,
 										unit_number = unit_number
 									}
 								}
@@ -66,8 +68,8 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 								style = "CircuitHUD_open_combinator",
 								actions = {
 									on_click = {
-										gui = GUI_TYPES.hud,
-										action = GUI_ACTIONS.open_combinator,
+										gui = const.GUI_TYPES.hud,
+										action = const.GUI_ACTIONS.open_combinator,
 										unit_number = unit_number
 									}
 								}
@@ -128,7 +130,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 				local signal_name = signal.signal.name
 
 				-- Check if any signal is meant to hide everything
-				if hide_signal_detected or signal_name == HIDE_SIGNAL_NAME then
+				if hide_signal_detected or signal_name == const.HIDE_SIGNAL_NAME then
 					hide_signal_detected = true
 					break
 				end
@@ -137,7 +139,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 				if short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
 					table.add {
 						type = "sprite-button",
-						sprite = SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
+						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
 						number = signal.count,
 						style = network_styles[i],
 						tooltip = signal_name_map[signal_type][signal_name].localised_name
@@ -177,7 +179,7 @@ function build_interface(player_index)
 		return
 	end
 
-	if get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+	if get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
 		debug_log(player_index, "Can't create a new HUD while the old one still exists")
 		return
 	end
@@ -197,49 +199,26 @@ function build_interface(player_index)
 		parent_ref = player.gui.screen
 	end
 
-	local refs =
+	local root_refs =
 		flib_gui.build(
 		parent_ref,
 		{
 			{
 				type = "frame",
 				direction = "vertical",
-				name = HUD_NAMES.hud_root_frame,
+				name = const.HUD_NAMES.hud_root_frame,
 				style = "hud-root-frame-style",
 				ref = {
-					HUD_NAMES.hud_root_frame
+					const.HUD_NAMES.hud_root_frame
 				},
-				children = {
-					{
-						type = "scroll-pane",
-						name = HUD_NAMES.hud_scroll_pane,
-						vertical_scroll_policy = "auto",
-						style = "hud_scrollpane_style",
-						ref = {
-							HUD_NAMES.hud_scroll_pane
-						},
-						children = {
-							{
-								type = "flow",
-								name = HUD_NAMES.hud_scroll_pane_frame,
-								style = "hud_scrollpane_frame_style",
-								ref = {
-									HUD_NAMES.hud_scroll_pane_frame
-								},
-								direction = "vertical"
-							}
-						}
-					}
-				}
+				children = {}
 			}
 		}
 	)
 
-	local root_frame = refs[HUD_NAMES.hud_root_frame]
+	local root_frame = root_refs[const.HUD_NAMES.hud_root_frame]
 	-- Set references to root GUI Elements
-	set_hud_element_ref(player_index, HUD_NAMES.hud_root_frame, refs[HUD_NAMES.hud_root_frame])
-	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane, refs[HUD_NAMES.hud_scroll_pane])
-	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane_frame, refs[HUD_NAMES.hud_scroll_pane_frame])
+
 
 	-- Only create header when the settings allow for it
 	if not get_hide_hud_header_setting(player_index) then
@@ -262,29 +241,29 @@ function build_interface(player_index)
 						{
 							type = "label",
 							style = "frame_title",
-							name = HUD_NAMES.hud_title_label,
-							ref = {HUD_NAMES.hud_title_label},
+							name = const.HUD_NAMES.hud_title_label,
+							ref = {const.HUD_NAMES.hud_title_label},
 							caption = get_hud_title_setting(player_index)
 						},
 						-- either a draggable frame bar or empty space
 						{
 							type = "empty-widget",
 							style = header_style,
-							name = HUD_NAMES.hud_header_spacer,
-							ref = {HUD_NAMES.hud_header_spacer}
+							name = const.HUD_NAMES.hud_header_spacer,
+							ref = {const.HUD_NAMES.hud_header_spacer}
 						},
 						-- Search Text Field
 						{
 							type = "textfield",
 							style = "stretchable_textfield",
-							name = HUD_NAMES.hud_search_text_field,
+							name = const.HUD_NAMES.hud_search_text_field,
 							style_mods = {top_margin = -3},
 							visible = false,
-							ref = {HUD_NAMES.hud_search_text_field},
+							ref = {const.HUD_NAMES.hud_search_text_field},
 							actions = {
 								on_text_changed = {
-									gui = GUI_TYPES.hud,
-									action = GUI_ACTIONS.search_bar_change
+									gui = const.GUI_TYPES.hud,
+									action = const.GUI_ACTIONS.search_bar_change
 								}
 							}
 						},
@@ -292,9 +271,9 @@ function build_interface(player_index)
 						{
 							type = "sprite-button",
 							style = "frame_action_button",
-							name = HUD_NAMES.hud_search_button,
+							name = const.HUD_NAMES.hud_search_button,
 							ref = {
-								HUD_NAMES.hud_search_button
+								const.HUD_NAMES.hud_search_button
 							},
 							tooltip = {"rcalc-gui.search-instruction"},
 							sprite = "utility/search_white",
@@ -303,8 +282,8 @@ function build_interface(player_index)
 							mouse_button_filter = {"left"},
 							actions = {
 								on_click = {
-									gui = GUI_TYPES.hud,
-									action = GUI_ACTIONS.toggle_search_bar
+									gui = const.GUI_TYPES.hud,
+									action = const.GUI_ACTIONS.toggle_search_bar
 								}
 							}
 						},
@@ -312,9 +291,9 @@ function build_interface(player_index)
 						{
 							type = "sprite-button",
 							style = "frame_action_button",
-							name = HUD_NAMES.hud_settings_button,
+							name = const.HUD_NAMES.hud_settings_button,
 							ref = {
-								HUD_NAMES.hud_settings_button
+								const.HUD_NAMES.hud_settings_button
 							},
 							tooltip = {"rb-gui.settings"},
 							sprite = "rb_settings_white",
@@ -323,24 +302,24 @@ function build_interface(player_index)
 							mouse_button_filter = {"left"},
 							actions = {
 								on_click = {
-									gui = GUI_TYPES.hud,
-									action = GUI_ACTIONS.open_settings
+									gui = const.GUI_TYPES.hud,
+									action = const.GUI_ACTIONS.open_settings
 								}
 							}
 						},
 						-- Toggle Button
 						{
 							type = "sprite-button",
-							name = HUD_NAMES.hud_toggle_button,
+							name = const.HUD_NAMES.hud_toggle_button,
 							style = "frame_action_button",
 							ref = {
-								HUD_NAMES.hud_toggle_button
+								const.HUD_NAMES.hud_toggle_button
 							},
 							sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
 							actions = {
 								on_click = {
-									gui = GUI_TYPES.hud,
-									action = GUI_ACTIONS.toggle
+									gui = const.GUI_TYPES.hud,
+									action = const.GUI_ACTIONS.toggle
 								}
 							}
 						}
@@ -351,16 +330,45 @@ function build_interface(player_index)
 
 		-- Set frame to be draggable
 		if get_is_hud_draggable(player_index) then
-			header_refs[HUD_NAMES.hud_header_spacer].drag_target = root_frame
+			header_refs[const.HUD_NAMES.hud_header_spacer].drag_target = root_frame
 		end
 
-		set_hud_element_ref(player_index, HUD_NAMES.hud_title_label, header_refs[HUD_NAMES.hud_title_label])
-		set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, header_refs[HUD_NAMES.hud_header_spacer])
-		set_hud_element_ref(player_index, HUD_NAMES.hud_search_text_field, header_refs[HUD_NAMES.hud_search_text_field])
-		set_hud_element_ref(player_index, HUD_NAMES.hud_search_button, header_refs[HUD_NAMES.hud_search_button])
-		set_hud_element_ref(player_index, HUD_NAMES.hud_settings_button, header_refs[HUD_NAMES.hud_settings_button])
-		set_hud_element_ref(player_index, HUD_NAMES.hud_toggle_button, header_refs[HUD_NAMES.hud_toggle_button])
+		set_hud_element_ref(player_index, const.HUD_NAMES.hud_title_label, header_refs[const.HUD_NAMES.hud_title_label])
+		set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_spacer, header_refs[const.HUD_NAMES.hud_header_spacer])
+		set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_text_field, header_refs[const.HUD_NAMES.hud_search_text_field])
+		set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_button, header_refs[const.HUD_NAMES.hud_search_button])
+		set_hud_element_ref(player_index, const.HUD_NAMES.hud_settings_button, header_refs[const.HUD_NAMES.hud_settings_button])
+		set_hud_element_ref(player_index, const.HUD_NAMES.hud_toggle_button, header_refs[const.HUD_NAMES.hud_toggle_button])
 	end
+	local body_refs =
+		flib_gui.build(
+		root_frame,
+		{
+			{
+				type = "scroll-pane",
+				name = const.HUD_NAMES.hud_scroll_pane,
+				vertical_scroll_policy = "auto",
+				style = "hud_scrollpane_style",
+				ref = {
+					const.HUD_NAMES.hud_scroll_pane
+				},
+				children = {
+					{
+						type = "flow",
+						name = const.HUD_NAMES.hud_scroll_pane_frame,
+						style = "hud_scrollpane_frame_style",
+						ref = {
+							const.HUD_NAMES.hud_scroll_pane_frame
+						},
+						direction = "vertical"
+					}
+				}
+			}
+		}
+	)
+	set_hud_element_ref(player_index, const.HUD_NAMES.hud_root_frame, root_refs[const.HUD_NAMES.hud_root_frame])
+	set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane, body_refs[const.HUD_NAMES.hud_scroll_pane])
+	set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame, body_refs[const.HUD_NAMES.hud_scroll_pane_frame])
 
 	if get_is_hud_draggable(player_index) then
 		location = get_hud_location(player_index)
@@ -387,13 +395,13 @@ end
 function should_hud_root_exist(player_index)
 	if has_hud_combinators() then
 		-- Ensure we have created the HUD for all players
-		if not get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+		if not get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
 			build_interface(player_index)
 		end
 		update_hud(player_index)
 	else
 		-- Ensure all HUDS are destroyed
-		if get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+		if get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
 			destroy_hud(player_index)
 		end
 	end
@@ -405,12 +413,12 @@ function update_hud(player_index)
 		return
 	end
 
-	if not get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+	if not get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
 		debug_log(player_index, "Can't update HUD because the HUD root does not exist for player with index: " .. player_index)
 		return
 	end
 
-	local scroll_pane_frame = get_hud_ref(player_index, HUD_NAMES.hud_scroll_pane_frame)
+	local scroll_pane_frame = get_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
 	if not scroll_pane_frame or not scroll_pane_frame.valid then
 		debug_log(player_index, "Can't update HUD because the scroll_pane_frame does not exist for player with index: " .. player_index)
 	end
@@ -456,7 +464,7 @@ function update_hud(player_index)
 	end
 
 	local hud_position = get_hud_position_setting(player_index)
-	if hud_position == HUD_POSITION.bottom_right then
+	if hud_position == const.HUD_POSITION.bottom_right then
 		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
 	end
@@ -465,7 +473,7 @@ end
 function update_collapse_state(player_index, toggle_state)
 	set_hud_collapsed(player_index, toggle_state)
 
-	local toggle_ref = get_hud_ref(player_index, HUD_NAMES.hud_toggle_button)
+	local toggle_ref = get_hud_ref(player_index, const.HUD_NAMES.hud_toggle_button)
 	if toggle_ref then
 		if get_hud_collapsed(player_index) then
 			toggle_ref.sprite = "utility/expand"
@@ -476,20 +484,20 @@ function update_collapse_state(player_index, toggle_state)
 
 	-- true is collapsed, false is visible
 	if toggle_state then
-		destroy_hud_ref(player_index, HUD_NAMES.hud_title_label)
-		destroy_hud_ref(player_index, HUD_NAMES.hud_header_spacer)
-		destroy_hud_ref(player_index, HUD_NAMES.hud_search_text_field)
-		destroy_hud_ref(player_index, HUD_NAMES.hud_search_button)
-		destroy_hud_ref(player_index, HUD_NAMES.hud_settings_button)
+		destroy_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
+		destroy_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
+		destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
+		destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_button)
+		destroy_hud_ref(player_index, const.HUD_NAMES.hud_settings_button)
 
-		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
-		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane_frame)
+		destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane)
+		destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
 	else
 		reset_hud(player_index)
 	end
 
 	-- If bottom-right fixed than align
-	if get_hud_position_setting(player_index) == HUD_POSITION.bottom_right then
+	if get_hud_position_setting(player_index) == const.HUD_POSITION.bottom_right then
 		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
 	end
@@ -630,7 +638,7 @@ function calculate_hud_size(player_index)
 end
 
 function move_hud_bottom_right(player_index)
-	local root_frame = get_hud_ref(player_index, HUD_NAMES.hud_root_frame)
+	local root_frame = get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
 	if root_frame then
 		local player = get_player(player_index)
 		local size = get_hud_size(player_index)
@@ -653,13 +661,13 @@ end
 function handle_hud_gui_events(player_index, action)
 	local player = get_player(player_index)
 
-	if action.action == GUI_ACTIONS.toggle then
+	if action.action == const.GUI_ACTIONS.toggle then
 		local toggle_state = not get_hud_collapsed(player_index)
 		update_collapse_state(player_index, toggle_state)
 		return
 	end
 
-	if action.action == GUI_ACTIONS.go_to_combinator then
+	if action.action == const.GUI_ACTIONS.go_to_combinator then
 		if action.unit_number then
 			-- find the entity
 			local hud_combinator = get_hud_combinator_entity(action.unit_number)
@@ -672,29 +680,29 @@ function handle_hud_gui_events(player_index, action)
 	end
 
 	-- Open HUD Combinator
-	if action.action == GUI_ACTIONS.open_combinator then
+	if action.action == const.GUI_ACTIONS.open_combinator then
 		create_combinator_gui(player_index, action.unit_number)
 		return
 	end
 
 	-- Toggle Search Bar
-	if action.action == GUI_ACTIONS.toggle_search_bar then
+	if action.action == const.GUI_ACTIONS.toggle_search_bar then
 		-- Show/Hide the search text field
-		local text_field = get_hud_ref(player_index, HUD_NAMES.hud_search_text_field)
+		local text_field = get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
 		local state = not text_field.visible
 		text_field.visible = state
 
 		-- Hide/Show the following GUI Elements
-		local title_label = get_hud_ref(player_index, HUD_NAMES.hud_title_label)
+		local title_label = get_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
 		title_label.visible = not state
-		local header_spacer = get_hud_ref(player_index, HUD_NAMES.hud_header_spacer)
+		local header_spacer = get_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
 		header_spacer.visible = not state
 		return
 	end
 
 	-- Search Text Changed
-	if action.action == GUI_ACTIONS.search_bar_change then
-		local text_field = get_hud_ref(player_index, HUD_NAMES.hud_search_text_field)
+	if action.action == const.GUI_ACTIONS.search_bar_change then
+		local text_field = get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
 		set_hud_search_text(player_index, text_field.text)
 		update_hud(player_index)
 		return
