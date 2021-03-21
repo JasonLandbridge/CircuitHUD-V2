@@ -1,10 +1,10 @@
 PREFIX = "CIRCUIT_HUD_"
 HUD_NAMES = {
-	hud_root_frame = PREFIX .. "hud-root-frame",
-	hud_scroll_pane = PREFIX .. "hud-scroll-pane",
-	hud_scroll_pane_frame = PREFIX .. "hud-scroll-pane-frame",
-	hud_toggle_button = PREFIX .. "hud-toggle-button",
-	hud_settings_button = PREFIX .. "hud-settings-button",
+	hud_root_frame = PREFIX .. "hud_root_frame",
+	hud_scroll_pane = PREFIX .. "hud_scroll_pane",
+	hud_scroll_pane_frame = PREFIX .. "hud_scroll_pane_frame",
+	hud_toggle_button = PREFIX .. "hud_toggle_button",
+	hud_settings_button = PREFIX .. "hud_settings_button",
 	hud_title_label = PREFIX .. "hud_title_label",
 	hud_header_spacer = PREFIX .. "hud_header_spacer",
 	hud_search_text_field = PREFIX .. "hud_search_textfield",

@@ -168,9 +168,20 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 	end
 end
 
--- Create frame in which to put the other GUI elements
+-- Build the HUD with the signals
+-- @param player_index The index of the player
+function build_interface(player_index)
+	-- First check if there are any existing HUD combinator
+	if not has_hud_combinators() then
+		debug_log(player_index, "There are no HUD Combinators registered so we can't create the HUD")
+		return
+	end
 
-local function create_root_frame(player_index)
+	if get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
+		debug_log(player_index, "Can't create a new HUD while the old one still exists")
+		return
+	end
+
 	local player = get_player(player_index)
 
 	local hud_position = get_hud_position_setting(player_index)
@@ -195,11 +206,40 @@ local function create_root_frame(player_index)
 				direction = "vertical",
 				name = HUD_NAMES.hud_root_frame,
 				style = "hud-root-frame-style",
-				ref = {"root_frame"},
-				children = {}
+				ref = {
+					HUD_NAMES.hud_root_frame
+				},
+				children = {
+					{
+						type = "scroll-pane",
+						name = HUD_NAMES.hud_scroll_pane,
+						vertical_scroll_policy = "auto",
+						style = "hud_scrollpane_style",
+						ref = {
+							HUD_NAMES.hud_scroll_pane
+						},
+						children = {
+							{
+								type = "flow",
+								name = HUD_NAMES.hud_scroll_pane_frame,
+								style = "hud_scrollpane_frame_style",
+								ref = {
+									HUD_NAMES.hud_scroll_pane_frame
+								},
+								direction = "vertical"
+							}
+						}
+					}
+				}
 			}
 		}
 	)
+
+	local root_frame = refs[HUD_NAMES.hud_root_frame]
+	-- Set references to root GUI Elements
+	set_hud_element_ref(player_index, HUD_NAMES.hud_root_frame, refs[HUD_NAMES.hud_root_frame])
+	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane, refs[HUD_NAMES.hud_scroll_pane])
+	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane_frame, refs[HUD_NAMES.hud_scroll_pane_frame])
 
 	-- Only create header when the settings allow for it
 	if not get_hide_hud_header_setting(player_index) then
@@ -212,7 +252,7 @@ local function create_root_frame(player_index)
 
 		local header_refs =
 			flib_gui.build(
-			refs.root_frame,
+			root_frame,
 			{
 				{
 					type = "flow",
@@ -311,7 +351,7 @@ local function create_root_frame(player_index)
 
 		-- Set frame to be draggable
 		if get_is_hud_draggable(player_index) then
-			header_refs["bar"].drag_target = refs.root_frame
+			header_refs[HUD_NAMES.hud_header_spacer].drag_target = root_frame
 		end
 
 		set_hud_element_ref(player_index, HUD_NAMES.hud_title_label, header_refs[HUD_NAMES.hud_title_label])
@@ -332,46 +372,7 @@ local function create_root_frame(player_index)
 		move_hud_bottom_right(player_index)
 	end
 
-	refs.root_frame.style.maximal_height = get_hud_max_height_setting(player_index)
-
-	return refs.root_frame
-end
-
--- Build the HUD with the signals
--- @param player_index The index of the player
-function build_interface(player_index)
-	-- First check if there are any existing HUD combinator
-	if not has_hud_combinators() then
-		debug_log(player_index, "There are no HUD Combinators registered so we can't create the HUD")
-		return
-	end
-
-	if get_hud_ref(player_index, HUD_NAMES.hud_root_frame) then
-		debug_log(player_index, "Can't create a new HUD while the old one still exists")
-		return
-	end
-
-	local root_frame = create_root_frame(player_index)
-
-	local scroll_pane =
-		root_frame.add {
-		name = HUD_NAMES.hud_scroll_pane,
-		type = "scroll-pane",
-		vertical_scroll_policy = "auto",
-		style = "hud_scrollpane_style"
-	}
-
-	local scroll_pane_frame =
-		scroll_pane.add {
-		name = HUD_NAMES.hud_scroll_pane_frame,
-		type = "flow",
-		style = "hud_scrollpane_frame_style",
-		direction = "vertical"
-	}
-
-	set_hud_element_ref(player_index, HUD_NAMES.hud_root_frame, root_frame)
-	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane, scroll_pane)
-	set_hud_element_ref(player_index, HUD_NAMES.hud_scroll_pane_frame, scroll_pane_frame)
+	root_frame.style.maximal_height = get_hud_max_height_setting(player_index)
 end
 
 -- Go over each player and ensure that their HUD is either visible or hidden based on the existense of HUD combinators.
