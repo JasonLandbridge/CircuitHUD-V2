@@ -711,4 +711,10 @@ function handle_hud_gui_events(player_index, action)
 		update_hud(player_index)
 		return
 	end
+
+	-- Open Settings page
+	if action.action == const.GUI_ACTIONS.open_settings then
+		create_settings_gui(player_index)
+		return
+	end
 end

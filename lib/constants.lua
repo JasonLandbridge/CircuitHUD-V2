@@ -12,14 +12,14 @@ const.HUD_NAMES = {
 	hud_header_spacer = const.PREFIX .. "hud_header_spacer",
 	hud_search_text_field = const.PREFIX .. "hud_search_textfield",
 	hud_search_button = const.PREFIX .. "hud_search_button",
-	combinator_root_frame = const.PREFIX .. "combinator_frame_root_frame"
+	combinator_root_frame = const.PREFIX .. "combinator_root_frame",
+	settings_root_frame = const.PREFIX .. "settings_root_frame"
 }
 
 const.GUI_TYPES = {
 	combinator = "COMBINATOR_GUI",
 	hud = "HUD_GUI",
-	settings = "SETTINGS_GUI",
-	textbox_hud_entity_map = "textbox_hud_entity_map"
+	settings = "SETTINGS_GUI"
 }
 
 const.HUD_COMBINATOR_NAME = "hud-combinator"

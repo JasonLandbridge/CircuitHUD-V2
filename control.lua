@@ -4,6 +4,7 @@ local const = require("lib.constants")
 require "lib/migration"
 
 require "gui/combinator-gui"
+require "gui/settings-gui"
 require "gui/hud-gui"
 
 require "global/global"
@@ -172,6 +173,10 @@ Event.register(
 
 		if action.gui == const.GUI_TYPES.hud then
 			handle_hud_gui_events(event.player_index, action)
+		end
+
+		if action.gui == const.GUI_TYPES.settings then
+			handle_settings_gui_events(event.player_index, action)
 		end
 	end
 )

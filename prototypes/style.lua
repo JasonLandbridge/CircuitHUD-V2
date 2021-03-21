@@ -64,3 +64,11 @@ default_gui["hud_combinator_label"] = {
 	maximal_height = 24,
 	want_ellipsis = true
 }
+
+
+default_gui["ch_settings_category_frame"] = {
+	type = "frame_style",
+	parent = "bordered_frame",
+	horizontally_stretchable = "on",
+	right_padding = 8
+  }
