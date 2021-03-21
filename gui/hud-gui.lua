@@ -518,8 +518,14 @@ end
 
 -- Calculate the width and height of the HUD due to GUIElement.size not being available
 function calculate_hud_size(player_index)
+	local player = get_player(player_index)
+
+	local function adjust_size_scale(size)
+		return {width = stdlib_math.round(size.width * player.display_scale), height = stdlib_math.round(size.height * player.display_scale)}
+	end
+
 	if get_hud_collapsed(player_index) then
-		local size = {width = 40, height = 40}
+		local size = adjust_size_scale({width = 40, height = 40})
 		set_hud_size(player_index, size)
 		return size
 	end
@@ -607,7 +613,6 @@ function calculate_hud_size(player_index)
 		i = i + 1
 	end
 
-	local player = get_player(player_index)
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
 	local width = max(combinator_cat_width) + 24
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
@@ -630,7 +635,7 @@ function calculate_hud_size(player_index)
 	-- clamp height at the max-height setting, or if lower the height of the screen resolution
 	height = stdlib_math.clamp(height, 30, max_height)
 
-	local size = {width = stdlib_math.round(width * player.display_scale), height = stdlib_math.round(height * player.display_scale)}
+	local size = adjust_size_scale({width = width, height = height})
 	debug_log(player_index, "HUD size, width: " .. tostring(size.width) .. ", height: " .. tostring(size.height))
 	set_hud_size(player_index, size)
 	return size
