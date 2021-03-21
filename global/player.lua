@@ -20,14 +20,6 @@ function get_player_global(player_index)
 	return global.players[player_index]
 end
 
-function get_hud_combinators()
-	return global.hud_combinators
-end
-
-function has_hud_combinators()
-	return table_size(get_hud_combinators()) > 0
-end
-
 --#region Get Player Properties
 
 function get_hud_collapsed(player_index)
@@ -40,14 +32,6 @@ end
 
 function get_hud_size(player_index)
 	return get_player_global(player_index).hud_size
-end
-
---#endregion
-
---#region Get HUD References
-
-function get_hud_ref(player_index, key)
-	return get_player_global(player_index).elements[key]
 end
 
 --#endregion
@@ -142,25 +126,4 @@ function destroy_hud(player_index)
 
 	-- Clear all elements for the player
 	global.players[player_index].elements = {}
-end
-
-function ensure_global_state()
-	-- A collection of all players with their individual data
-	if not valid(global.players) then
-		global.players = {}
-	end
-
-	-- A collection of all HUD Combinators entities in game
-	if not valid(global.hud_combinators) then
-		global.hud_combinators = {}
-	end
-
-	if not global.refresh_rate then
-		global.refresh_rate = 60
-	end
-end
-
-function reset_global_state()
-	global = {}
-	ensure_global_state()
 end
