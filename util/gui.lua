@@ -1,4 +1,5 @@
-local math = require("__stdlib__/stdlib/utils/math")
+local stdlib_math = require("__stdlib__/stdlib/utils/math")
+local stdlib_string = require("__stdlib__/stdlib/utils/string")
 local flib_gui = require("__flib__.gui-beta")
 
 -- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
@@ -95,8 +96,8 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 	-- Check if this HUD Combinator has any signals coming in to show in the HUD.
 	local max_columns = get_hud_columns_setting(scroll_pane_frame.player_index)
 
-	local red_network = hud_combinator.get_circuit_network(defines.wire_type.red)
-	local green_network = hud_combinator.get_circuit_network(defines.wire_type.green)
+	local red_network = hud_combinator.entity.get_circuit_network(defines.wire_type.red)
+	local green_network = hud_combinator.entity.get_circuit_network(defines.wire_type.green)
 
 	local networks = {green_network, red_network}
 	local network_colors = {"green", "red"}
@@ -218,16 +219,84 @@ local function create_root_frame(player_index)
 					direction = "horizontal",
 					children = {
 						-- add the title label
-						{type = "label", ref = {"title"}, caption = get_hud_title_setting(player_index), style = "frame_title"},
+						{
+							type = "label",
+							style = "frame_title",
+							name = HUD_NAMES.hud_title_label,
+							ref = {HUD_NAMES.hud_title_label},
+							caption = get_hud_title_setting(player_index)
+						},
 						-- either a draggable frame bar or empty space
-						{type = "empty-widget", ref = {"bar"}, name = HUD_NAMES.hud_header_spacer, style = header_style},
-						-- add a "toggle" button
+						{
+							type = "empty-widget",
+							style = header_style,
+							name = HUD_NAMES.hud_header_spacer,
+							ref = {HUD_NAMES.hud_header_spacer}
+						},
+						-- Search Text Field
+						{
+							type = "textfield",
+							style = "stretchable_textfield",
+							name = HUD_NAMES.hud_search_text_field,
+							style_mods = {top_margin = -3},
+							visible = false,
+							ref = {HUD_NAMES.hud_search_text_field},
+							actions = {
+								on_text_changed = {
+									gui = GUI_TYPES.hud,
+									action = GUI_ACTIONS.search_bar_change
+								}
+							}
+						},
+						-- Search Button
 						{
 							type = "sprite-button",
 							style = "frame_action_button",
-							ref = {"toggle_button"},
-							sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
+							name = HUD_NAMES.hud_search_button,
+							ref = {
+								HUD_NAMES.hud_search_button
+							},
+							tooltip = {"rcalc-gui.search-instruction"},
+							sprite = "utility/search_white",
+							hovered_sprite = "utility/search_black",
+							clicked_sprite = "utility/search_black",
+							mouse_button_filter = {"left"},
+							actions = {
+								on_click = {
+									gui = GUI_TYPES.hud,
+									action = GUI_ACTIONS.toggle_search_bar
+								}
+							}
+						},
+						-- Settings Button
+						{
+							type = "sprite-button",
+							style = "frame_action_button",
+							name = HUD_NAMES.hud_settings_button,
+							ref = {
+								HUD_NAMES.hud_settings_button
+							},
+							tooltip = {"rb-gui.settings"},
+							sprite = "rb_settings_white",
+							hovered_sprite = "rb_settings_black",
+							clicked_sprite = "rb_settings_black",
+							mouse_button_filter = {"left"},
+							actions = {
+								on_click = {
+									gui = GUI_TYPES.hud,
+									action = GUI_ACTIONS.open_settings
+								}
+							}
+						},
+						-- Toggle Button
+						{
+							type = "sprite-button",
 							name = HUD_NAMES.hud_toggle_button,
+							style = "frame_action_button",
+							ref = {
+								HUD_NAMES.hud_toggle_button
+							},
+							sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
 							actions = {
 								on_click = {
 									gui = GUI_TYPES.hud,
@@ -244,9 +313,12 @@ local function create_root_frame(player_index)
 		if get_is_hud_draggable(player_index) then
 			header_refs["bar"].drag_target = refs.root_frame
 		end
-		set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, header_refs["bar"])
-		set_hud_element_ref(player_index, HUD_NAMES.hud_title_label, header_refs["title"])
-		set_hud_element_ref(player_index, HUD_NAMES.hud_toggle_button, header_refs["toggle_button"])
+
+		set_hud_element_ref(player_index, HUD_NAMES.hud_title_label, header_refs[HUD_NAMES.hud_title_label])
+		set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, header_refs[HUD_NAMES.hud_header_spacer])
+		set_hud_element_ref(player_index, HUD_NAMES.hud_search_text_field, header_refs[HUD_NAMES.hud_search_text_field])
+		set_hud_element_ref(player_index, HUD_NAMES.hud_search_button, header_refs[HUD_NAMES.hud_search_button])
+		set_hud_element_ref(player_index, HUD_NAMES.hud_toggle_button, header_refs[HUD_NAMES.hud_toggle_button])
 	end
 
 	if get_is_hud_draggable(player_index) then
@@ -344,16 +416,41 @@ function update_hud(player_index)
 	-- Clear the frame which has the signals displayed to start the update
 	scroll_pane_frame.clear()
 
-	-- loop over every HUD Combinator provided
-	for i, meta_entity in pairs(get_hud_combinators()) do
-		local hud_combinator = meta_entity.entity
-
-		if not hud_combinator.valid then
-			-- the entity has probably just been deconstructed
-			break
+	-- Apply search query if there is any
+	local text = stdlib_string.trim(get_hud_search_text(player_index))
+	local hud_combinators = {}
+	if text ~= "" then
+		for key, hud_combinator in pairs(get_hud_combinators()) do
+			if stdlib_string.contains(hud_combinator.name:lower(), text:lower()) then
+				hud_combinators[key] = hud_combinator
+			end
 		end
+	else
+		hud_combinators = get_hud_combinators()
+	end
 
-		render_combinator(scroll_pane_frame, hud_combinator)
+	-- Check if there were no search results.
+	if text ~= "" and table_size(hud_combinators) == 0 then
+		flib_gui.build(
+			scroll_pane_frame,
+			{
+				{
+					type = "label",
+					style = "hud_combinator_label",
+					caption = "No results found!"
+				}
+			}
+		)
+	else
+		-- loop over every HUD Combinator provided
+		for _, hud_combinator in pairs(hud_combinators) do
+			if not hud_combinator.entity.valid then
+				-- the entity has probably just been deconstructed
+				break
+			end
+
+			render_combinator(scroll_pane_frame, hud_combinator)
+		end
 	end
 
 	local hud_position = get_hud_position_setting(player_index)
@@ -377,10 +474,14 @@ function update_collapse_state(player_index, toggle_state)
 
 	-- true is collapsed, false is visible
 	if toggle_state then
-		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
-		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane_frame)
 		destroy_hud_ref(player_index, HUD_NAMES.hud_title_label)
 		destroy_hud_ref(player_index, HUD_NAMES.hud_header_spacer)
+		destroy_hud_ref(player_index, HUD_NAMES.hud_search_text_field)
+		destroy_hud_ref(player_index, HUD_NAMES.hud_search_button)
+		destroy_hud_ref(player_index, HUD_NAMES.hud_settings_button)
+
+		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane)
+		destroy_hud_ref(player_index, HUD_NAMES.hud_scroll_pane_frame)
 	else
 		reset_hud(player_index)
 	end
@@ -458,7 +559,7 @@ function calculate_hud_size(player_index)
 				-- we know its at least 1 row, and the max column width has been reached
 				network_columns = max_columns_allowed
 				-- divide by max_columns_allowed and round down, add 1 to row_cound if the remainder is > 0
-				network_rows = math.floor(signal_count / max_columns_allowed) + math.clamp(signal_count % max_columns_allowed, 0, 1)
+				network_rows = stdlib_math.floor(signal_count / max_columns_allowed) + stdlib_math.clamp(signal_count % max_columns_allowed, 0, 1)
 			elseif signal_count > 0 and signal_count <= max_columns_allowed then
 				-- if less than 1 row, then simplify
 				network_columns = signal_count
@@ -474,7 +575,7 @@ function calculate_hud_size(player_index)
 			-- Process result
 			total_row_count = total_row_count + network_rows
 			if max_columns_found < network_columns then
-				max_columns_found = math.clamp(network_columns, 0, max_columns_allowed)
+				max_columns_found = stdlib_math.clamp(network_columns, 0, max_columns_allowed)
 			end
 		end
 
@@ -504,7 +605,7 @@ function calculate_hud_size(player_index)
 	local height = sum(combinator_cat_height) + 24
 
 	-- get the max height of the HUD based on the user setting or display resolution
-	local max_height = math.min(get_hud_max_height_setting(player_index), player.display_resolution.height)
+	local max_height = stdlib_math.min(get_hud_max_height_setting(player_index), player.display_resolution.height)
 
 	-- Add header height if enabled
 	if not get_hide_hud_header_setting(player_index) then
@@ -516,11 +617,11 @@ function calculate_hud_size(player_index)
 		width = width + 12
 	end
 
-	width = math.clamp(width, 240, 1000)
+	width = stdlib_math.clamp(width, 240, 1000)
 	-- clamp height at the max-height setting, or if lower the height of the screen resolution
-	height = math.clamp(height, 30, max_height)
+	height = stdlib_math.clamp(height, 30, max_height)
 
-	local size = {width = math.round(width * player.display_scale), height = math.round(height * player.display_scale)}
+	local size = {width = stdlib_math.round(width * player.display_scale), height = stdlib_math.round(height * player.display_scale)}
 	debug_log(player_index, "HUD size, width: " .. tostring(size.width) .. ", height: " .. tostring(size.height))
 	set_hud_size(player_index, size)
 	return size
@@ -549,6 +650,7 @@ end
 
 function handle_hud_gui_events(player_index, action)
 	local player = get_player(player_index)
+
 	if action.action == GUI_ACTIONS.toggle then
 		local toggle_state = not get_hud_collapsed(player_index)
 		update_collapse_state(player_index, toggle_state)
@@ -567,8 +669,32 @@ function handle_hud_gui_events(player_index, action)
 		return
 	end
 
+	-- Open HUD Combinator
 	if action.action == GUI_ACTIONS.open_combinator then
 		create_combinator_gui(player_index, action.unit_number)
+		return
+	end
+
+	-- Toggle Search Bar
+	if action.action == GUI_ACTIONS.toggle_search_bar then
+		-- Show/Hide the search text field
+		local text_field = get_hud_ref(player_index, HUD_NAMES.hud_search_text_field)
+		local state = not text_field.visible
+		text_field.visible = state
+
+		-- Hide/Show the following GUI Elements
+		local title_label = get_hud_ref(player_index, HUD_NAMES.hud_title_label)
+		title_label.visible = not state
+		local header_spacer = get_hud_ref(player_index, HUD_NAMES.hud_header_spacer)
+		header_spacer.visible = not state
+		return
+	end
+
+	-- Search Text Changed
+	if action.action == GUI_ACTIONS.search_bar_change then
+		local text_field = get_hud_ref(player_index, HUD_NAMES.hud_search_text_field)
+		set_hud_search_text(player_index, text_field.text)
+		update_hud(player_index)
 		return
 	end
 end

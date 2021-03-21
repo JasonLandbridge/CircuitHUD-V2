@@ -46,6 +46,7 @@ local migrations = {
 				value.destroy()
 			end
 		end
+		global.textbox_hud_entity_map = nil
 
 		-- Create new filters property for each HUD Combinator
 		for _, value in pairs(global.hud_combinators) do
@@ -56,7 +57,12 @@ local migrations = {
 			end
 		end
 
-		global.textbox_hud_entity_map = nil
+		-- Update players
+		for _, player in pairs(global.players) do
+			if not player["search_text"] then
+				player["search_text"] = ""
+			end
+		end
 	end
 }
 

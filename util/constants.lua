@@ -1,13 +1,15 @@
+PREFIX = "CIRCUIT_HUD_"
 HUD_NAMES = {
-	hud_root_frame = "hud-root-frame",
-	hud_scroll_pane = "hud-scroll-pane",
-	hud_scroll_pane_frame = "hud-scroll-pane-frame",
-	hud_title_label = "hud-title-label",
-	hud_header_spacer = "hud-header-spacer",
-	hud_toggle_button = "hud-toggle-button",
-	hud_settings_button = "hud-settings-button",
-	hud_search_button = "hud-search-button",
-	combinator_root_frame = "combinator_frame_root_frame"
+	hud_root_frame = PREFIX .. "hud-root-frame",
+	hud_scroll_pane = PREFIX .. "hud-scroll-pane",
+	hud_scroll_pane_frame = PREFIX .. "hud-scroll-pane-frame",
+	hud_toggle_button = PREFIX .. "hud-toggle-button",
+	hud_settings_button = PREFIX .. "hud-settings-button",
+	hud_title_label = PREFIX .. "hud_title_label",
+	hud_header_spacer = PREFIX .. "hud_header_spacer",
+	hud_search_text_field = PREFIX .. "hud_search_textfield",
+	hud_search_button = PREFIX .. "hud_search_button",
+	combinator_root_frame = PREFIX .. "combinator_frame_root_frame"
 }
 
 GUI_TYPES = {
@@ -48,9 +50,12 @@ SIGNAL_TYPE_MAP = {
 
 GUI_ACTIONS = {
 	toggle = "TOGGLE",
+	toggle_search_bar = "TOGGLE_SEARCH_BAR",
 	close = "CLOSE",
 	name_change = "NAME_CHANGED",
+	search_bar_change = "SEARCH_BAR_CHANGED",
 	open_combinator = "OPEN_COMBINATOR",
+	open_settings = "OPEN_SETTINGS",
 	go_to_combinator = "GO_TO_COMBINATOR",
 	filter_signal_update = "FILTER_SIGNAL_UPDATE",
 	switch_filter_state = "SWITCH_FILTER_STATE",

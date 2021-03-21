@@ -2,6 +2,7 @@ local global_default = {
 	hud_collapsed = false,
 	hud_size = {width = 250, height = 300},
 	hud_location = {x = 0, y = 0},
+	search_text = "",
 	elements = {}
 }
 
@@ -34,6 +35,9 @@ function get_hud_size(player_index)
 	return get_player_global(player_index).hud_size
 end
 
+function get_hud_search_text(player_index)
+	return get_player_global(player_index).search_text
+end
 --#endregion
 
 --#region Get HUD Helpers
@@ -72,6 +76,10 @@ end
 
 function set_hud_collapsed(player_index, state)
 	get_player_global(player_index).hud_collapsed = state
+end
+
+function set_hud_search_text(player_index, text)
+	get_player_global(player_index).search_text = text
 end
 
 function set_hud_element_ref(player_index, key, gui_element)
