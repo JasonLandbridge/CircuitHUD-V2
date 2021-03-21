@@ -1,15 +1,24 @@
 local math = require("__stdlib__/stdlib/utils/math")
 local flib_gui = require("__flib__.gui-beta")
 
+-- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
+-- @returns if signal is allowed to be shown
+local function filter_signal(signals, name)
+	if table_size(signals) == 0 then
+		return true
+	end
+	for _, value in pairs(signals) do
+		if value.name == name then
+			return true
+		end
+	end
+	return false
+end
+
 -- Takes the data from HUD Combinator and display it in the HUD
 -- @param scroll_pane_frame The Root frame
 -- @param hud_combinator The HUD Combinator to process
 local function render_combinator(scroll_pane_frame, hud_combinator)
-	-- Check if this HUD Combinator should be shown in the HUD
-	if not should_show_network(hud_combinator) then
-		return false -- skip rendering this combinator
-	end
-
 	-- Check flow container for the HUD Combinator category if it doesnt exist
 	local unit_number = hud_combinator.unit_number
 	local flow_id = "hud_combinator_flow_" .. tostring(unit_number)
@@ -100,6 +109,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 		return
 	end
 
+	local hide_signal_detected = false
 	local signal_total_count = 0
 	local signal_count = 0
 	-- Display the item signals coming from the red and green circuit if any
@@ -115,6 +125,13 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 			for j, signal in pairs(networks[i].signals) do
 				local signal_type = signal.signal.type
 				local signal_name = signal.signal.name
+
+				-- Check if any signal is meant to hide everything
+				if hide_signal_detected or signal_name == HIDE_SIGNAL_NAME then
+					hide_signal_detected = true
+					break
+				end
+
 				-- Check if this signal should be shown based on filtering
 				if short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
 					table.add {
@@ -128,6 +145,11 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 				end
 			end
 		end
+	end
+
+	if hide_signal_detected then
+		refs.hud_combinator_flow.destroy()
+		return
 	end
 
 	-- No signals were shown due to too strict filtering circuit

@@ -16,6 +16,7 @@ GUI_TYPES = {
 }
 
 HUD_COMBINATOR_NAME = "hud-combinator"
+HIDE_SIGNAL_NAME = "signal-hide-hud-comparator"
 
 SETTINGS = {
 	prefix = "CircuitHUD",

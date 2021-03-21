@@ -4,14 +4,14 @@ require "lib/migration.lua"
 
 require "gui/combinator-gui.lua"
 
+require "global/global"
+
 require "util/constants"
 require "util/log"
 require "util/general"
-require "util/global"
 require "util/settings"
 require "util/player"
 require "util/gui"
-require "util/combinator"
 
 local flib_gui = require("__flib__.gui-beta")
 local std_string = require("__stdlib__/stdlib/utils/string")

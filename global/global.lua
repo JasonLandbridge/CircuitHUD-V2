@@ -1,4 +1,5 @@
 require "./player.lua"
+require "./combinator.lua"
 
 function get_hud_combinators()
 	return global.hud_combinators
