@@ -1,28 +1,31 @@
-PREFIX = "CIRCUIT_HUD_"
-HUD_NAMES = {
-	hud_root_frame = PREFIX .. "hud_root_frame",
-	hud_scroll_pane = PREFIX .. "hud_scroll_pane",
-	hud_scroll_pane_frame = PREFIX .. "hud_scroll_pane_frame",
-	hud_toggle_button = PREFIX .. "hud_toggle_button",
-	hud_settings_button = PREFIX .. "hud_settings_button",
-	hud_title_label = PREFIX .. "hud_title_label",
-	hud_header_spacer = PREFIX .. "hud_header_spacer",
-	hud_search_text_field = PREFIX .. "hud_search_textfield",
-	hud_search_button = PREFIX .. "hud_search_button",
-	combinator_root_frame = PREFIX .. "combinator_frame_root_frame"
+local const = {}
+
+const.PREFIX = "CIRCUIT_HUD_"
+
+const.HUD_NAMES = {
+	hud_root_frame = const.PREFIX .. "hud_root_frame",
+	hud_scroll_pane = const.PREFIX .. "hud_scroll_pane",
+	hud_scroll_pane_frame = const.PREFIX .. "hud_scroll_pane_frame",
+	hud_toggle_button = const.PREFIX .. "hud_toggle_button",
+	hud_settings_button = const.PREFIX .. "hud_settings_button",
+	hud_title_label = const.PREFIX .. "hud_title_label",
+	hud_header_spacer = const.PREFIX .. "hud_header_spacer",
+	hud_search_text_field = const.PREFIX .. "hud_search_textfield",
+	hud_search_button = const.PREFIX .. "hud_search_button",
+	combinator_root_frame = const.PREFIX .. "combinator_frame_root_frame"
 }
 
-GUI_TYPES = {
+const.GUI_TYPES = {
 	combinator = "COMBINATOR_GUI",
 	hud = "HUD_GUI",
 	settings = "SETTINGS_GUI",
 	textbox_hud_entity_map = "textbox_hud_entity_map"
 }
 
-HUD_COMBINATOR_NAME = "hud-combinator"
-HIDE_SIGNAL_NAME = "signal-hide-hud-comparator"
+const.HUD_COMBINATOR_NAME = "hud-combinator"
+const.HIDE_SIGNAL_NAME = "signal-hide-hud-comparator"
 
-SETTINGS = {
+const.SETTINGS = {
 	prefix = "CircuitHUD",
 	hide_hud_header = "_hide_hud_header",
 	hud_title = "_hud_title",
@@ -34,7 +37,7 @@ SETTINGS = {
 	debug_mode = "_debug_mode"
 }
 
-HUD_POSITION = {
+const.HUD_POSITION = {
 	top = "top",
 	left = "left",
 	goal = "goal",
@@ -42,13 +45,13 @@ HUD_POSITION = {
 	draggable = "draggable"
 }
 
-SIGNAL_TYPE_MAP = {
+const.SIGNAL_TYPE_MAP = {
 	["item"] = "item",
 	["virtual"] = "virtual-signal",
 	["fluid"] = "fluid"
 }
 
-GUI_ACTIONS = {
+const.GUI_ACTIONS = {
 	toggle = "TOGGLE",
 	toggle_search_bar = "TOGGLE_SEARCH_BAR",
 	close = "CLOSE",
@@ -61,3 +64,5 @@ GUI_ACTIONS = {
 	switch_filter_state = "SWITCH_FILTER_STATE",
 	name_change_confirm = "NAME_CHANGE_CONFIRM"
 }
+
+return const

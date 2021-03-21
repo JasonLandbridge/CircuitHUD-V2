@@ -1,3 +1,5 @@
+local const = require("lib.constants")
+
 local global_default = {
 	hud_collapsed = false,
 	hud_size = {width = 250, height = 300},
@@ -43,23 +45,23 @@ end
 --#region Get HUD Helpers
 
 function get_is_hud_top(player_index)
-	return get_hud_position_setting(player_index) == HUD_POSITION.top
+	return get_hud_position_setting(player_index) == const.HUD_POSITION.top
 end
 
 function get_is_hud_left(player_index)
-	return get_hud_position_setting(player_index) == HUD_POSITION.left
+	return get_hud_position_setting(player_index) == const.HUD_POSITION.left
 end
 
 function get_is_hud_goal(player_index)
-	return get_hud_position_setting(player_index) == HUD_POSITION.goal
+	return get_hud_position_setting(player_index) == const.HUD_POSITION.goal
 end
 
 function get_is_hud_draggable(player_index)
-	return get_hud_position_setting(player_index) == HUD_POSITION.draggable
+	return get_hud_position_setting(player_index) == const.HUD_POSITION.draggable
 end
 
 function get_is_hud_bottom_right(player_index)
-	return get_hud_position_setting(player_index) == HUD_POSITION.bottom_right
+	return get_hud_position_setting(player_index) == const.HUD_POSITION.bottom_right
 end
 
 --#endregion
@@ -123,10 +125,17 @@ function destroy_hud(player_index)
 	local player = get_player(player_index)
 
 	-- Ensure we delete any remnants of stray HUD's we created
-	local locations = {HUD_POSITION.top, HUD_POSITION.left, HUD_POSITION.center, HUD_POSITION.goal, HUD_POSITION.screen, HUD_POSITION.relative}
+	local locations = {
+		const.HUD_POSITION.top,
+		const.HUD_POSITION.left,
+		const.HUD_POSITION.center,
+		const.HUD_POSITION.goal,
+		const.HUD_POSITION.screen,
+		const.HUD_POSITION.relative
+	}
 	for _, location in pairs(locations) do
 		for _, child in pairs(player.gui[location].children) do
-			if child.name == HUD_NAMES.hud_root_frame then
+			if child.name == const.HUD_NAMES.hud_root_frame then
 				child.destroy()
 			end
 		end

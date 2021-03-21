@@ -1,17 +1,17 @@
 require "mod-gui"
 
-require "lib/migration.lua"
+local const = require("lib.constants")
+require "lib/migration"
 
-require "gui/combinator-gui.lua"
+require "gui/combinator-gui"
+require "gui/hud-gui"
 
 require "global/global"
 
-require "util/constants"
 require "util/log"
 require "util/general"
 require "util/settings"
 require "util/player"
-require "util/gui"
 
 local flib_gui = require("__flib__.gui-beta")
 local std_string = require("__stdlib__/stdlib/utils/string")
@@ -87,7 +87,7 @@ Event.register(
 	defines.events.on_runtime_mod_setting_changed,
 	function(event)
 		-- Only update when a CircuitHUD change has been made
-		if event.player_index and string.find(event.setting, SETTINGS.prefix) then
+		if event.player_index and string.find(event.setting, const.SETTINGS.prefix) then
 			if event.setting == "CircuitHUD_hud_refresh_rate" then
 				global.refresh_rate = get_refresh_rate_setting()
 			end
@@ -104,7 +104,7 @@ Event.register(
 Event.register(
 	defines.events.on_gui_opened,
 	function(event)
-		if (not (event.entity == nil)) and (event.entity.name == HUD_COMBINATOR_NAME) then
+		if (not (event.entity == nil)) and (event.entity.name == const.HUD_COMBINATOR_NAME) then
 			-- create the HUD Combinator Gui
 			create_combinator_gui(event.player_index, event.entity.unit_number)
 		end
@@ -115,7 +115,7 @@ Event.register(
 	defines.events.on_gui_closed,
 	function(event)
 		-- check if it's and HUD Combinator GUI and close that
-		if (not (event.element == nil)) and std_string.starts_with(event.element.name, HUD_NAMES.combinator_root_frame) then
+		if (not (event.element == nil)) and std_string.starts_with(event.element.name, const.HUD_NAMES.combinator_root_frame) then
 			-- create the HUD Combinator Gui
 			destroy_combinator_gui(event.player_index, event.element.name)
 		end
@@ -135,11 +135,11 @@ Event.register(
 
 		action["text"] = event.text
 
-		if action.gui == GUI_TYPES.combinator then
+		if action.gui == const.GUI_TYPES.combinator then
 			handle_combinator_gui_events(event.player_index, action)
 		end
 
-		if action.gui == GUI_TYPES.hud then
+		if action.gui == const.GUI_TYPES.hud then
 			handle_hud_gui_events(event.player_index, action)
 		end
 	end
@@ -148,7 +148,7 @@ Event.register(
 Event.register(
 	defines.events.on_gui_location_changed,
 	function(event)
-		if event.element.name == HUD_NAMES.hud_root_frame then
+		if event.element.name == const.HUD_NAMES.hud_root_frame then
 			-- save the coordinates if the hud is draggable
 			if get_hud_position_setting(event.player_index) == "draggable" then
 				set_hud_location(event.player_index, event.element.location)
@@ -166,11 +166,11 @@ Event.register(
 			return
 		end
 
-		if action.gui == GUI_TYPES.combinator then
+		if action.gui == const.GUI_TYPES.combinator then
 			handle_combinator_gui_events(event.player_index, action)
 		end
 
-		if action.gui == GUI_TYPES.hud then
+		if action.gui == const.GUI_TYPES.hud then
 			handle_hud_gui_events(event.player_index, action)
 		end
 	end
@@ -186,11 +186,11 @@ Event.register(
 
 		action["signal"] = event.element.elem_value
 
-		if action.gui == GUI_TYPES.combinator then
+		if action.gui == const.GUI_TYPES.combinator then
 			handle_combinator_gui_events(event.player_index, action)
 		end
 
-		if action.gui == GUI_TYPES.hud then
+		if action.gui == const.GUI_TYPES.hud then
 			handle_hud_gui_events(event.player_index, action)
 		end
 	end
@@ -207,11 +207,11 @@ Event.register(
 
 		action["state"] = event.element.switch_state == "right"
 
-		if action.gui == GUI_TYPES.combinator then
+		if action.gui == const.GUI_TYPES.combinator then
 			handle_combinator_gui_events(event.player_index, action)
 		end
 
-		if action.gui == GUI_TYPES.hud then
+		if action.gui == const.GUI_TYPES.hud then
 			handle_hud_gui_events(event.player_index, action)
 		end
 	end
@@ -220,7 +220,7 @@ Event.register(
 --#region Register / De-register HUD Combinator
 
 local function set_combinator_registration(entity, state)
-	if entity.name == HUD_COMBINATOR_NAME then
+	if entity.name == const.HUD_COMBINATOR_NAME then
 		if state then
 			register_combinator(entity)
 		else

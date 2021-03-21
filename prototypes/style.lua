@@ -1,7 +1,7 @@
 local default_gui = data.raw["gui-style"].default
 default_gui["hud-root-frame-style"] = {
 	type = "frame_style",
-	minimal_width = 34,
+	minimal_width = 300,
 	minimal_height = 34,
 	top_padding = 4,
 	right_padding = 4,

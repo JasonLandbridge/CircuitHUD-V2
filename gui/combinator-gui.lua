@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui-beta")
-local Event = require("__stdlib__/stdlib/event/event")
 local std_string = require("__stdlib__/stdlib/utils/string")
+
+local const = require("lib.constants")
 
 -- Generates the GUI Elements to be placed in children = {} property of a parent
 local function generate_signal_filter_table(unit_number)
@@ -15,8 +16,8 @@ local function generate_signal_filter_table(unit_number)
 			signal = filters[i], -- If this slot has a signal assigned, than set this signal here
 			actions = {
 				on_elem_changed = {
-					gui = GUI_TYPES.combinator,
-					action = GUI_ACTIONS.filter_signal_update,
+					gui = const.GUI_TYPES.combinator,
+					action = const.GUI_ACTIONS.filter_signal_update,
 					index = i,
 					unit_number = unit_number
 				}
@@ -40,7 +41,7 @@ function create_combinator_gui(player_index, unit_number)
 	end
 
 	-- add the frame
-	local ui_name = HUD_NAMES.combinator_root_frame .. "_" .. tostring(unit_number)
+	local ui_name = const.HUD_NAMES.combinator_root_frame .. "_" .. tostring(unit_number)
 	local refs =
 		flib_gui.build(
 		player.gui.screen,
@@ -53,7 +54,7 @@ function create_combinator_gui(player_index, unit_number)
 					maximal_width = 500
 				},
 				ref = {
-					HUD_NAMES.combinator_root_frame
+					const.HUD_NAMES.combinator_root_frame
 				},
 				direction = "vertical",
 				children = {
@@ -82,8 +83,8 @@ function create_combinator_gui(player_index, unit_number)
 								sprite = "utility/close_white",
 								actions = {
 									on_click = {
-										gui = GUI_TYPES.combinator,
-										action = GUI_ACTIONS.close,
+										gui = const.GUI_TYPES.combinator,
+										action = const.GUI_ACTIONS.close,
 										unit_number = unit_number
 									}
 								}
@@ -136,8 +137,8 @@ function create_combinator_gui(player_index, unit_number)
 										text = get_hud_combinator_name(unit_number),
 										actions = {
 											on_text_changed = {
-												gui = GUI_TYPES.combinator,
-												action = GUI_ACTIONS.name_change,
+												gui = const.GUI_TYPES.combinator,
+												action = const.GUI_ACTIONS.name_change,
 												unit_number = unit_number
 											}
 										}
@@ -148,8 +149,8 @@ function create_combinator_gui(player_index, unit_number)
 										sprite = "utility/check_mark",
 										actions = {
 											on_click = {
-												gui = GUI_TYPES.combinator,
-												action = GUI_ACTIONS.name_change_confirm,
+												gui = const.GUI_TYPES.combinator,
+												action = const.GUI_ACTIONS.name_change_confirm,
 												unit_number = unit_number
 											}
 										}
@@ -183,8 +184,8 @@ function create_combinator_gui(player_index, unit_number)
 												right_label_caption = {"hud_combinator_gui.switch_on"},
 												actions = {
 													on_switch_state_changed = {
-														gui = GUI_TYPES.combinator,
-														action = GUI_ACTIONS.switch_filter_state,
+														gui = const.GUI_TYPES.combinator,
+														action = const.GUI_ACTIONS.switch_filter_state,
 														unit_number = unit_number
 													}
 												}
@@ -263,7 +264,7 @@ function create_combinator_gui(player_index, unit_number)
 		}
 	)
 
-	local root_frame = refs[HUD_NAMES.combinator_root_frame]
+	local root_frame = refs[const.HUD_NAMES.combinator_root_frame]
 	refs.titlebar_flow.drag_target = root_frame
 	refs.name_field.select(0, 0)
 
@@ -348,33 +349,33 @@ function handle_combinator_gui_events(player_index, action)
 		return
 	end
 
-	if action.action == GUI_ACTIONS.close then
+	if action.action == const.GUI_ACTIONS.close then
 		set_hud_combinator_temp_name(action.unit_number, "")
 		combinator_gui.destroy()
 		return
 	end
 
-	if action.action == GUI_ACTIONS.switch_filter_state then
+	if action.action == const.GUI_ACTIONS.switch_filter_state then
 		set_hud_combinator_filter_state(action.unit_number, action["state"])
 		-- Reset HUD all players on update
 		reset_hud_all_players()
 		return
 	end
 
-	if action.action == GUI_ACTIONS.filter_signal_update then
+	if action.action == const.GUI_ACTIONS.filter_signal_update then
 		set_hud_combinator_filter(action.unit_number, action.index, action.signal)
 		-- Reset HUD all players on update
 		reset_hud_all_players()
 		return
 	end
 
-	if action.action == GUI_ACTIONS.name_change then
+	if action.action == const.GUI_ACTIONS.name_change then
 		set_hud_combinator_temp_name(action.unit_number, action.text)
 		update_combinator_gui(player_index, action.unit_number)
 		return
 	end
 
-	if action.action == GUI_ACTIONS.name_change_confirm then
+	if action.action == const.GUI_ACTIONS.name_change_confirm then
 		-- Set the confirmed name from the temp name
 		local tmp_name = get_hud_combinator_temp_name(action.unit_number)
 		set_hud_combinator_name(action.unit_number, tmp_name)

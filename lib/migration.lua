@@ -1,6 +1,7 @@
 local Event = require("__stdlib__/stdlib/event/event")
 
 local migration = require("__flib__.migration")
+local const = require("lib.constants")
 
 -- each function will be run when upgrading from a version older than it
 -- for example, if we were upgraing from 1.0.3 to 1.1.0, the last two functions would run, but not the first
@@ -23,17 +24,17 @@ local migrations = {
 				end
 				-- Move the toggle_button ref
 				if player_global["toggle_button"] then
-					set_hud_element_ref(player.index, HUD_NAMES.hud_toggle_button, player_global["toggle_button"])
+					set_hud_element_ref(player.index, const.HUD_NAMES.hud_toggle_button, player_global["toggle_button"])
 					player_global["toggle_button"] = nil
 				end
 				-- Move the root_frame ref
 				if player_global["root_frame"] then
-					set_hud_element_ref(player.index, HUD_NAMES.hud_root_frame, player_global["root_frame"])
+					set_hud_element_ref(player.index, const.HUD_NAMES.hud_root_frame, player_global["root_frame"])
 					player_global["root_frame"] = nil
 				end
 				-- Move the inner_frame ref
 				if player_global["inner_frame"] then
-					set_hud_element_ref(player.index, HUD_NAMES.hud_scroll_pane_frame, player_global["inner_frame"])
+					set_hud_element_ref(player.index, const.HUD_NAMES.hud_scroll_pane_frame, player_global["inner_frame"])
 					player_global["inner_frame"] = nil
 				end
 			end

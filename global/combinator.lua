@@ -1,3 +1,5 @@
+local const = require("lib.constants")
+
 local function add_hud_combinator_ref(hud_combinator)
 	global.hud_combinators[hud_combinator.unit_number] = {
 		["entity"] = hud_combinator,
@@ -117,7 +119,7 @@ function check_combinator_registrations()
 	-- find entities not discovered
 	for i, surface in pairs(game.surfaces) do
 		-- find all hud combinator
-		local hud_combinators = surface.find_entities_filtered {name = HUD_COMBINATOR_NAME}
+		local hud_combinators = surface.find_entities_filtered {name = const.HUD_COMBINATOR_NAME}
 
 		if hud_combinators then
 			for _, hud_combinator in pairs(hud_combinators) do
