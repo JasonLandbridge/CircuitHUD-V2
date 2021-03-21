@@ -2,6 +2,31 @@ local flib_gui = require("__flib__.gui-beta")
 local Event = require("__stdlib__/stdlib/event/event")
 local std_string = require("__stdlib__/stdlib/utils/string")
 
+-- Generates the GUI Elements to be placed in children = {} property of a parent
+local function generate_signal_filter_table(unit_number)
+	local result = {}
+	local filters = get_hud_combinator_filters(unit_number)
+	for i = 1, 50, 1 do
+		result[i] = {
+			name = "circuit_hud_signal_button__" .. i,
+			type = "choose-elem-button",
+			style = "flib_slot_button_default",
+			elem_type = "signal",
+			signal = filters[i], -- If this slot has a signal assigned, than set this signal here
+			actions = {
+				on_elem_changed = {
+					gui = GUI_TYPES.combinator,
+					action = GUI_ACTIONS.filter_signal_update,
+					index = i,
+					unit_number = unit_number
+				}
+			}
+		}
+	end
+
+	return result
+end
+
 function create_combinator_gui(player_index, unit_number)
 	-- Check if it doesn't exist already
 	local player = get_player(player_index)
@@ -195,7 +220,8 @@ function create_combinator_gui(player_index, unit_number)
 												style = "slot_table",
 												save_as = "signal_table",
 												style_mods = {width = 400},
-												column_count = 10
+												column_count = 10,
+												children = generate_signal_filter_table(unit_number)
 											}
 										}
 									},
@@ -243,30 +269,6 @@ function create_combinator_gui(player_index, unit_number)
 
 	refs.hud_preview.visible = true
 	refs.hud_preview.entity = get_hud_combinator_entity(unit_number)
-	local signal_table = refs.signal_table
-	local filters = get_hud_combinator_filters(unit_number)
-	for i = 1, 50, 1 do
-		flib_gui.build(
-			signal_table,
-			{
-				{
-					name = "circuit_hud_signal_button__" .. i,
-					type = "choose-elem-button",
-					style = "flib_slot_button_default",
-					elem_type = "signal",
-					signal = filters[i], -- If this slot has a signal assigned, than set this signal here
-					actions = {
-						on_elem_changed = {
-							gui = GUI_TYPES.combinator,
-							action = GUI_ACTIONS.filter_signal_update,
-							index = i,
-							unit_number = unit_number
-						}
-					}
-				}
-			}
-		)
-	end
 
 	-- We need to overwrite the "to be opened GUI" with our own GUI
 	player.opened = root_frame
@@ -347,6 +349,7 @@ function handle_combinator_gui_events(player_index, action)
 	end
 
 	if action.action == GUI_ACTIONS.close then
+		set_hud_combinator_temp_name(action.unit_number, "")
 		combinator_gui.destroy()
 		return
 	end
