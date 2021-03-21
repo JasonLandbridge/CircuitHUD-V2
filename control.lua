@@ -1,22 +1,23 @@
 require "mod-gui"
 
+local flib_gui = require("__flib__.gui-beta")
+local std_string = require("__stdlib__/stdlib/utils/string")
+local Event = require("__stdlib__/stdlib/event/event")
+
 local const = require("lib.constants")
+
+local common = require("lib.common")
+
+local player_settings = require("globals.player-settings")
+local combinator = require("globals.combinator")
+local player_data = require("globals.player-data")
+local base_global = require("globals.base-global")
+
 require "lib/migration"
 
 require "gui/combinator-gui"
 require "gui/settings-gui"
 require "gui/hud-gui"
-
-require "global/global"
-
-require "util/log"
-require "util/general"
-require "util/settings"
-require "util/player"
-
-local flib_gui = require("__flib__.gui-beta")
-local std_string = require("__stdlib__/stdlib/utils/string")
-local Event = require("__stdlib__/stdlib/event/event")
 
 -- Enable Lua API global Variable Viewer
 -- https://mods.factorio.com/mod/gvv
@@ -29,12 +30,12 @@ end
 Event.on_init(
 	function()
 		for _, player in pairs(game.players) do
-			debug_log(player.index, "On Init")
+			common.debug_log(player.index, "On Init")
 		end
 		-- Ensure the global state has been initialized
-		ensure_global_state()
+		base_global.ensure_global_state()
 		-- Reset all Combinator HUD references
-		check_combinator_registrations()
+		combinator.check_combinator_registrations()
 		-- Ensure we have created the HUD for all players
 		check_all_player_hud_visibility()
 	end
@@ -63,10 +64,10 @@ Event.on_nth_tick(
 Event.register(
 	defines.events.on_player_created,
 	function(event)
-		local player = get_player(event.player_index)
-		add_player_global(event.player_index)
+		local player = common.get_player(event.player_index)
+		player_data.add_player_global(event.player_index)
 		build_interface(event.player_index)
-		debug_log(event.player_index, "Circuit HUD created for player " .. player.name)
+		common.debug_log(event.player_index, "Circuit HUD created for player " .. player.name)
 	end
 )
 
@@ -77,7 +78,7 @@ Event.register(
 Event.register(
 	defines.events.on_player_removed,
 	function(event)
-		remove_player_global(event.player_index)
+		player_data.remove_player_global(event.player_index)
 	end
 )
 --#endregion
@@ -90,7 +91,7 @@ Event.register(
 		-- Only update when a CircuitHUD change has been made
 		if event.player_index and string.find(event.setting, const.SETTINGS.prefix) then
 			if event.setting == "CircuitHUD_hud_refresh_rate" then
-				global.refresh_rate = get_refresh_rate_setting()
+				global.refresh_rate = player_settings.get_refresh_rate_setting()
 			end
 			reset_hud(event.player_index)
 			-- Ensure the HUD is visible on mod setting change
@@ -151,8 +152,8 @@ Event.register(
 	function(event)
 		if event.element.name == const.HUD_NAMES.hud_root_frame then
 			-- save the coordinates if the hud is draggable
-			if get_hud_position_setting(event.player_index) == "draggable" then
-				set_hud_location(event.player_index, event.element.location)
+			if player_settings.get_hud_position_setting(event.player_index) == "draggable" then
+				player_data.set_hud_location(event.player_index, event.element.location)
 			end
 		end
 	end
@@ -227,9 +228,9 @@ Event.register(
 local function set_combinator_registration(entity, state)
 	if entity.name == const.HUD_COMBINATOR_NAME then
 		if state then
-			register_combinator(entity)
+			combinator.register_combinator(entity)
 		else
-			unregister_combinator(entity)
+			combinator.unregister_combinator(entity)
 		end
 		check_all_player_hud_visibility()
 	end

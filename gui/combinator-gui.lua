@@ -2,11 +2,13 @@ local flib_gui = require("__flib__.gui-beta")
 local std_string = require("__stdlib__/stdlib/utils/string")
 
 local const = require("lib.constants")
+local combinator = require("globals.combinator")
+local common = require("lib.common")
 
 -- Generates the GUI Elements to be placed in children = {} property of a parent
 local function generate_signal_filter_table(unit_number)
 	local result = {}
-	local filters = get_hud_combinator_filters(unit_number)
+	local filters = combinator.get_hud_combinator_filters(unit_number)
 	for i = 1, 50, 1 do
 		result[i] = {
 			name = "circuit_hud_signal_button__" .. i,
@@ -30,10 +32,10 @@ end
 
 function create_combinator_gui(player_index, unit_number)
 	-- Check if it doesn't exist already
-	local player = get_player(player_index)
+	local player = common.get_player(player_index)
 	local combinator_gui = get_combinator_gui(player_index, unit_number)
 	if combinator_gui then
-		debug_log(player_index, "HUD Combinator GUI with unit_number " .. tostring(unit_number) .. " already has a GUI open/created.")
+		common.debug_log(player_index, "HUD Combinator GUI with unit_number " .. tostring(unit_number) .. " already has a GUI open/created.")
 		-- We need to overwrite the "to be opened GUI" with our own GUI
 		player.opened = combinator_gui
 		player.opened.force_auto_center()
@@ -134,7 +136,7 @@ function create_combinator_gui(player_index, unit_number)
 											"name_field"
 										},
 										style = "stretchable_textfield",
-										text = get_hud_combinator_name(unit_number),
+										text = combinator.get_hud_combinator_name(unit_number),
 										actions = {
 											on_text_changed = {
 												gui = const.GUI_TYPES.combinator,
@@ -179,7 +181,7 @@ function create_combinator_gui(player_index, unit_number)
 										children = {
 											{
 												type = "switch",
-												switch_state = short_if(get_hud_combinator_filter_state(unit_number), "right", "left"),
+												switch_state = common.short_if(combinator.get_hud_combinator_filter_state(unit_number), "right", "left"),
 												left_label_caption = {"hud_combinator_gui.switch_off"},
 												right_label_caption = {"hud_combinator_gui.switch_on"},
 												actions = {
@@ -269,7 +271,7 @@ function create_combinator_gui(player_index, unit_number)
 	refs.name_field.select(0, 0)
 
 	refs.hud_preview.visible = true
-	refs.hud_preview.entity = get_hud_combinator_entity(unit_number)
+	refs.hud_preview.entity = combinator.get_hud_combinator_entity(unit_number)
 
 	-- We need to overwrite the "to be opened GUI" with our own GUI
 	player.opened = root_frame
@@ -277,7 +279,7 @@ function create_combinator_gui(player_index, unit_number)
 end
 
 function update_combinator_gui(player_index, unit_number)
-	local tmp_name = get_hud_combinator_temp_name(unit_number)
+	local tmp_name = combinator.get_hud_combinator_temp_name(unit_number)
 	if tmp_name ~= "" then
 		for _, player in pairs(game.players) do
 			local combinator_gui = get_combinator_gui(player.index)
@@ -311,7 +313,7 @@ function update_combinator_gui(player_index, unit_number)
 end
 
 function get_combinator_gui(player_index, unit_number)
-	local player = get_player(player_index)
+	local player = common.get_player(player_index)
 	if player then
 		local gui_windows = player.gui.screen.children
 		for _, value in pairs(gui_windows) do
@@ -324,7 +326,7 @@ function get_combinator_gui(player_index, unit_number)
 end
 
 function get_combinator_gui_by_name(player_index, name)
-	local player = get_player(player_index)
+	local player = common.get_player(player_index)
 	if player then
 		local gui_windows = player.gui.screen.children
 		for _, value in pairs(gui_windows) do
@@ -350,37 +352,37 @@ function handle_combinator_gui_events(player_index, action)
 	end
 
 	if action.action == const.GUI_ACTIONS.close then
-		set_hud_combinator_temp_name(action.unit_number, "")
+		combinator.set_hud_combinator_temp_name(action.unit_number, "")
 		combinator_gui.destroy()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.switch_filter_state then
-		set_hud_combinator_filter_state(action.unit_number, action["state"])
+		combinator.set_hud_combinator_filter_state(action.unit_number, action["state"])
 		-- Reset HUD all players on update
 		reset_hud_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.filter_signal_update then
-		set_hud_combinator_filter(action.unit_number, action.index, action.signal)
+		combinator.set_hud_combinator_filter(action.unit_number, action.index, action.signal)
 		-- Reset HUD all players on update
 		reset_hud_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.name_change then
-		set_hud_combinator_temp_name(action.unit_number, action.text)
+		combinator.set_hud_combinator_temp_name(action.unit_number, action.text)
 		update_combinator_gui(player_index, action.unit_number)
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.name_change_confirm then
 		-- Set the confirmed name from the temp name
-		local tmp_name = get_hud_combinator_temp_name(action.unit_number)
-		set_hud_combinator_name(action.unit_number, tmp_name)
+		local tmp_name = combinator.get_hud_combinator_temp_name(action.unit_number)
+		combinator.set_hud_combinator_name(action.unit_number, tmp_name)
 		-- Reset the temp name again
-		set_hud_combinator_temp_name(action.unit_number, "")
+		combinator.set_hud_combinator_temp_name(action.unit_number, "")
 		-- Reset HUD all players on update
 		reset_hud_all_players()
 		return

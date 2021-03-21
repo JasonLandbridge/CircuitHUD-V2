@@ -3,6 +3,10 @@ local stdlib_string = require("__stdlib__/stdlib/utils/string")
 local flib_gui = require("__flib__.gui-beta")
 
 local const = require("lib.constants")
+local common = require("lib.common")
+local player_settings = require("globals.player-settings")
+local combinator = require("globals.combinator")
+local player_data = require("globals.player-data")
 
 -- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
 -- @returns if signal is allowed to be shown
@@ -44,7 +48,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 							{
 								type = "label",
 								style = "hud_combinator_label",
-								caption = get_hud_combinator_name(unit_number),
+								caption = combinator.get_hud_combinator_name(unit_number),
 								name = "hud_combinator_title_" .. tostring(unit_number)
 							},
 							{type = "empty-widget", style = "flib_horizontal_pusher", ignored_by_interaction = true},
@@ -96,7 +100,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 
 	local combinator_content = refs.combinator_content
 	-- Check if this HUD Combinator has any signals coming in to show in the HUD.
-	local max_columns = get_hud_columns_setting(scroll_pane_frame.player_index)
+	local max_columns = player_settings.get_hud_columns_setting(scroll_pane_frame.player_index)
 
 	local red_network = hud_combinator.entity.get_circuit_network(defines.wire_type.red)
 	local green_network = hud_combinator.entity.get_circuit_network(defines.wire_type.green)
@@ -104,8 +108,8 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 	local networks = {green_network, red_network}
 	local network_colors = {"green", "red"}
 	local network_styles = {"green_circuit_network_content_slot", "red_circuit_network_content_slot"}
-	local signals_filter = get_hud_combinator_filters(unit_number)
-	local should_filter = get_hud_combinator_filter_state(unit_number)
+	local signals_filter = combinator.get_hud_combinator_filters(unit_number)
+	local should_filter = combinator.get_hud_combinator_filter_state(unit_number)
 
 	if should_filter and table_size(signals_filter) == 0 then
 		combinator_content.add {type = "label", style = "hud_combinator_label", caption = "Filter is on but no signals have been selected"}
@@ -136,7 +140,7 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 				end
 
 				-- Check if this signal should be shown based on filtering
-				if short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
+				if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
 					table.add {
 						type = "sprite-button",
 						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
@@ -174,28 +178,28 @@ end
 -- @param player_index The index of the player
 function build_interface(player_index)
 	-- First check if there are any existing HUD combinator
-	if not has_hud_combinators() then
-		debug_log(player_index, "There are no HUD Combinators registered so we can't create the HUD")
+	if not combinator.has_hud_combinators() then
+		common.debug_log(player_index, "There are no HUD Combinators registered so we can't create the HUD")
 		return
 	end
 
-	if get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
-		debug_log(player_index, "Can't create a new HUD while the old one still exists")
+	if player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
+		common.debug_log(player_index, "Can't create a new HUD while the old one still exists")
 		return
 	end
 
-	local player = get_player(player_index)
+	local player = common.get_player(player_index)
 
-	local hud_position = get_hud_position_setting(player_index)
+	local hud_position = player_settings.get_hud_position_setting(player_index)
 	local parent_ref = nil
 
 	-- Set HUD on the left or top side of screen
-	if get_is_hud_left(player_index) or get_is_hud_top(player_index) or get_is_hud_goal(player_index) then
+	if player_data.get_is_hud_left(player_index) or player_data.get_is_hud_top(player_index) or player_data.get_is_hud_goal(player_index) then
 		parent_ref = player.gui[hud_position]
 	end
 
 	-- Set HUD to be draggable
-	if get_is_hud_draggable(player_index) or get_is_hud_bottom_right(player_index) then
+	if player_data.get_is_hud_draggable(player_index) or player_data.get_is_hud_bottom_right(player_index) then
 		parent_ref = player.gui.screen
 	end
 
@@ -210,8 +214,7 @@ function build_interface(player_index)
 				style = "hud-root-frame-style",
 				ref = {
 					const.HUD_NAMES.hud_root_frame
-				},
-				children = {}
+				}
 			}
 		}
 	)
@@ -220,11 +223,11 @@ function build_interface(player_index)
 	-- Set references to root GUI Elements
 
 	-- Only create header when the settings allow for it
-	if not get_hide_hud_header_setting(player_index) then
+	if not player_settings.get_hide_hud_header_setting(player_index) then
 		-- create a title_flow
 
 		local header_style = "flib_horizontal_pusher"
-		if get_is_hud_draggable(player_index) then
+		if player_data.get_is_hud_draggable(player_index) then
 			header_style = "flib_titlebar_drag_handle"
 		end
 
@@ -242,7 +245,7 @@ function build_interface(player_index)
 							style = "frame_title",
 							name = const.HUD_NAMES.hud_title_label,
 							ref = {const.HUD_NAMES.hud_title_label},
-							caption = get_hud_title_setting(player_index)
+							caption = player_settings.get_hud_title_setting(player_index)
 						},
 						-- either a draggable frame bar or empty space
 						{
@@ -314,7 +317,7 @@ function build_interface(player_index)
 							ref = {
 								const.HUD_NAMES.hud_toggle_button
 							},
-							sprite = (get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
+							sprite = (player_data.get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
 							actions = {
 								on_click = {
 									gui = const.GUI_TYPES.hud,
@@ -328,16 +331,16 @@ function build_interface(player_index)
 		)
 
 		-- Set frame to be draggable
-		if get_is_hud_draggable(player_index) then
+		if player_data.get_is_hud_draggable(player_index) then
 			header_refs[const.HUD_NAMES.hud_header_spacer].drag_target = root_frame
 		end
 
-		set_hud_element_ref(player_index, const.HUD_NAMES.hud_title_label, header_refs[const.HUD_NAMES.hud_title_label])
-		set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_spacer, header_refs[const.HUD_NAMES.hud_header_spacer])
-		set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_text_field, header_refs[const.HUD_NAMES.hud_search_text_field])
-		set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_button, header_refs[const.HUD_NAMES.hud_search_button])
-		set_hud_element_ref(player_index, const.HUD_NAMES.hud_settings_button, header_refs[const.HUD_NAMES.hud_settings_button])
-		set_hud_element_ref(player_index, const.HUD_NAMES.hud_toggle_button, header_refs[const.HUD_NAMES.hud_toggle_button])
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_title_label, header_refs[const.HUD_NAMES.hud_title_label])
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_spacer, header_refs[const.HUD_NAMES.hud_header_spacer])
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_text_field, header_refs[const.HUD_NAMES.hud_search_text_field])
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_button, header_refs[const.HUD_NAMES.hud_search_button])
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_settings_button, header_refs[const.HUD_NAMES.hud_settings_button])
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_toggle_button, header_refs[const.HUD_NAMES.hud_toggle_button])
 	end
 	local body_refs =
 		flib_gui.build(
@@ -365,21 +368,21 @@ function build_interface(player_index)
 			}
 		}
 	)
-	set_hud_element_ref(player_index, const.HUD_NAMES.hud_root_frame, root_refs[const.HUD_NAMES.hud_root_frame])
-	set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane, body_refs[const.HUD_NAMES.hud_scroll_pane])
-	set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame, body_refs[const.HUD_NAMES.hud_scroll_pane_frame])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_root_frame, root_refs[const.HUD_NAMES.hud_root_frame])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane, body_refs[const.HUD_NAMES.hud_scroll_pane])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame, body_refs[const.HUD_NAMES.hud_scroll_pane_frame])
 
-	if get_is_hud_draggable(player_index) then
-		location = get_hud_location(player_index)
+	if player_data.get_is_hud_draggable(player_index) then
+		location = player_data.get_hud_location(player_index)
 	end
 
 	-- Set HUD on the bottom-right corner of the screen
-	if get_is_hud_bottom_right(player_index) then
+	if player_data.get_is_hud_bottom_right(player_index) then
 		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
 	end
 
-	root_frame.style.maximal_height = get_hud_max_height_setting(player_index)
+	root_frame.style.maximal_height = player_settings.get_hud_max_height_setting(player_index)
 end
 
 -- Go over each player and ensure that their HUD is either visible or hidden based on the existense of HUD combinators.
@@ -392,50 +395,50 @@ end
 
 -- Check  and ensure if the player has their HUD either visible or hidden based on the existense of HUD combinators.
 function should_hud_root_exist(player_index)
-	if has_hud_combinators() then
+	if combinator.has_hud_combinators() then
 		-- Ensure we have created the HUD for all players
-		if not get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
+		if not player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
 			build_interface(player_index)
 		end
 		update_hud(player_index)
 	else
 		-- Ensure all HUDS are destroyed
-		if get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
-			destroy_hud(player_index)
+		if player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
+			player_data.destroy_hud(player_index)
 		end
 	end
 end
 
 -- Update the HUD combinator categories and values in the HUD
 function update_hud(player_index)
-	if not has_hud_combinators() or get_hud_collapsed(player_index) then
+	if not combinator.has_hud_combinators() or player_data.get_hud_collapsed(player_index) then
 		return
 	end
 
-	if not get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
-		debug_log(player_index, "Can't update HUD because the HUD root does not exist for player with index: " .. player_index)
+	if not player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
+		common.debug_log(player_index, "Can't update HUD because the HUD root does not exist for player with index: " .. player_index)
 		return
 	end
 
-	local scroll_pane_frame = get_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
+	local scroll_pane_frame = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
 	if not scroll_pane_frame or not scroll_pane_frame.valid then
-		debug_log(player_index, "Can't update HUD because the scroll_pane_frame does not exist for player with index: " .. player_index)
+		common.debug_log(player_index, "Can't update HUD because the scroll_pane_frame does not exist for player with index: " .. player_index)
 	end
 
 	-- Clear the frame which has the signals displayed to start the update
 	scroll_pane_frame.clear()
 
 	-- Apply search query if there is any
-	local text = stdlib_string.trim(get_hud_search_text(player_index))
+	local text = stdlib_string.trim(player_data.get_hud_search_text(player_index))
 	local hud_combinators = {}
 	if text ~= "" then
-		for key, hud_combinator in pairs(get_hud_combinators()) do
+		for key, hud_combinator in pairs(combinator.get_hud_combinators()) do
 			if stdlib_string.contains(hud_combinator.name:lower(), text:lower()) then
 				hud_combinators[key] = hud_combinator
 			end
 		end
 	else
-		hud_combinators = get_hud_combinators()
+		hud_combinators = combinator.get_hud_combinators()
 	end
 
 	-- Check if there were no search results.
@@ -462,7 +465,7 @@ function update_hud(player_index)
 		end
 	end
 
-	local hud_position = get_hud_position_setting(player_index)
+	local hud_position = player_settings.get_hud_position_setting(player_index)
 	if hud_position == const.HUD_POSITION.bottom_right then
 		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
@@ -470,11 +473,11 @@ function update_hud(player_index)
 end
 
 function update_collapse_state(player_index, toggle_state)
-	set_hud_collapsed(player_index, toggle_state)
+	player_data.set_hud_collapsed(player_index, toggle_state)
 
-	local toggle_ref = get_hud_ref(player_index, const.HUD_NAMES.hud_toggle_button)
+	local toggle_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_toggle_button)
 	if toggle_ref then
-		if get_hud_collapsed(player_index) then
+		if player_data.get_hud_collapsed(player_index) then
 			toggle_ref.sprite = "utility/expand"
 		else
 			toggle_ref.sprite = "utility/collapse"
@@ -483,29 +486,29 @@ function update_collapse_state(player_index, toggle_state)
 
 	-- true is collapsed, false is visible
 	if toggle_state then
-		destroy_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
-		destroy_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
-		destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
-		destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_button)
-		destroy_hud_ref(player_index, const.HUD_NAMES.hud_settings_button)
+		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
+		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
+		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
+		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_button)
+		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_settings_button)
 
-		destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane)
-		destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
+		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane)
+		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
 	else
 		reset_hud(player_index)
 	end
 
 	-- If bottom-right fixed than align
-	if get_hud_position_setting(player_index) == const.HUD_POSITION.bottom_right then
+	if player_settings.get_hud_position_setting(player_index) == const.HUD_POSITION.bottom_right then
 		calculate_hud_size(player_index)
 		move_hud_bottom_right(player_index)
 	end
 
-	debug_log(player_index, "Toggle button clicked! - " .. tostring(toggle_state))
+	common.debug_log(player_index, "Toggle button clicked! - " .. tostring(toggle_state))
 end
 
 function reset_hud(player_index)
-	destroy_hud(player_index)
+	player_data.destroy_hud(player_index)
 	build_interface(player_index)
 	update_hud(player_index)
 end
@@ -518,28 +521,28 @@ end
 
 -- Calculate the width and height of the HUD due to GUIElement.size not being available
 function calculate_hud_size(player_index)
-	local player = get_player(player_index)
+	local player = common.get_player(player_index)
 
 	local function adjust_size_scale(size)
 		return {width = stdlib_math.round(size.width * player.display_scale), height = stdlib_math.round(size.height * player.display_scale)}
 	end
 
-	if get_hud_collapsed(player_index) then
+	if player_data.get_hud_collapsed(player_index) then
 		local size = adjust_size_scale({width = 40, height = 40})
-		set_hud_size(player_index, size)
+		player_data.set_hud_size(player_index, size)
 		return size
 	end
 
-	debug_log(player_index, "Start calculating HUD size:")
+	common.debug_log(player_index, "Start calculating HUD size:")
 
-	local max_columns_allowed = get_hud_columns_setting(player_index)
+	local max_columns_allowed = player_settings.get_hud_columns_setting(player_index)
 	local combinator_count = 0
 
 	local combinator_cat_width = {}
 	local combinator_cat_height = {}
 	local i = 0
 	-- loop over every HUD Combinator provided
-	for k, meta_entity in pairs(get_hud_combinators()) do
+	for k, meta_entity in pairs(combinator.get_hud_combinators()) do
 		local entity = meta_entity.entity
 
 		if not entity.valid then
@@ -547,7 +550,7 @@ function calculate_hud_size(player_index)
 			break
 		end
 
-		debug_log(player_index, " - Combinator (" .. meta_entity.name .. "):")
+		common.debug_log(player_index, " - Combinator (" .. meta_entity.name .. "):")
 
 		local total_row_count = 0
 		local max_columns_found = 0
@@ -583,7 +586,7 @@ function calculate_hud_size(player_index)
 			end
 
 			-- Debug summary
-			debug_log(
+			common.debug_log(
 				player_index,
 				" - - " .. network_types[j] .. " Network has " .. signal_count .. " signals " .. network_rows .. " rows  and " .. network_columns .. " columns."
 			)
@@ -599,7 +602,7 @@ function calculate_hud_size(player_index)
 			-- Max width and height of empty HUD combinator category
 			combinator_cat_width[i] = 208
 			combinator_cat_height[i] = 60
-			debug_log(player_index, " - - Combinator (" .. meta_entity.name .. ") has no signals")
+			common.debug_log(player_index, " - - Combinator (" .. meta_entity.name .. ") has no signals")
 		else
 			-- else count as a combinator with at least 1 signal
 			combinator_count = combinator_count + 1
@@ -609,20 +612,20 @@ function calculate_hud_size(player_index)
 
 		local summary_string = " - - Summary: width: " .. tostring(combinator_cat_width[i]) .. ", height: " .. tostring(combinator_cat_height[i])
 		summary_string = summary_string .. ", max_columns_found is " .. tostring(max_columns_found) .. ", total_row_count is " .. tostring(total_row_count)
-		debug_log(player_index, summary_string)
+		common.debug_log(player_index, summary_string)
 		i = i + 1
 	end
 
 	-- Width Formula => (<button-size> + <padding>) * (<max_number_of_columns>) + <remainder_padding>
-	local width = max(combinator_cat_width) + 24
+	local width = common.max(combinator_cat_width) + 24
 	-- Height Formula => ((<button-size> + <padding>) * <total button rows>) + (<combinator count> * <label-height>)
-	local height = sum(combinator_cat_height) + 24
+	local height = stdlib_math.sum(combinator_cat_height) + 24
 
 	-- get the max height of the HUD based on the user setting or display resolution
-	local max_height = stdlib_math.min(get_hud_max_height_setting(player_index), player.display_resolution.height)
+	local max_height = stdlib_math.min(player_settings.get_hud_max_height_setting(player_index), player.display_resolution.height)
 
 	-- Add header height if enabled
-	if not get_hide_hud_header_setting(player_index) then
+	if not player_settings.get_hide_hud_header_setting(player_index) then
 		height = height + 28 + 4
 	end
 
@@ -636,23 +639,23 @@ function calculate_hud_size(player_index)
 	height = stdlib_math.clamp(height, 30, max_height)
 
 	local size = adjust_size_scale({width = width, height = height})
-	debug_log(player_index, "HUD size, width: " .. tostring(size.width) .. ", height: " .. tostring(size.height))
-	set_hud_size(player_index, size)
+	common.debug_log(player_index, "HUD size, width: " .. tostring(size.width) .. ", height: " .. tostring(size.height))
+	player_data.set_hud_size(player_index, size)
 	return size
 end
 
 function move_hud_bottom_right(player_index)
-	local root_frame = get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
+	local root_frame = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
 	if root_frame then
-		local player = get_player(player_index)
-		local size = get_hud_size(player_index)
+		local player = common.get_player(player_index)
+		local size = player_data.get_hud_size(player_index)
 		local x = player.display_resolution.width - size.width
 		local y = player.display_resolution.height - size.height
 
 		if x ~= root_frame.location.x or y ~= root_frame.location.y then
 			root_frame.location = {x, y}
 
-			if get_debug_mode_setting(player_index) then
+			if player_settings.get_debug_mode_setting(player_index) then
 				player.print("HUD size: width: " .. size.width .. ", height: " .. size.height)
 				player.print("HUD location: x: " .. x .. ", y: " .. y)
 				player.print("Display Resolution: width: " .. player.display_resolution.width .. ", height: " .. player.display_resolution.height)
@@ -663,10 +666,10 @@ function move_hud_bottom_right(player_index)
 end
 
 function handle_hud_gui_events(player_index, action)
-	local player = get_player(player_index)
+	local player = common.get_player(player_index)
 
 	if action.action == const.GUI_ACTIONS.toggle then
-		local toggle_state = not get_hud_collapsed(player_index)
+		local toggle_state = not player_data.get_hud_collapsed(player_index)
 		update_collapse_state(player_index, toggle_state)
 		return
 	end
@@ -674,7 +677,7 @@ function handle_hud_gui_events(player_index, action)
 	if action.action == const.GUI_ACTIONS.go_to_combinator then
 		if action.unit_number then
 			-- find the entity
-			local hud_combinator = get_hud_combinator_entity(action.unit_number)
+			local hud_combinator = combinator.get_hud_combinator_entity(action.unit_number)
 			if hud_combinator and hud_combinator.valid then
 				-- open the map on the coordinates
 				player.zoom_to_world(hud_combinator.position, 2)
@@ -692,22 +695,22 @@ function handle_hud_gui_events(player_index, action)
 	-- Toggle Search Bar
 	if action.action == const.GUI_ACTIONS.toggle_search_bar then
 		-- Show/Hide the search text field
-		local text_field = get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
+		local text_field = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
 		local state = not text_field.visible
 		text_field.visible = state
 
 		-- Hide/Show the following GUI Elements
-		local title_label = get_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
+		local title_label = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
 		title_label.visible = not state
-		local header_spacer = get_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
+		local header_spacer = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
 		header_spacer.visible = not state
 		return
 	end
 
 	-- Search Text Changed
 	if action.action == const.GUI_ACTIONS.search_bar_change then
-		local text_field = get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
-		set_hud_search_text(player_index, text_field.text)
+		local text_field = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
+		player_data.set_hud_search_text(player_index, text_field.text)
 		update_hud(player_index)
 		return
 	end

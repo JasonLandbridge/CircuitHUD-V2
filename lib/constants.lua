@@ -26,15 +26,15 @@ const.HUD_COMBINATOR_NAME = "hud-combinator"
 const.HIDE_SIGNAL_NAME = "signal-hide-hud-comparator"
 
 const.SETTINGS = {
-	prefix = "CircuitHUD",
-	hide_hud_header = "_hide_hud_header",
-	hud_title = "_hud_title",
-	hud_position = "_hud_position",
-	hud_columns = "_hud_columns",
-	hud_refresh_rate = "_hud_refresh_rate",
-	hud_max_height = "_hud_max_height",
-	uncollapse_hud_on_register_combinator = "_uncollapse_hud_on_register_combinator",
-	debug_mode = "_debug_mode"
+	prefix = "CircuitHUD_",
+	hide_hud_header = "hide_hud_header",
+	hud_title = "hud_title",
+	hud_position = "hud_position",
+	hud_columns = "hud_columns",
+	hud_refresh_rate = "hud_refresh_rate",
+	hud_max_height = "hud_max_height",
+	uncollapse_hud_on_register_combinator = "uncollapse_hud_on_register_combinator",
+	debug_mode = "debug_mode"
 }
 
 const.HUD_POSITION = {
@@ -59,6 +59,7 @@ const.GUI_ACTIONS = {
 	search_bar_change = "SEARCH_BAR_CHANGED",
 	open_combinator = "OPEN_COMBINATOR",
 	open_settings = "OPEN_SETTINGS",
+	update_settings = "UPDATE_SETTING",
 	go_to_combinator = "GO_TO_COMBINATOR",
 	filter_signal_update = "FILTER_SIGNAL_UPDATE",
 	switch_filter_state = "SWITCH_FILTER_STATE",

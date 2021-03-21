@@ -1,17 +1,20 @@
 local Event = require("__stdlib__/stdlib/event/event")
-
 local migration = require("__flib__.migration")
 local const = require("lib.constants")
+local base_global = require("globals.base-global")
+local combinator = require("globals.combinator")
+local player_settings = require("globals.player-settings")
+local player_data = require("globals.player-data")
 
 -- each function will be run when upgrading from a version older than it
 -- for example, if we were upgraing from 1.0.3 to 1.1.0, the last two functions would run, but not the first
 local migrations = {
 	["1.0.1"] = function()
 		-- clear global and recreate
-		reset_global_state()
+		base_global.reset_global_state()
 		-- recreate all global state for players
 		for _, player in pairs(game.players) do
-			add_player_global(player.index)
+			player_data.add_player_global(player.index)
 		end
 	end,
 	["1.1.0"] = function()
@@ -24,17 +27,17 @@ local migrations = {
 				end
 				-- Move the toggle_button ref
 				if player_global["toggle_button"] then
-					set_hud_element_ref(player.index, const.HUD_NAMES.hud_toggle_button, player_global["toggle_button"])
+					player_data.set_hud_element_ref(player.index, const.HUD_NAMES.hud_toggle_button, player_global["toggle_button"])
 					player_global["toggle_button"] = nil
 				end
 				-- Move the root_frame ref
 				if player_global["root_frame"] then
-					set_hud_element_ref(player.index, const.HUD_NAMES.hud_root_frame, player_global["root_frame"])
+					player_data.set_hud_element_ref(player.index, const.HUD_NAMES.hud_root_frame, player_global["root_frame"])
 					player_global["root_frame"] = nil
 				end
 				-- Move the inner_frame ref
 				if player_global["inner_frame"] then
-					set_hud_element_ref(player.index, const.HUD_NAMES.hud_scroll_pane_frame, player_global["inner_frame"])
+					player_data.set_hud_element_ref(player.index, const.HUD_NAMES.hud_scroll_pane_frame, player_global["inner_frame"])
 					player_global["inner_frame"] = nil
 				end
 			end
@@ -59,9 +62,43 @@ local migrations = {
 		end
 
 		-- Update players
-		for _, player in pairs(global.players) do
+		local setting_prefix = "CircuitHUD_"
+		for player_index, player in pairs(global.players) do
 			if not player["search_text"] then
 				player["search_text"] = ""
+			end
+
+			-- Migrate settings to new system
+			if not player["settings"] then
+				player["settings"] = player_settings.default_player_settings()
+				local settings = settings.get_player_settings(player_index)
+				-- set_hud_position_setting
+				local value = settings[setting_prefix .. "hud_position"].value
+				player_settings.set_hud_position_setting(value)
+
+				-- set_hud_columns_setting
+				value = settings[setting_prefix .. "hud_columns"].value
+				player_settings.set_hud_columns_setting(value)
+
+				-- set_hud_max_height_setting
+				value = settings[setting_prefix .. "hud_max_height"].value
+				player_settings.set_hud_max_height_setting(value)
+
+				-- set_hide_hud_header_setting
+				value = settings[setting_prefix .. "hide_hud_header"].value
+				player_settings.set_hide_hud_header_setting(value)
+
+				-- set_hud_title_setting
+				value = settings[setting_prefix .. "hud_title"].value
+				player_settings.set_hud_title_setting(value)
+
+				-- set_uncollapse_hud_on_register_combinator_setting
+				value = settings[setting_prefix .. "uncollapse_hud_on_register_combinator"].value
+				player_settings.set_uncollapse_hud_on_register_combinator_setting(value)
+
+				-- set_debug_mode_setting
+				value = settings[setting_prefix .. "debug_mode"].value
+				player_settings.set_debug_mode_setting(value)
 			end
 		end
 	end
@@ -76,14 +113,14 @@ Event.on_configuration_changed(
 			-- Original version had a fuck-ton of unneeded on_tick events, which are now refactored away
 			Event.remove(defines.events.on_tick)
 
-			ensure_global_state()
+			base_global.ensure_global_state()
 
 			-- Reset all Combinator HUD references
-			check_combinator_registrations()
+			combinator.check_combinator_registrations()
 
 			for _, player in pairs(game.players) do
 				-- Ensure all HUDS are visible
-				if get_hide_hud_header_setting(player.index) then
+				if player_settings.get_hide_hud_header_setting(player.index) then
 					update_collapse_state(player.index, false)
 				end
 				-- Reset the HUD for all players
