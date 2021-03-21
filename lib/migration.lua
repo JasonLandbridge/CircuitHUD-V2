@@ -39,13 +39,22 @@ local migrations = {
 			end
 		end
 	end,
-	["1.2.1"] = function()
+	["1.3.0"] = function()
 		-- remove textbox_hud_entity_map as it became obsolete.
-		for key, value in pairs(global.textbox_hud_entity_map) do
+		for _, value in pairs(global.textbox_hud_entity_map) do
 			if value then
 				value.destroy()
 			end
 		end
+
+		-- Create new filters property for each HUD Combinator
+		for _, value in pairs(global.hud_combinators) do
+			if value.entity.valid and not value["filters"] then
+				value["filters"] = {}
+				value["unit_number"] = value.entity.unit_number
+			end
+		end
+
 		global.textbox_hud_entity_map = nil
 	end
 }

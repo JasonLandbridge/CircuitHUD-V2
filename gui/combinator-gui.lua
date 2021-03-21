@@ -23,11 +23,16 @@ function create_combinator_gui(player_index, unit_number)
 			{
 				type = "frame",
 				name = ui_name,
+				style_mods = {
+					minimal_width = 500,
+					maximal_width = 500
+				},
 				ref = {
 					HUD_NAMES.combinator_root_frame
 				},
 				direction = "vertical",
 				children = {
+					-- Titlebar
 					{
 						type = "flow",
 						ref = {"titlebar_flow"},
@@ -60,12 +65,31 @@ function create_combinator_gui(player_index, unit_number)
 							}
 						}
 					},
+					-- GUI Layout
 					{
 						type = "frame",
 						style = "inside_shallow_frame_with_padding",
 						direction = "vertical",
 						ref = {"inner_frame"},
+						-- Combinator Main Pane
 						children = {
+							-- Entity preview
+							{
+								type = "frame",
+								style = "container_inside_shallow_frame",
+								style_mods = {bottom_margin = 8},
+								children = {
+									{
+										type = "entity-preview",
+										ref = {"hud_preview"},
+										style_mods = {
+											height = 140,
+											horizontally_stretchable = true
+										}
+									}
+								}
+							},
+							-- Combinator Name
 							{
 								type = "label",
 								caption = "Name",
@@ -76,13 +100,104 @@ function create_combinator_gui(player_index, unit_number)
 								ref = {
 									"name_field"
 								},
-								style = "production_gui_search_textfield",
+								style = "stretchable_textfield",
 								text = get_hud_combinator_name(unit_number),
 								actions = {
 									on_text_changed = {
 										gui = GUI_TYPES.combinator,
 										action = GUI_ACTIONS.name_change,
 										unit_number = unit_number
+									}
+								}
+							},
+							-- Divider
+							{type = "line", style_mods = {top_margin = 5}},
+							-- On/Off switch and Stop Type
+							{
+								type = "flow",
+								direction = "horizontal",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										type = "label",
+										style = "heading_2_label",
+										style_mods = {top_margin = 4, bottom_margin = 4},
+										caption = {"hud_combinator_gui.filter_label"}
+									},
+									{
+										type = "flow",
+										direction = "horizontal",
+										style = "flib_titlebar_flow",
+										style_mods = {top_margin = 6, bottom_margin = 4},
+										children = {
+											{
+												type = "switch",
+												left_label_caption = {"hud_combinator_gui.switch_off"},
+												right_label_caption = {"hud_combinator_gui.switch_on"}
+											}
+										}
+									}
+								}
+							},
+							-- Divider
+							{type = "line", style_mods = {top_margin = 5}},
+							-- Signal Table
+							{
+								type = "flow",
+								direction = "vertical",
+								style_mods = {horizontal_align = "center"},
+								children = {
+									-- Filters Label
+									{
+										type = "label",
+										style = "heading_2_label",
+										style_mods = {top_margin = 5},
+										caption = {"hud_combinator_gui.filter_signals_label"}
+									},
+									-- Filters Signals
+									{
+										type = "frame",
+										direction = "vertical",
+										style = "slot_button_deep_frame",
+										children = {
+											{
+												ref = {"signal_table"},
+												type = "table",
+												style = "slot_table",
+												save_as = "signal_table",
+												style_mods = {width = 400},
+												column_count = 10
+											}
+										}
+									},
+									{
+										type = "flow",
+										direction = "horizontal",
+										style_mods = {vertical_align = "center", top_padding = 10},
+										children = {
+											{
+												type = "slider",
+												save_as = "signal_value_slider",
+												style_mods = {
+													horizontally_stretchable = true,
+													right_padding = 10
+												},
+												minimum_value = -1,
+												maximum_value = 100
+											},
+											{
+												type = "textfield",
+												style = "short_number_textfield",
+												save_as = "signal_value_text",
+												elem_mods = {numeric = true, text = "0", allow_negative = false}
+											},
+											{
+												type = "sprite-button",
+												sprite = "utility/check_mark",
+												style_mods = {left_padding = 5},
+												save_as = "signal_value_confirm"
+											}
+										}
 									}
 								}
 							}
@@ -96,6 +211,31 @@ function create_combinator_gui(player_index, unit_number)
 	local root_frame = refs[HUD_NAMES.combinator_root_frame]
 	refs.titlebar_flow.drag_target = root_frame
 	refs.name_field.select(0, 0)
+
+	refs.hud_preview.visible = true
+	refs.hud_preview.entity = get_hud_combinator(unit_number)
+	local signal_table = refs.signal_table
+	for i = 1, 50, 1 do
+		flib_gui.build(
+			signal_table,
+			{
+				{
+					name = "circuit_hud_signal_button__" .. i,
+					type = "choose-elem-button",
+					style = "flib_slot_button_default",
+					elem_type = "signal",
+					actions = {
+						on_elem_changed = {
+							gui = GUI_TYPES.combinator,
+							action = GUI_ACTIONS.filter_signal_update,
+							index = i,
+							unit_number = unit_number
+						}
+					}
+				}
+			}
+		)
+	end
 
 	-- We need to overwrite the "to be opened GUI" with our own GUI
 	player.opened = root_frame
@@ -145,4 +285,7 @@ function handle_combinator_gui_events(player_index, action)
 		combinator_gui.destroy()
 	end
 
+	if action.action == GUI_ACTIONS.filter_signal_update then
+		set_hud_combinator_filter(action.unit_number, action.index, action.signal)
+	end
 end

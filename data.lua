@@ -65,7 +65,7 @@ default_gui["hud_combinator_label"] = {
 	right_padding = 4,
 	minimal_width = 200,
 	minimal_height = 24,
-	-- maximal_width = 200,
+	maximal_width = 350,
 	maximal_height = 24,
 	want_ellipsis = true
 }

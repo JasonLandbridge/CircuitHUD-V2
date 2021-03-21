@@ -172,6 +172,27 @@ Event.register(
 		end
 	end
 )
+Event.register(
+	defines.events.on_gui_elem_changed,
+	function(event)
+		-- Check if the event is meant for us
+		local action = flib_gui.read_action(event)
+		if not action then
+			return
+		end
+
+		action["signal"] = event.element.elem_value
+
+		if action.gui == GUI_TYPES.combinator then
+			handle_combinator_gui_events(event.player_index, action)
+		end
+
+		if action.gui == GUI_TYPES.hud then
+			handle_hud_gui_events(event.player_index, action)
+		end
+	end
+)
+
 
 --#region Register / De-register HUD Combinator
 

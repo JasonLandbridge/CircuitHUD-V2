@@ -1,13 +1,14 @@
 local function add_hud_combinator_ref(hud_combinator)
 	global.hud_combinators[hud_combinator.unit_number] = {
 		["entity"] = hud_combinator,
-		-- todo: use backer names here
-		["name"] = "HUD Comparator #" .. hud_combinator.unit_number
+		["name"] = "HUD Combinator #" .. hud_combinator.unit_number,
+		["filters"] = {},
+		["unit_number"] = hud_combinator.unit_number
 	}
 end
 
-local function remove_hud_combinator_ref(hud_combinator)
-	global.hud_combinators[hud_combinator.unit_number] = nil
+local function remove_hud_combinator_ref(unit_number)
+	global.hud_combinators[unit_number] = nil
 end
 
 function get_hud_combinator(unit_number)
@@ -30,6 +31,13 @@ function set_hud_combinator_name(unit_number, name)
 	local hud_combinator = global.hud_combinators[unit_number]
 	if hud_combinator then
 		hud_combinator["name"] = name
+	end
+end
+
+function set_hud_combinator_filter(unit_number, index, filter_signal)
+	local hud_combinator = global.hud_combinators[unit_number]
+	if hud_combinator then
+		hud_combinator["filters"][index] = filter_signal
 	end
 end
 
@@ -80,9 +88,9 @@ end
 
 function check_combinator_registrations()
 	-- clean the map for invalid entities
-	for i, meta_entity in pairs(global.hud_combinators) do
+	for key, meta_entity in pairs(global.hud_combinators) do
 		if (not meta_entity.entity) or (not meta_entity.entity.valid) then
-			remove_hud_combinator_ref(meta_entity.entity)
+			remove_hud_combinator_ref(key)
 		end
 	end
 
@@ -113,5 +121,5 @@ function register_combinator(entity)
 end
 
 function unregister_combinator(entity)
-	remove_hud_combinator_ref(entity)
+	remove_hud_combinator_ref(entity.unit_number)
 end
