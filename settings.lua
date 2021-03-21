@@ -8,14 +8,16 @@ data:extend(
 			name = const.SETTINGS.prefix .. const.SETTINGS.hide_hud_header,
 			setting_type = "runtime-per-user",
 			default_value = false,
-			order = "a-a"
+			order = "a-a",
+			hidden = true
 		},
 		{
 			type = "string-setting",
 			name = const.SETTINGS.prefix .. const.SETTINGS.hud_title,
 			setting_type = "runtime-per-user",
 			default_value = "Circuit HUD V2",
-			order = "a-b"
+			order = "a-b",
+			hidden = true
 		},
 		{
 			type = "string-setting",
@@ -29,7 +31,8 @@ data:extend(
 				const.HUD_POSITION.bottom_right,
 				const.HUD_POSITION.draggable
 			},
-			order = "a-c"
+			order = "a-c",
+			hidden = true
 		},
 		{
 			type = "int-setting",
@@ -38,7 +41,8 @@ data:extend(
 			default_value = 8,
 			minimum_value = 1,
 			maximum_value = 20,
-			order = "a-d"
+			order = "a-d",
+			hidden = true
 		},
 		{
 			type = "int-setting",
@@ -47,7 +51,8 @@ data:extend(
 			default_value = 600,
 			minimum_value = 200,
 			maximum_value = 2160,
-			order = "a-e"
+			order = "a-e",
+			hidden = true
 		},
 		{
 			type = "int-setting",
@@ -56,14 +61,16 @@ data:extend(
 			default_value = 60,
 			minimum_value = 1,
 			maximum_value = 3600,
-			order = "a-e"
+			order = "a-e",
+			hidden = true
 		},
 		{
 			type = "bool-setting",
 			name = const.SETTINGS.prefix .. const.SETTINGS.uncollapse_hud_on_register_combinator,
 			setting_type = "runtime-per-user",
 			default_value = true,
-			order = "a-f"
+			order = "a-f",
+			hidden = true
 		},
 		{
 			type = "string-setting",
@@ -71,7 +78,8 @@ data:extend(
 			setting_type = "runtime-per-user",
 			default_value = "off",
 			allowed_values = {"off", "debug"},
-			order = "b-a"
+			order = "b-a",
+			hidden = true
 		}
 	}
 )
