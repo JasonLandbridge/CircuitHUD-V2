@@ -1,7 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.0
-Date: 2021-03-20
+Date: 2021-03-21
   Changes:
+    - HUD Combinators have signal filtering functionality, this avoids long chains of arithmetic combinators to get the right signal display!
+    - The HUD now has buttons for each HUD Combinator, which means you can now edit from anywhere, zoom to and hide each HUD Combinator!
+    - Added more helpful messages in the HUD based on the HUD Combinator state!
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.1
 Date: 2021-03-09
