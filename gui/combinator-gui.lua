@@ -356,11 +356,15 @@ function handle_combinator_gui_events(player_index, action)
 
 	if action.action == GUI_ACTIONS.switch_filter_state then
 		set_hud_combinator_filter_state(action.unit_number, action["state"])
+		-- Reset HUD all players on update
+		reset_hud_all_players()
 		return
 	end
 
 	if action.action == GUI_ACTIONS.filter_signal_update then
 		set_hud_combinator_filter(action.unit_number, action.index, action.signal)
+		-- Reset HUD all players on update
+		reset_hud_all_players()
 		return
 	end
 
