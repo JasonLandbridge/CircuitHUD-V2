@@ -2,6 +2,7 @@ local function add_hud_combinator_ref(hud_combinator)
 	global.hud_combinators[hud_combinator.unit_number] = {
 		["entity"] = hud_combinator,
 		["name"] = "HUD Combinator #" .. hud_combinator.unit_number,
+		["temp_name"] = "",
 		["filters"] = {},
 		["should_filter"] = false,
 		["unit_number"] = hud_combinator.unit_number
@@ -32,6 +33,14 @@ function get_hud_combinator_name(unit_number)
 	return nil
 end
 
+function get_hud_combinator_temp_name(unit_number)
+	local hud_combinator = get_hud_combinator(unit_number)
+	if hud_combinator then
+		return hud_combinator["temp_name"]
+	end
+	return nil
+end
+
 function get_hud_combinator_filters(unit_number)
 	local hud_combinator = get_hud_combinator(unit_number)
 	if hud_combinator then
@@ -51,6 +60,13 @@ function set_hud_combinator_name(unit_number, name)
 	local hud_combinator = get_hud_combinator(unit_number)
 	if hud_combinator then
 		hud_combinator["name"] = name
+	end
+end
+
+function set_hud_combinator_temp_name(unit_number, name)
+	local hud_combinator = get_hud_combinator(unit_number)
+	if hud_combinator then
+		hud_combinator["temp_name"] = name
 	end
 end
 

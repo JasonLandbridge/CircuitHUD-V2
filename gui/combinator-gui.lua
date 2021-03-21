@@ -95,12 +95,14 @@ function create_combinator_gui(player_index, unit_number)
 								caption = "Name",
 								style = "heading_2_label"
 							},
+							-- Name Text field flow
 							{
 								type = "flow",
 								direction = "horizontal",
 								style = "flib_titlebar_flow",
 								children = {
 									{
+										-- Name Text field
 										type = "textfield",
 										ref = {
 											"name_field"
@@ -118,13 +120,20 @@ function create_combinator_gui(player_index, unit_number)
 									{
 										type = "sprite-button",
 										style = "item_and_count_select_confirm",
-										sprite = "utility/check_mark"
+										sprite = "utility/check_mark",
+										actions = {
+											on_click = {
+												gui = GUI_TYPES.combinator,
+												action = GUI_ACTIONS.name_change_confirm,
+												unit_number = unit_number
+											}
+										}
 									}
 								}
 							},
 							-- Divider
 							{type = "line", style_mods = {top_margin = 5}},
-							-- On/Off switch and Stop Type
+							-- On/Off filter switch
 							{
 								type = "flow",
 								direction = "horizontal",
@@ -264,6 +273,40 @@ function create_combinator_gui(player_index, unit_number)
 	player.opened.force_auto_center()
 end
 
+function update_combinator_gui(player_index, unit_number)
+	local tmp_name = get_hud_combinator_temp_name(unit_number)
+	if tmp_name ~= "" then
+		for _, player in pairs(game.players) do
+			local combinator_gui = get_combinator_gui(player.index)
+			if combinator_gui then
+				flib_gui.update(
+					combinator_gui,
+					{
+						-- Root Frame
+						{
+							children = {
+								-- Entity preview
+								{},
+								-- Combinator Name Label
+								{},
+								-- Name Text field flow
+								{
+									children = {
+										-- Name Text field
+										{
+											text = tmp_name
+										}
+									}
+								}
+							}
+						}
+					}
+				)
+			end
+		end
+	end
+end
+
 function get_combinator_gui(player_index, unit_number)
 	local player = get_player(player_index)
 	if player then
@@ -305,13 +348,33 @@ function handle_combinator_gui_events(player_index, action)
 
 	if action.action == GUI_ACTIONS.close then
 		combinator_gui.destroy()
+		return
 	end
 
 	if action.action == GUI_ACTIONS.switch_filter_state then
 		set_hud_combinator_filter_state(action.unit_number, action["state"])
+		return
 	end
 
 	if action.action == GUI_ACTIONS.filter_signal_update then
 		set_hud_combinator_filter(action.unit_number, action.index, action.signal)
+		return
+	end
+
+	if action.action == GUI_ACTIONS.name_change then
+		set_hud_combinator_temp_name(action.unit_number, action.text)
+		update_combinator_gui(player_index, action.unit_number)
+		return
+	end
+
+	if action.action == GUI_ACTIONS.name_change_confirm then
+		-- Set the confirmed name from the temp name
+		local tmp_name = get_hud_combinator_temp_name(action.unit_number)
+		set_hud_combinator_name(action.unit_number, tmp_name)
+		-- Reset the temp name again
+		set_hud_combinator_temp_name(action.unit_number, "")
+		-- Reset HUD all players on update
+		reset_hud_all_players()
+		return
 	end
 end
