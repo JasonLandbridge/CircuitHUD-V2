@@ -5,6 +5,8 @@ HUD_NAMES = {
 	hud_title_label = "hud-title-label",
 	hud_header_spacer = "hud-header-spacer",
 	hud_toggle_button = "hud-toggle-button",
+	hud_settings_button = "hud-settings-button",
+	hud_search_button = "hud-search-button",
 	combinator_root_frame = "combinator_frame_root_frame"
 }
 
