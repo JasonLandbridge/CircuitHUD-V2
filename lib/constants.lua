@@ -1,6 +1,7 @@
 local const = {}
 
 const.PREFIX = "CIRCUIT_HUD_"
+const.SHORT_PREFIX = "chv2_"
 
 const.HUD_NAMES = {
 	hud_root_frame = const.PREFIX .. "hud_root_frame",

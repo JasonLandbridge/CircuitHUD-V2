@@ -7,6 +7,7 @@ Date: 2021-03-21
     - You can now search and filter for HUD Combinators straight from the HUD itself (Thanks @Taurondir for the idea!)
     - Added more helpful messages in the HUD based on the HUD Combinator state!
     - Player specific settings are no longer accessible in the Mod settings but are now configurable from the Circuit HUD directly (Thanks @AngrySlipper for the idea!)
+    - Added hotkeys for Toggeling the HUD (default: "CONTROL + SHIFT + S") and opening the settings window (default: "CONTROL + ALT + S")
   Bugfixes:
     - Fixed the collapsed button going off-screen when UI Scale is above 100% 
   Optimisations:

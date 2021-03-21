@@ -52,6 +52,8 @@ local migrations = {
 		end
 		global.textbox_hud_entity_map = nil
 
+		global["did_cleanup_and_discovery"] = nil
+
 		-- Create new filters property for each HUD Combinator
 		for _, value in pairs(global.hud_combinators) do
 			if value.entity.valid and not value["filters"] then
