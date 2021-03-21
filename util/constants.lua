@@ -49,5 +49,6 @@ GUI_ACTIONS = {
 	name_change = "NAME_CHANGED",
 	open_combinator = "OPEN_COMBINATOR",
 	go_to_combinator = "GO_TO_COMBINATOR",
-	filter_signal_update = "FILTER_SIGNAL_UPDATE"
+	filter_signal_update = "FILTER_SIGNAL_UPDATE",
+	switch_filter_state = "SWITCH_FILTER_STATE"
 }

@@ -134,7 +134,7 @@ Event.register(
 			return
 		end
 
-		if get_hud_combinator(action.unit_number) then
+		if get_hud_combinator_entity(action.unit_number) then
 			-- save the reference
 			set_hud_combinator_name(action.unit_number, event.text)
 			reset_hud_all_players()
@@ -192,6 +192,29 @@ Event.register(
 		end
 	end
 )
+
+Event.register(
+	defines.events.on_gui_switch_state_changed,
+	function(event)
+		-- Check if the event is meant for us
+		local action = flib_gui.read_action(event)
+		if not action then
+			return
+		end
+
+		action["state"] = event.element.switch_state == "right"
+
+		if action.gui == GUI_TYPES.combinator then
+			handle_combinator_gui_events(event.player_index, action)
+		end
+
+		if action.gui == GUI_TYPES.hud then
+			handle_hud_gui_events(event.player_index, action)
+		end
+	end
+)
+
+
 
 
 --#region Register / De-register HUD Combinator

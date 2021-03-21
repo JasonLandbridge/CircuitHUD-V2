@@ -52,6 +52,7 @@ local migrations = {
 			if value.entity.valid and not value["filters"] then
 				value["filters"] = {}
 				value["unit_number"] = value.entity.unit_number
+				value["should_filter"] = false
 			end
 		end
 

@@ -56,6 +56,12 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 								style = "CircuitHUD_rename_site"
 							}
 						}
+					},
+					{
+						type = "flow",
+						direction = "vertical",
+						style = "packed_vertical_flow",
+						ref = {"combinator_content"}
 					}
 				}
 			}
@@ -69,29 +75,41 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 		["fluid"] = game.fluid_prototypes
 	}
 
+	local combinator_content = refs.combinator_content
 	-- Check if this HUD Combinator has any signals coming in to show in the HUD.
-	if has_network_signals(hud_combinator) then
-		local max_columns = get_hud_columns_setting(scroll_pane_frame.player_index)
+	local max_columns = get_hud_columns_setting(scroll_pane_frame.player_index)
 
-		local red_network = hud_combinator.get_circuit_network(defines.wire_type.red)
-		local green_network = hud_combinator.get_circuit_network(defines.wire_type.green)
+	local red_network = hud_combinator.get_circuit_network(defines.wire_type.red)
+	local green_network = hud_combinator.get_circuit_network(defines.wire_type.green)
 
-		local networks = {green_network, red_network}
-		local network_colors = {"green", "red"}
-		local network_styles = {"green_circuit_network_content_slot", "red_circuit_network_content_slot"}
+	local networks = {green_network, red_network}
+	local network_colors = {"green", "red"}
+	local network_styles = {"green_circuit_network_content_slot", "red_circuit_network_content_slot"}
+	local signals_filter = get_hud_combinator_filters(unit_number)
+	local should_filter = get_hud_combinator_filter_state(unit_number)
 
-		-- Display the item signals coming from the red and green circuit if any
-		for i = 1, 2, 1 do
-			-- Check if this color table already exists
-			local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
-			local table = refs.hud_combinator_flow.add {type = "table", name = table_name, column_count = max_columns}
+	if should_filter and table_size(signals_filter) == 0 then
+		combinator_content.add {type = "label", style = "hud_combinator_label", caption = "Filter is on but no signals have been selected"}
+		return
+	end
 
-			-- Check if there are signals
-			if networks[i] and networks[i].signals then
-				for j, signal in pairs(networks[i].signals) do
-					local signal_type = signal.signal.type
-					local signal_name = signal.signal.name
-					-- Check if the signal already exist
+	local signal_total_count = 0
+	local signal_count = 0
+	-- Display the item signals coming from the red and green circuit if any
+	for i = 1, 2, 1 do
+		-- Check if this color table already exists
+		local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
+		local table = combinator_content.add {type = "table", name = table_name, column_count = max_columns}
+
+		-- Check if there are signals
+		if networks[i] and networks[i].signals then
+			-- Add to total signal count
+			signal_total_count = signal_total_count + table_size(networks[i].signals)
+			for j, signal in pairs(networks[i].signals) do
+				local signal_type = signal.signal.type
+				local signal_name = signal.signal.name
+				-- Check if this signal should be shown based on filtering
+				if short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
 					table.add {
 						type = "sprite-button",
 						sprite = SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
@@ -99,11 +117,24 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 						style = network_styles[i],
 						tooltip = signal_name_map[signal_type][signal_name].localised_name
 					}
+					signal_count = signal_count + 1
 				end
 			end
 		end
-	else
-		refs.hud_combinator_flow.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
+	end
+
+	-- No signals were shown due to too strict filtering circuit
+	if signal_count == 0 and signal_total_count > 0 then
+		combinator_content.clear()
+		combinator_content.add {type = "label", style = "hud_combinator_label", caption = "No signals passed filtering"}
+		return
+	end
+
+	-- No signals were shown due to now signals on the connected circuit
+	if signal_count == 0 and signal_total_count == 0 then
+		combinator_content.clear()
+		combinator_content.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
+		return
 	end
 end
 
@@ -497,7 +528,7 @@ function handle_hud_gui_events(player_index, action)
 	if action.action == GUI_ACTIONS.go_to_combinator then
 		if action.unit_number then
 			-- find the entity
-			local hud_combinator = get_hud_combinator(action.unit_number)
+			local hud_combinator = get_hud_combinator_entity(action.unit_number)
 			if hud_combinator and hud_combinator.valid then
 				-- open the map on the coordinates
 				player.zoom_to_world(hud_combinator.position, 2)

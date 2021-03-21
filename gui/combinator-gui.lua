@@ -96,17 +96,29 @@ function create_combinator_gui(player_index, unit_number)
 								style = "heading_2_label"
 							},
 							{
-								type = "textfield",
-								ref = {
-									"name_field"
-								},
-								style = "stretchable_textfield",
-								text = get_hud_combinator_name(unit_number),
-								actions = {
-									on_text_changed = {
-										gui = GUI_TYPES.combinator,
-										action = GUI_ACTIONS.name_change,
-										unit_number = unit_number
+								type = "flow",
+								direction = "horizontal",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										type = "textfield",
+										ref = {
+											"name_field"
+										},
+										style = "stretchable_textfield",
+										text = get_hud_combinator_name(unit_number),
+										actions = {
+											on_text_changed = {
+												gui = GUI_TYPES.combinator,
+												action = GUI_ACTIONS.name_change,
+												unit_number = unit_number
+											}
+										}
+									},
+									{
+										type = "sprite-button",
+										style = "item_and_count_select_confirm",
+										sprite = "utility/check_mark"
 									}
 								}
 							},
@@ -132,8 +144,16 @@ function create_combinator_gui(player_index, unit_number)
 										children = {
 											{
 												type = "switch",
+												switch_state = short_if(get_hud_combinator_filter_state(unit_number), "right", "left"),
 												left_label_caption = {"hud_combinator_gui.switch_off"},
-												right_label_caption = {"hud_combinator_gui.switch_on"}
+												right_label_caption = {"hud_combinator_gui.switch_on"},
+												actions = {
+													on_switch_state_changed = {
+														gui = GUI_TYPES.combinator,
+														action = GUI_ACTIONS.switch_filter_state,
+														unit_number = unit_number
+													}
+												}
 											}
 										}
 									}
@@ -213,8 +233,9 @@ function create_combinator_gui(player_index, unit_number)
 	refs.name_field.select(0, 0)
 
 	refs.hud_preview.visible = true
-	refs.hud_preview.entity = get_hud_combinator(unit_number)
+	refs.hud_preview.entity = get_hud_combinator_entity(unit_number)
 	local signal_table = refs.signal_table
+	local filters = get_hud_combinator_filters(unit_number)
 	for i = 1, 50, 1 do
 		flib_gui.build(
 			signal_table,
@@ -224,6 +245,7 @@ function create_combinator_gui(player_index, unit_number)
 					type = "choose-elem-button",
 					style = "flib_slot_button_default",
 					elem_type = "signal",
+					signal = filters[i], -- If this slot has a signal assigned, than set this signal here
 					actions = {
 						on_elem_changed = {
 							gui = GUI_TYPES.combinator,
@@ -283,6 +305,10 @@ function handle_combinator_gui_events(player_index, action)
 
 	if action.action == GUI_ACTIONS.close then
 		combinator_gui.destroy()
+	end
+
+	if action.action == GUI_ACTIONS.switch_filter_state then
+		set_hud_combinator_filter_state(action.unit_number, action["state"])
 	end
 
 	if action.action == GUI_ACTIONS.filter_signal_update then

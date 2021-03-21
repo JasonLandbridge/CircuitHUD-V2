@@ -62,3 +62,10 @@ function find_child(table, name)
 		end
 	end
 end
+
+function short_if(condition, true_result, false_result)
+	if condition then
+		return true_result
+	end
+	return false_result
+end

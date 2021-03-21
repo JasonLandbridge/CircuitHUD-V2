@@ -3,6 +3,7 @@ local function add_hud_combinator_ref(hud_combinator)
 		["entity"] = hud_combinator,
 		["name"] = "HUD Combinator #" .. hud_combinator.unit_number,
 		["filters"] = {},
+		["should_filter"] = false,
 		["unit_number"] = hud_combinator.unit_number
 	}
 end
@@ -12,7 +13,11 @@ local function remove_hud_combinator_ref(unit_number)
 end
 
 function get_hud_combinator(unit_number)
-	local hud_combinator = global.hud_combinators[unit_number]
+	return global.hud_combinators[unit_number]
+end
+
+function get_hud_combinator_entity(unit_number)
+	local hud_combinator = get_hud_combinator(unit_number)
 	if hud_combinator then
 		return hud_combinator["entity"]
 	end
@@ -20,41 +25,60 @@ function get_hud_combinator(unit_number)
 end
 
 function get_hud_combinator_name(unit_number)
-	local hud_combinator = global.hud_combinators[unit_number]
+	local hud_combinator = get_hud_combinator(unit_number)
 	if hud_combinator then
 		return hud_combinator["name"]
 	end
 	return nil
 end
 
+function get_hud_combinator_filters(unit_number)
+	local hud_combinator = get_hud_combinator(unit_number)
+	if hud_combinator then
+		return hud_combinator["filters"]
+	end
+end
+
+function get_hud_combinator_filter_state(unit_number)
+	local hud_combinator = get_hud_combinator(unit_number)
+	if hud_combinator then
+		return hud_combinator["should_filter"]
+	end
+	return nil
+end
+
 function set_hud_combinator_name(unit_number, name)
-	local hud_combinator = global.hud_combinators[unit_number]
+	local hud_combinator = get_hud_combinator(unit_number)
 	if hud_combinator then
 		hud_combinator["name"] = name
 	end
 end
 
 function set_hud_combinator_filter(unit_number, index, filter_signal)
-	local hud_combinator = global.hud_combinators[unit_number]
+	local hud_combinator = get_hud_combinator(unit_number)
 	if hud_combinator then
 		hud_combinator["filters"][index] = filter_signal
 	end
 end
 
--- Check if this HUD Combinator has any signals coming in to show in the HUD.
--- @param entity The HUD Combinator
-function has_network_signals(entity)
-	local red_network = entity.get_circuit_network(defines.wire_type.red)
-	local green_network = entity.get_circuit_network(defines.wire_type.green)
+function set_hud_combinator_filter_state(unit_number, state)
+	local hud_combinator = get_hud_combinator(unit_number)
+	if hud_combinator then
+		hud_combinator["should_filter"] = state
+	end
+end
 
-	if not (red_network == nil or red_network.signals == nil) then
+-- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
+-- @returns if signal is allowed to be shown
+function filter_signal(signals, name)
+	if table_size(signals) == 0 then
 		return true
 	end
-
-	if not (green_network == nil or green_network.signals == nil) then
-		return true
+	for key, value in pairs(signals) do
+		if value.name == name then
+			return true
+		end
 	end
-
 	return false
 end
 
