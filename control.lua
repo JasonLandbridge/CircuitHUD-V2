@@ -41,9 +41,8 @@ Event.on_init(
 --#endregion
 
 --#region On Nth Tick
-
-Event.register(
-	defines.events.on_tick,
+Event.on_nth_tick(
+	1,
 	function(event)
 		if event.tick % global.refresh_rate == 0 then
 			-- go through each player and update their HUD

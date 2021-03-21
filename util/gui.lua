@@ -318,6 +318,7 @@ local function create_root_frame(player_index)
 		set_hud_element_ref(player_index, HUD_NAMES.hud_header_spacer, header_refs[HUD_NAMES.hud_header_spacer])
 		set_hud_element_ref(player_index, HUD_NAMES.hud_search_text_field, header_refs[HUD_NAMES.hud_search_text_field])
 		set_hud_element_ref(player_index, HUD_NAMES.hud_search_button, header_refs[HUD_NAMES.hud_search_button])
+		set_hud_element_ref(player_index, HUD_NAMES.hud_settings_button, header_refs[HUD_NAMES.hud_settings_button])
 		set_hud_element_ref(player_index, HUD_NAMES.hud_toggle_button, header_refs[HUD_NAMES.hud_toggle_button])
 	end
 
