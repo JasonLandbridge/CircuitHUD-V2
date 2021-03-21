@@ -51,9 +51,16 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 							},
 							{
 								type = "button",
-								name = "CircuitHUD_rename_site_" .. flow_id,
-								tooltip = {"button-tooltips.rename-combinator"},
-								style = "CircuitHUD_rename_site"
+								name = "CircuitHUD_open_combinator_" .. flow_id,
+								tooltip = {"button-tooltips.open-combinator"},
+								style = "CircuitHUD_open_combinator",
+								actions = {
+									on_click = {
+										gui = GUI_TYPES.hud,
+										action = GUI_ACTIONS.open_combinator,
+										unit_number = unit_number
+									}
+								}
 							}
 						}
 					},
@@ -523,6 +530,7 @@ function handle_hud_gui_events(player_index, action)
 	if action.action == GUI_ACTIONS.toggle then
 		local toggle_state = not get_hud_collapsed(player_index)
 		update_collapse_state(player_index, toggle_state)
+		return
 	end
 
 	if action.action == GUI_ACTIONS.go_to_combinator then
@@ -534,5 +542,11 @@ function handle_hud_gui_events(player_index, action)
 				player.zoom_to_world(hud_combinator.position, 2)
 			end
 		end
+		return
+	end
+
+	if action.action == GUI_ACTIONS.open_combinator then
+		create_combinator_gui(player_index, action.unit_number)
+		return
 	end
 end

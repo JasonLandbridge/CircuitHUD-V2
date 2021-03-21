@@ -34,7 +34,7 @@ default_gui["CircuitHUD_goto_site"] = {
 	clicked_graphical_set = button_graphics(32, 80)
 }
 
-default_gui["CircuitHUD_rename_site"] = {
+default_gui["CircuitHUD_open_combinator"] = {
 	type = "button_style",
 	parent = "CircuitHUD_button_with_icon",
 	default_graphical_set = button_graphics(0, 112),
