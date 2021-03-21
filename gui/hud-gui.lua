@@ -219,7 +219,6 @@ function build_interface(player_index)
 	local root_frame = root_refs[const.HUD_NAMES.hud_root_frame]
 	-- Set references to root GUI Elements
 
-
 	-- Only create header when the settings allow for it
 	if not get_hide_hud_header_setting(player_index) then
 		-- create a title_flow
@@ -257,7 +256,7 @@ function build_interface(player_index)
 							type = "textfield",
 							style = "stretchable_textfield",
 							name = const.HUD_NAMES.hud_search_text_field,
-							style_mods = {top_margin = -3},
+							style_mods = {top_margin = -3, bottom_margin = 3},
 							visible = false,
 							ref = {const.HUD_NAMES.hud_search_text_field},
 							actions = {
