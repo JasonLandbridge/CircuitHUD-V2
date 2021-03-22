@@ -43,14 +43,12 @@ function gui_settings.create(player_index)
 								-- add the title label
 								type = "label",
 								style = "frame_title",
-								caption = "Settings",
-								ignored_by_interaction = true
+								caption = "Settings"
 							},
 							{
 								-- add a pusher (so the close button becomes right-aligned)
 								type = "empty-widget",
-								style = "flib_titlebar_drag_handle",
-								ignored_by_interaction = true
+								style = "flib_titlebar_drag_handle"
 							},
 							{
 								type = "sprite-button",
@@ -107,8 +105,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_position"},
-										tooltip = {"chv2_settings_gui_tooltips.hud_position"},
-										ignored_by_interaction = true
+										tooltip = {"chv2_settings_gui_tooltips.hud_position"}
 									},
 									{
 										type = "drop-down",
@@ -140,8 +137,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_title"},
-										tooltip = {"chv2_settings_gui_tooltips.hud_title"},
-										ignored_by_interaction = true
+										tooltip = {"chv2_settings_gui_tooltips.hud_title"}
 									},
 									{
 										-- Name Text field
@@ -171,8 +167,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_columns"},
-										tooltip = {"chv2_settings_gui_tooltips.hud_columns"},
-										ignored_by_interaction = true
+										tooltip = {"chv2_settings_gui_tooltips.hud_columns"}
 									},
 									{
 										type = "flow",
@@ -220,8 +215,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_max_height"},
-										tooltip = {"chv2_settings_gui_tooltips.hud_max_height"},
-										ignored_by_interaction = true
+										tooltip = {"chv2_settings_gui_tooltips.hud_max_height"}
 									},
 									{
 										type = "flow",
@@ -269,8 +263,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_refresh_rate"},
-										tooltip = {"chv2_settings_gui_tooltips.hud_refresh_rate"},
-										ignored_by_interaction = true
+										tooltip = {"chv2_settings_gui_tooltips.hud_refresh_rate"}
 									},
 									{
 										type = "flow",
@@ -318,8 +311,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_sort"},
-										tooltip = {"chv2_settings_gui_tooltips.hud_sort"},
-										ignored_by_interaction = true
+										tooltip = {"chv2_settings_gui_tooltips.hud_sort"}
 									},
 									{
 										type = "drop-down",
