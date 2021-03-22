@@ -128,6 +128,36 @@ function gui_settings.create(player_index)
 									}
 								}
 							},
+							-- HUD Header Text
+							{
+								type = "flow",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										-- add the title label
+										type = "label",
+										style = const.STYLES.settings_title_label,
+										caption = {"chv2_settings_name.hud_title"},
+										ignored_by_interaction = true
+									},
+									{
+										-- Name Text field
+										type = "textfield",
+										ref = {
+											"name_field"
+										},
+										style = "stretchable_textfield",
+										text = player_settings.get_hud_title_setting(player_index),
+										actions = {
+											on_text_changed = {
+												gui = const.GUI_TYPES.settings,
+												action = const.GUI_ACTIONS.update_settings,
+												name = const.SETTINGS.hud_title
+											}
+										}
+									}
+								}
+							},
 							-- HUD Max Columns setting
 							{
 								type = "flow",
@@ -202,12 +232,24 @@ function gui_settings.event_handler(player_index, action)
 		-- Hide HUD Setting
 		if action.name == const.SETTINGS.hide_hud_header then
 			player_settings.set_hide_hud_header_setting(player_index, value)
+			return
+		end
+
+		-- Set HUD Title
+		if action.name == const.SETTINGS.hud_title then
+			player_settings.set_hud_title_setting(player_index, value)
+			local hud_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
+			if hud_ref then
+				hud_ref.caption = value
+			end
+			return
 		end
 
 		-- Set HUD Position
 		if action.name == const.SETTINGS.hud_position then
 			player_settings.set_hud_position_setting(player_index, const.HUD_POSITION_INDEX[value])
 			gui_hud.reset(player_index)
+			return
 		end
 
 		-- HUD Columns Setting
@@ -215,6 +257,7 @@ function gui_settings.event_handler(player_index, action)
 			player_settings.set_hud_columns_setting(player_index, value)
 			local value_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_hud_columns_value)
 			value_ref.caption = tostring(value)
+			return
 		end
 	end
 
