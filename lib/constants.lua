@@ -99,6 +99,7 @@ const.GUI_ACTIONS = {
 }
 
 const.STYLES = {
+	hud_root_frame_style = const.SHORT_PREFIX .. "hud-root-frame-style",
 	settings_title_label = const.SHORT_PREFIX .. "settings_title_label",
 	settings_slider = const.SHORT_PREFIX .. "settings_slider_style"
 }

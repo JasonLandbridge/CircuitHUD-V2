@@ -1,7 +1,7 @@
 local const = require("lib.constants")
 
 local default_gui = data.raw["gui-style"].default
-default_gui["hud-root-frame-style"] = {
+default_gui[const.STYLES.hud_root_frame_style] = {
 	type = "frame_style",
 	minimal_width = 300,
 	minimal_height = 34,
@@ -85,6 +85,6 @@ default_gui[const.STYLES.settings_title_label] = {
 
 default_gui[const.STYLES.settings_slider] = {
 	type = "slider_style",
-	parent = "red_slider",
+	parent = "red_slider"
 	-- top_padding = 8
 }

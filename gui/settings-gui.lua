@@ -36,7 +36,6 @@ function gui_settings.create(player_index)
 					-- Titlebar
 					{
 						type = "flow",
-						ref = {"titlebar_flow"},
 						style = "flib_titlebar_flow",
 						children = {
 							{
@@ -48,7 +47,8 @@ function gui_settings.create(player_index)
 							{
 								-- add a pusher (so the close button becomes right-aligned)
 								type = "empty-widget",
-								style = "flib_titlebar_drag_handle"
+								style = "flib_titlebar_drag_handle",
+								ref = {"titlebar_flow"}
 							},
 							{
 								type = "sprite-button",

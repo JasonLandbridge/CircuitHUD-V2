@@ -264,7 +264,7 @@ function gui_hud.create(player_index)
 				type = "frame",
 				direction = "vertical",
 				name = const.HUD_NAMES.hud_root_frame,
-				style = "hud-root-frame-style",
+				style = const.STYLES.hud_root_frame_style,
 				ref = {
 					const.HUD_NAMES.hud_root_frame
 				}
