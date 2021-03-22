@@ -33,7 +33,7 @@ function event_handler.gui_hud_collapse_toggle(player_index, state)
 	)
 end
 
-function event_handler.reset_hud_all_players()
+function event_handler.gui_hud_reset_all_players()
 	Event.dispatch(
 		{
 			input_name = Event.generate_event_name(const.EVENTS.gui_hud_reset_all_players)

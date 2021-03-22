@@ -10,6 +10,10 @@ local gui_combinator = {}
 
 -- Generates the GUI Elements to be placed in children = {} property of a parent
 local function generate_signal_filter_table(unit_number)
+	if not unit_number then
+		return
+	end
+
 	local result = {}
 	local filters = combinator.get_hud_combinator_filters(unit_number)
 	for i = 1, 50, 1 do
@@ -364,14 +368,14 @@ function gui_combinator.event_handler(player_index, action)
 	if action.action == const.GUI_ACTIONS.switch_filter_state then
 		combinator.set_hud_combinator_filter_state(unit_number, action["value"])
 		-- Reset HUD all players on update
-		event_handler.reset_all_players()
+		event_handler.gui_hud_reset_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.filter_signal_update then
 		combinator.set_hud_combinator_filter(unit_number, action.index, action["value"])
 		-- Reset HUD all players on update
-		event_handler.reset_all_players()
+		event_handler.gui_hud_reset_all_players()
 		return
 	end
 
@@ -388,7 +392,7 @@ function gui_combinator.event_handler(player_index, action)
 		-- Reset the temp name again
 		combinator.set_hud_combinator_temp_name(unit_number, "")
 		-- Reset HUD all players on update
-		event_handler.reset_all_players()
+		event_handler.gui_hud_reset_all_players()
 		return
 	end
 end

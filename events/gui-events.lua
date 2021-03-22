@@ -6,7 +6,7 @@ local const = require("lib.constants")
 local player_settings = require("globals.player-settings")
 local player_data = require("globals.player-data")
 
-local gui_combinator = require("gui.hud-gui")
+local gui_combinator = require("gui.combinator-gui")
 local gui_settings = require("gui.settings-gui")
 local gui_hud = require("gui.hud-gui")
 
@@ -80,7 +80,7 @@ Event.register(
 	function(event)
 		if (not (event.entity == nil)) and (event.entity.name == const.HUD_COMBINATOR_NAME) then
 			-- create the HUD Combinator Gui
-			gui_combinator.create(event.player_index)
+			gui_combinator.create(event.player_index, event.entity.unit_number)
 		end
 	end
 )
