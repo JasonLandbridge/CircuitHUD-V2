@@ -63,18 +63,22 @@ const.HUD_POSITION = {
 
 const.HUD_SORT_INDEX = {
 	[1] = "none",
-	[2] = "ascending",
-	[3] = "descending",
-	[4] = "build-order-ascending",
-	[5] = "build-order-descending"
+	[2] = "name_ascending",
+	[3] = "name_descending",
+	[4] = "priority_ascending",
+	[5] = "priority_descending",
+	[6] = "build_order_ascending",
+	[7] = "build_order_descending"
 }
 
 const.HUD_SORT = {
 	none = const.HUD_SORT_INDEX[1],
-	ascending = const.HUD_SORT_INDEX[2],
-	descending = const.HUD_SORT_INDEX[3],
-	build_order_ascending = const.HUD_SORT_INDEX[4],
-	build_order_descending = const.HUD_SORT_INDEX[5]
+	name_ascending = const.HUD_SORT_INDEX[2],
+	name_descending = const.HUD_SORT_INDEX[3],
+	priority_ascending = const.HUD_SORT_INDEX[4],
+	priority_descending = const.HUD_SORT_INDEX[5],
+	build_order_ascending = const.HUD_SORT_INDEX[6],
+	build_order_descending = const.HUD_SORT_INDEX[7]
 }
 
 const.SIGNAL_TYPE_MAP = {

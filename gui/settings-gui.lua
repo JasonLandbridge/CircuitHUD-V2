@@ -318,10 +318,12 @@ function gui_settings.create(player_index)
 										selected_index = player_settings.get_hud_sort_index_setting(player_index),
 										items = {
 											{"chv2_settings_gui_dropdown.hud_sort_none"},
-											{"chv2_settings_gui_dropdown.hud_sort_ascending"},
-											{"chv2_settings_gui_dropdown.hud_sort_descending"},
-											{"chv2_settings_gui_dropdown.hud_sort_build-order-ascending"},
-											{"chv2_settings_gui_dropdown.hud_sort_build-order-descending"}
+											{"chv2_settings_gui_dropdown.hud_sort_name_ascending"},
+											{"chv2_settings_gui_dropdown.hud_sort_name_descending"},
+											{"chv2_settings_gui_dropdown.hud_sort_priority_ascending"},
+											{"chv2_settings_gui_dropdown.hud_sort_priority_descending"},
+											{"chv2_settings_gui_dropdown.hud_sort_build_order_ascending"},
+											{"chv2_settings_gui_dropdown.hud_sort_build_order_descending"}
 										},
 										actions = {
 											on_selection_state_changed = {

@@ -28,59 +28,100 @@ end
 local function sort_hud_combinators(hud_combinators, player_index)
 	local sort_mode = player_settings.get_hud_sort_setting(player_index)
 
+	-- Create an array from an indexed table
+	-- Source: https://stackoverflow.com/q/24164118/8205497
+	local combinator_array = {}
+	for _, v in pairs(hud_combinators) do
+		table.insert(combinator_array, {name = v.name, unit_number = v.unit_number, priority = v.priority, entity = v.entity})
+	end
+
+	-- None
+	if sort_mode == const.HUD_SORT.none then
+		return combinator_array
+	end
+
 	-- Ascending
-	if sort_mode == const.HUD_SORT.ascending then
-		hud_combinators =
-			table.sort(
-			hud_combinators,
+	if sort_mode == const.HUD_SORT.name_ascending then
+		 table.sort(
+			combinator_array,
 			function(a, b)
 				return a.name:lower() < b.name:lower()
 			end
 		)
+		
 	end
 
 	-- Descending
-	if sort_mode == const.HUD_SORT.descending then
-		hud_combinators =
-			table.sort(
-			hud_combinators,
+	if sort_mode == const.HUD_SORT.name_descending then
+		table.sort(
+			combinator_array,
 			function(a, b)
 				return a.name:lower() > b.name:lower()
 			end
 		)
 	end
 
-	-- Build Order Ascending
+	-- Priority Ascending
 	if sort_mode == const.HUD_SORT.build_order_ascending then
-		hud_combinators =
-			table.sort(
-			hud_combinators,
+		table.sort(
+			combinator_array,
 			function(a, b)
-				return a.unit_number:lower() < b.unit_number:lower()
+				if a.unit_number == b.unit_number then
+					return a.name:lower() < b.name:lower()
+				end
+				return a.unit_number < b.unit_number
+			end
+		)
+	end
+
+	-- Priority Descending
+	if sort_mode == const.HUD_SORT.build_order_descending then
+		table.sort(
+			combinator_array,
+			function(a, b)
+				if a.unit_number == b.unit_number then
+					return a.name:lower() > b.name:lower()
+				end
+				return a.unit_number > b.unit_number
+			end
+		)
+	end
+
+	-- Build Order Ascending
+	if sort_mode == const.HUD_SORT.priority_ascending then
+		table.sort(
+			combinator_array,
+			function(a, b)
+				if a.priority == b.priority then
+					return a.name:lower() < b.name:lower()
+				end
+				return a.priority < b.priority
 			end
 		)
 	end
 
 	-- Build Order Descending
-	if sort_mode == const.HUD_SORT.build_order_descending then
-		hud_combinators =
-			table.sort(
-			hud_combinators,
+	if sort_mode == const.HUD_SORT.priority_descending then
+		table.sort(
+			combinator_array,
 			function(a, b)
-				return a.unit_number:lower() > b.unit_number:lower()
+				if a.priority == b.priority then
+					return a.name:lower() > b.name:lower()
+				end
+				return a.priority > b.priority
 			end
 		)
 	end
 
-	return hud_combinators
+	return combinator_array
 end
 
 -- Takes the data from HUD Combinator and display it in the HUD
 -- @param scroll_pane_frame The Root frame
 -- @param hud_combinator The HUD Combinator to process
-local function render_combinator(scroll_pane_frame, hud_combinator)
+local function render_combinator(scroll_pane_frame, unit_number)
 	-- Check flow container for the HUD Combinator category if it doesnt exist
-	local unit_number = hud_combinator.unit_number
+	local hud_combinator = combinator.get_hud_combinator_entity(unit_number)
 	local flow_id = "hud_combinator_flow_" .. tostring(unit_number)
 	local refs =
 		flib_gui.build(
@@ -155,8 +196,8 @@ local function render_combinator(scroll_pane_frame, hud_combinator)
 	-- Check if this HUD Combinator has any signals coming in to show in the HUD.
 	local max_columns = player_settings.get_hud_columns_setting(scroll_pane_frame.player_index)
 
-	local red_network = hud_combinator.entity.get_circuit_network(defines.wire_type.red)
-	local green_network = hud_combinator.entity.get_circuit_network(defines.wire_type.green)
+	local red_network = hud_combinator.get_circuit_network(defines.wire_type.red)
+	local green_network = hud_combinator.get_circuit_network(defines.wire_type.green)
 
 	local networks = {green_network, red_network}
 	local network_colors = {"green", "red"}
@@ -497,10 +538,10 @@ function gui_hud.update(player_index)
 	end
 
 	-- Sort HUD Combinator
-	hud_combinators = sort_hud_combinators(hud_combinators, player_index)
+	local hud_combinators_unit_numbers = sort_hud_combinators(hud_combinators, player_index)
 
 	-- Check if there were no search results.
-	if text ~= "" and table_size(hud_combinators) == 0 then
+	if text ~= "" and table_size(hud_combinators_unit_numbers) == 0 then
 		flib_gui.build(
 			scroll_pane_frame,
 			{
@@ -513,13 +554,10 @@ function gui_hud.update(player_index)
 		)
 	else
 		-- loop over every HUD Combinator provided
-		for _, hud_combinator in pairs(hud_combinators) do
-			if not hud_combinator.entity.valid then
-				-- the entity has probably just been deconstructed
-				break
+		for _, hud_combinator in ipairs(hud_combinators_unit_numbers) do
+			if hud_combinator.entity.valid then
+				render_combinator(scroll_pane_frame, hud_combinator.unit_number)
 			end
-
-			render_combinator(scroll_pane_frame, hud_combinator)
 		end
 	end
 
