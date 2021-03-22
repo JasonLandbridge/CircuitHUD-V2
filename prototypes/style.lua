@@ -1,3 +1,5 @@
+local const = require("lib.constants")
+
 local default_gui = data.raw["gui-style"].default
 default_gui["hud-root-frame-style"] = {
 	type = "frame_style",
@@ -65,10 +67,24 @@ default_gui["hud_combinator_label"] = {
 	want_ellipsis = true
 }
 
-
 default_gui["ch_settings_category_frame"] = {
 	type = "frame_style",
 	parent = "bordered_frame",
 	horizontally_stretchable = "on",
 	right_padding = 8
-  }
+}
+
+default_gui[const.STYLES.settings_title_label] = {
+	type = "label_style",
+	parent = "label",
+	minimal_width = 150,
+	minimal_height = 28,
+	maximal_height = 28,
+	top_padding = 4
+}
+
+default_gui[const.STYLES.settings_slider] = {
+	type = "slider_style",
+	parent = "red_slider",
+	-- top_padding = 8
+}

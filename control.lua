@@ -1,7 +1,5 @@
-require "mod-gui"
+local mod_gui = require "mod-gui"
 
-local flib_gui = require("__flib__.gui-beta")
-local std_string = require("__stdlib__/stdlib/utils/string")
 local Event = require("__stdlib__/stdlib/event/event")
 
 local const = require("lib.constants")
@@ -13,11 +11,13 @@ local combinator = require("globals.combinator")
 local player_data = require("globals.player-data")
 local base_global = require("globals.base-global")
 
-require "lib/migration"
+require "lib.migration"
 
-require "gui/combinator-gui"
-require "gui/settings-gui"
-require "gui/hud-gui"
+require "gui.combinator-gui"
+require "gui.settings-gui"
+require "gui.hud-gui"
+
+require "events.gui-events"
 
 -- Enable Lua API global Variable Viewer
 -- https://mods.factorio.com/mod/gvv
@@ -100,128 +100,6 @@ Event.register(
 	end
 )
 --#endregion
-
---#region On GUI Opened
-
-Event.register(
-	defines.events.on_gui_opened,
-	function(event)
-		if (not (event.entity == nil)) and (event.entity.name == const.HUD_COMBINATOR_NAME) then
-			-- create the HUD Combinator Gui
-			create_combinator_gui(event.player_index, event.entity.unit_number)
-		end
-	end
-)
-
-Event.register(
-	defines.events.on_gui_closed,
-	function(event)
-		-- check if it's and HUD Combinator GUI and close that
-		if (not (event.element == nil)) and std_string.starts_with(event.element.name, const.HUD_NAMES.combinator_root_frame) then
-			-- create the HUD Combinator Gui
-			destroy_combinator_gui(event.player_index, event.element.name)
-		end
-	end
-)
-
---#endregion
-
-Event.register(
-	defines.events.on_gui_text_changed,
-	function(event)
-		-- Check if the event is meant for us
-		local action = flib_gui.read_action(event)
-		if not action then
-			return
-		end
-
-		action["text"] = event.text
-
-		if action.gui == const.GUI_TYPES.combinator then
-			handle_combinator_gui_events(event.player_index, action)
-		end
-
-		if action.gui == const.GUI_TYPES.hud then
-			handle_hud_gui_events(event.player_index, action)
-		end
-	end
-)
-
-Event.register(
-	defines.events.on_gui_location_changed,
-	function(event)
-		if event.element.name == const.HUD_NAMES.hud_root_frame then
-			-- save the coordinates if the hud is draggable
-			if player_settings.get_hud_position_setting(event.player_index) == "draggable" then
-				player_data.set_hud_location(event.player_index, event.element.location)
-			end
-		end
-	end
-)
-
-Event.register(
-	defines.events.on_gui_click,
-	function(event)
-		-- Check if the event is meant for us
-		local action = flib_gui.read_action(event)
-		if not action then
-			return
-		end
-
-		if action.gui == const.GUI_TYPES.combinator then
-			handle_combinator_gui_events(event.player_index, action)
-		end
-
-		if action.gui == const.GUI_TYPES.hud then
-			handle_hud_gui_events(event.player_index, action)
-		end
-
-		if action.gui == const.GUI_TYPES.settings then
-			handle_settings_gui_events(event.player_index, action)
-		end
-	end
-)
-Event.register(
-	defines.events.on_gui_elem_changed,
-	function(event)
-		-- Check if the event is meant for us
-		local action = flib_gui.read_action(event)
-		if not action then
-			return
-		end
-
-		action["signal"] = event.element.elem_value
-
-		if action.gui == const.GUI_TYPES.combinator then
-			handle_combinator_gui_events(event.player_index, action)
-		end
-
-		if action.gui == const.GUI_TYPES.hud then
-			handle_hud_gui_events(event.player_index, action)
-		end
-	end
-)
-
-Event.register(
-	defines.events.on_gui_switch_state_changed,
-	function(event)
-		-- Check if the event is meant for us
-		local action = flib_gui.read_action(event)
-		if not action then
-			return
-		end
-
-		action["state"] = event.element.switch_state == "right"
-
-		if action.gui == const.GUI_TYPES.combinator then
-			handle_combinator_gui_events(event.player_index, action)
-		end
-
-		if action.gui == const.GUI_TYPES.hud then
-			handle_hud_gui_events(event.player_index, action)
-		end
-	end
-)
 
 --#region Register / De-register HUD Combinator
 

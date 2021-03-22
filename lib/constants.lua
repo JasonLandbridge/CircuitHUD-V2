@@ -2,6 +2,8 @@ local const = {}
 
 const.PREFIX = "CIRCUIT_HUD_"
 const.SHORT_PREFIX = "chv2_"
+const.HUD_COMBINATOR_NAME = "hud-combinator"
+const.HIDE_SIGNAL_NAME = "signal-hide-hud-comparator"
 
 const.HUD_NAMES = {
 	hud_root_frame = const.PREFIX .. "hud_root_frame",
@@ -14,7 +16,9 @@ const.HUD_NAMES = {
 	hud_search_text_field = const.PREFIX .. "hud_search_textfield",
 	hud_search_button = const.PREFIX .. "hud_search_button",
 	combinator_root_frame = const.PREFIX .. "combinator_root_frame",
-	settings_root_frame = const.PREFIX .. "settings_root_frame"
+	settings_root_frame = const.PREFIX .. "settings_root_frame",
+	settings_hud_columns_slider = const.PREFIX .. "settings_hud_columns_vslider",
+	settings_hud_columns_value = const.PREFIX .. "settings_hud_columns_value"
 }
 
 const.GUI_TYPES = {
@@ -22,9 +26,6 @@ const.GUI_TYPES = {
 	hud = "HUD_GUI",
 	settings = "SETTINGS_GUI"
 }
-
-const.HUD_COMBINATOR_NAME = "hud-combinator"
-const.HIDE_SIGNAL_NAME = "signal-hide-hud-comparator"
 
 const.SETTINGS = {
 	prefix = "CircuitHUD_",
@@ -65,6 +66,11 @@ const.GUI_ACTIONS = {
 	filter_signal_update = "FILTER_SIGNAL_UPDATE",
 	switch_filter_state = "SWITCH_FILTER_STATE",
 	name_change_confirm = "NAME_CHANGE_CONFIRM"
+}
+
+const.STYLES = {
+	settings_title_label = const.SHORT_PREFIX .. "settings_title_label",
+	settings_slider = const.SHORT_PREFIX .. "settings_slider_style"
 }
 
 return const

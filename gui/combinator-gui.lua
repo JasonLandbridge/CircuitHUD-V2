@@ -346,43 +346,44 @@ function destroy_combinator_gui(player_index, name)
 end
 
 function handle_combinator_gui_events(player_index, action)
-	local combinator_gui = get_combinator_gui(player_index, action.unit_number)
+	local unit_number = action["unit_number"]
+	local combinator_gui = get_combinator_gui(player_index, unit_number)
 	if not combinator_gui then
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.close then
-		combinator.set_hud_combinator_temp_name(action.unit_number, "")
+		combinator.set_hud_combinator_temp_name(unit_number, "")
 		combinator_gui.destroy()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.switch_filter_state then
-		combinator.set_hud_combinator_filter_state(action.unit_number, action["state"])
+		combinator.set_hud_combinator_filter_state(unit_number, action["value"])
 		-- Reset HUD all players on update
 		reset_hud_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.filter_signal_update then
-		combinator.set_hud_combinator_filter(action.unit_number, action.index, action.signal)
+		combinator.set_hud_combinator_filter(unit_number, action.index, action["value"])
 		-- Reset HUD all players on update
 		reset_hud_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.name_change then
-		combinator.set_hud_combinator_temp_name(action.unit_number, action.text)
-		update_combinator_gui(player_index, action.unit_number)
+		combinator.set_hud_combinator_temp_name(unit_number, action["value"])
+		update_combinator_gui(player_index, unit_number)
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.name_change_confirm then
 		-- Set the confirmed name from the temp name
-		local tmp_name = combinator.get_hud_combinator_temp_name(action.unit_number)
-		combinator.set_hud_combinator_name(action.unit_number, tmp_name)
+		local tmp_name = combinator.get_hud_combinator_temp_name(unit_number)
+		combinator.set_hud_combinator_name(unit_number, tmp_name)
 		-- Reset the temp name again
-		combinator.set_hud_combinator_temp_name(action.unit_number, "")
+		combinator.set_hud_combinator_temp_name(unit_number, "")
 		-- Reset HUD all players on update
 		reset_hud_all_players()
 		return

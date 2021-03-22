@@ -667,7 +667,9 @@ end
 
 function handle_hud_gui_events(player_index, action)
 	local player = common.get_player(player_index)
-
+	local unit_number = action["unit_number"]
+	local value = action["value"]
+	
 	if action.action == const.GUI_ACTIONS.toggle then
 		local toggle_state = not player_data.get_hud_collapsed(player_index)
 		update_collapse_state(player_index, toggle_state)
@@ -675,9 +677,9 @@ function handle_hud_gui_events(player_index, action)
 	end
 
 	if action.action == const.GUI_ACTIONS.go_to_combinator then
-		if action.unit_number then
+		if unit_number then
 			-- find the entity
-			local hud_combinator = combinator.get_hud_combinator_entity(action.unit_number)
+			local hud_combinator = combinator.get_hud_combinator_entity(unit_number)
 			if hud_combinator and hud_combinator.valid then
 				-- open the map on the coordinates
 				player.zoom_to_world(hud_combinator.position, 2)
@@ -688,7 +690,7 @@ function handle_hud_gui_events(player_index, action)
 
 	-- Open HUD Combinator
 	if action.action == const.GUI_ACTIONS.open_combinator then
-		create_combinator_gui(player_index, action.unit_number)
+		create_combinator_gui(player_index, unit_number)
 		return
 	end
 
