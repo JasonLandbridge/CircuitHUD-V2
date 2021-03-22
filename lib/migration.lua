@@ -77,11 +77,15 @@ local migrations = {
 			end
 		end
 
-		-- Update players
+		-- Update players global and settings
 		local setting_prefix = "CircuitHUD_"
 		for player_index, player in pairs(global.players) do
 			if not player["search_text"] then
 				player["search_text"] = ""
+			end
+
+			if not player["hud_combinators"] then
+				player["hud_combinators"] = {}
 			end
 
 			-- Migrate settings to new system

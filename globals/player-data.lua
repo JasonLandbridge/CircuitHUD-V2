@@ -8,7 +8,8 @@ local player_data_default = {
 	hud_location = {x = 0, y = 0},
 	search_text = "",
 	elements = {},
-	settings = player_settings.default_player_settings()
+	settings = player_settings.default_player_settings(),
+	hud_combinators = {}
 }
 local player_data = {}
 
@@ -124,6 +125,7 @@ function player_data.get_hud_ref(player_index, key)
 end
 
 --#endregion
+--#region Get HUD References
 
 function player_data.destroy_hud(player_index)
 	local elements = player_data.get_player_global(player_index).elements
