@@ -308,6 +308,39 @@ function gui_settings.create(player_index)
 									}
 								}
 							},
+							-- HUD Sort setting
+							{
+								type = "flow",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										-- add the title label
+										type = "label",
+										style = const.STYLES.settings_title_label,
+										caption = {"chv2_settings_name.hud_sort"},
+										tooltip = {"chv2_settings_gui_tooltips.hud_sort"},
+										ignored_by_interaction = true
+									},
+									{
+										type = "drop-down",
+										selected_index = player_settings.get_hud_sort_index_setting(player_index),
+										items = {
+											{"chv2_settings_gui_dropdown.hud_sort_none"},
+											{"chv2_settings_gui_dropdown.hud_sort_ascending"},
+											{"chv2_settings_gui_dropdown.hud_sort_descending"},
+											{"chv2_settings_gui_dropdown.hud_sort_build-order-ascending"},
+											{"chv2_settings_gui_dropdown.hud_sort_build-order-descending"}
+										},
+										actions = {
+											on_selection_state_changed = {
+												gui = const.GUI_TYPES.settings,
+												action = const.GUI_ACTIONS.update_settings,
+												name = const.SETTINGS.hud_sort
+											}
+										}
+									}
+								}
+							},
 							-- Uncollapse HUD on new combinator
 							{
 								type = "flow",
@@ -452,6 +485,13 @@ function gui_settings.event_handler(player_index, action)
 			if value_ref then
 				value_ref.caption = tostring(value)
 			end
+			return
+		end
+
+		-- Set HUD Sort
+		if action.name == const.SETTINGS.hud_sort then
+			player_settings.set_hud_sort_setting(player_index, const.HUD_SORT_INDEX[value])
+			gui_hud.reset(player_index)
 			return
 		end
 

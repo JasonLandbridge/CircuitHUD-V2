@@ -21,6 +21,7 @@ function player_settings.default_player_settings()
 	settings[const.SETTINGS.hud_columns] = 8
 	settings[const.SETTINGS.hud_max_height] = 600
 	settings[const.SETTINGS.hud_refresh_rate] = 60
+	settings[const.SETTINGS.hud_sort] = const.HUD_SORT.none
 	settings[const.SETTINGS.uncollapse_hud_on_register_combinator] = true
 	settings[const.SETTINGS.debug_mode] = false
 	return settings
@@ -61,13 +62,27 @@ function player_settings.get_hud_refresh_rate_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.hud_refresh_rate)
 end
 
+function player_settings.get_hud_sort_setting(player_index)
+	return player_settings.get_setting(player_index, const.SETTINGS.hud_position)
+end
+
+function player_settings.get_hud_sort_index_setting(player_index)
+	local setting_value = player_settings.get_hud_sort_setting(player_index)
+	for key, value in pairs(const.HUD_SORT_INDEX) do
+		if setting_value == value then
+			return key
+		end
+	end
+	return 0
+end
+
 function player_settings.get_uncollapse_hud_on_register_combinator_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.uncollapse_hud_on_register_combinator)
 end
 
 -- Returns true if mod is in Debug mode
 function player_settings.get_debug_mode_setting(player_index)
-	return player_settings.get_setting(player_index, const.SETTINGS.debug_mode) == "debug"
+	return player_settings.get_setting(player_index, const.SETTINGS.debug_mode)
 end
 
 --#endregion
@@ -100,6 +115,10 @@ end
 
 function player_settings.set_uncollapse_hud_on_register_combinator_setting(player_index, state)
 	player_settings.set_setting(player_index, const.SETTINGS.uncollapse_hud_on_register_combinator, state)
+end
+
+function player_settings.set_hud_sort_setting(player_index, state)
+	player_settings.set_setting(player_index, const.SETTINGS.hud_sort, state)
 end
 
 function player_settings.set_debug_mode_setting(player_index, state)

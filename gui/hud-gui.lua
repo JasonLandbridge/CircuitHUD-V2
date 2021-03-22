@@ -25,6 +25,56 @@ local function filter_signal(signals, name)
 	return false
 end
 
+local function sort_hud_combinators(hud_combinators, player_index)
+	local sort_mode = player_settings.get_hud_sort_setting(player_index)
+
+	-- Ascending
+	if sort_mode == const.HUD_SORT.ascending then
+		hud_combinators =
+			table.sort(
+			hud_combinators,
+			function(a, b)
+				return a.name:lower() < b.name:lower()
+			end
+		)
+	end
+
+	-- Descending
+	if sort_mode == const.HUD_SORT.descending then
+		hud_combinators =
+			table.sort(
+			hud_combinators,
+			function(a, b)
+				return a.name:lower() > b.name:lower()
+			end
+		)
+	end
+
+	-- Build Order Ascending
+	if sort_mode == const.HUD_SORT.build_order_ascending then
+		hud_combinators =
+			table.sort(
+			hud_combinators,
+			function(a, b)
+				return a.unit_number:lower() < b.unit_number:lower()
+			end
+		)
+	end
+
+	-- Build Order Descending
+	if sort_mode == const.HUD_SORT.build_order_descending then
+		hud_combinators =
+			table.sort(
+			hud_combinators,
+			function(a, b)
+				return a.unit_number:lower() > b.unit_number:lower()
+			end
+		)
+	end
+
+	return hud_combinators
+end
+
 -- Takes the data from HUD Combinator and display it in the HUD
 -- @param scroll_pane_frame The Root frame
 -- @param hud_combinator The HUD Combinator to process
@@ -443,6 +493,9 @@ function gui_hud.update(player_index)
 	else
 		hud_combinators = combinator.get_hud_combinators()
 	end
+
+	-- Sort HUD Combinator
+	hud_combinators = sort_hud_combinators(hud_combinators, player_index)
 
 	-- Check if there were no search results.
 	if text ~= "" and table_size(hud_combinators) == 0 then

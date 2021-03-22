@@ -39,6 +39,7 @@ const.SETTINGS = {
 	hud_columns = "hud_columns",
 	hud_refresh_rate = "hud_refresh_rate",
 	hud_max_height = "hud_max_height",
+	hud_sort = "hud_sort",
 	uncollapse_hud_on_register_combinator = "uncollapse_hud_on_register_combinator",
 	debug_mode = "debug_mode"
 }
@@ -57,6 +58,22 @@ const.HUD_POSITION = {
 	goal = const.HUD_POSITION_INDEX[3],
 	bottom_right = const.HUD_POSITION_INDEX[4],
 	draggable = const.HUD_POSITION_INDEX[5]
+}
+
+const.HUD_SORT_INDEX = {
+	[1] = "none",
+	[2] = "ascending",
+	[3] = "descending",
+	[4] = "build-order-ascending",
+	[5] = "build-order-descending"
+}
+
+const.HUD_SORT = {
+	none = const.HUD_SORT_INDEX[1],
+	ascending = const.HUD_SORT_INDEX[2],
+	descending = const.HUD_SORT_INDEX[3],
+	build_order_ascending = const.HUD_SORT_INDEX[4],
+	build_order_descending = const.HUD_SORT_INDEX[5]
 }
 
 const.SIGNAL_TYPE_MAP = {
