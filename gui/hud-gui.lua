@@ -7,6 +7,7 @@ local common = require("lib.common")
 local player_settings = require("globals.player-settings")
 local combinator = require("globals.combinator")
 local player_data = require("globals.player-data")
+local combinator_gui = require("gui.hud-gui")
 
 local gui_hud = {}
 
@@ -696,7 +697,7 @@ function event_handler(player_index, action)
 
 	-- Open HUD Combinator
 	if action.action == const.GUI_ACTIONS.open_combinator then
-		create_combinator_gui(player_index, unit_number)
+		combinator_gui.create(player_index, unit_number)
 		return
 	end
 

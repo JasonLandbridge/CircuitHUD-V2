@@ -6,6 +6,7 @@ local combinator = require("globals.combinator")
 local common = require("lib.common")
 
 local gui_hud = require("gui.hud-gui")
+local combinator_gui = {}
 
 -- Generates the GUI Elements to be placed in children = {} property of a parent
 local function generate_signal_filter_table(unit_number)
@@ -32,10 +33,10 @@ local function generate_signal_filter_table(unit_number)
 	return result
 end
 
-function create_combinator_gui(player_index, unit_number)
+function combinator_gui.create(player_index, unit_number)
 	-- Check if it doesn't exist already
 	local player = common.get_player(player_index)
-	local combinator_gui = get_combinator_gui(player_index, unit_number)
+	local combinator_gui = combinator_gui.get_combinator_gui(player_index, unit_number)
 	if combinator_gui then
 		common.debug_log(player_index, "HUD Combinator GUI with unit_number " .. tostring(unit_number) .. " already has a GUI open/created.")
 		-- We need to overwrite the "to be opened GUI" with our own GUI
@@ -280,11 +281,11 @@ function create_combinator_gui(player_index, unit_number)
 	player.opened.force_auto_center()
 end
 
-function update_combinator_gui(player_index, unit_number)
+function combinator_gui.update(player_index, unit_number)
 	local tmp_name = combinator.get_hud_combinator_temp_name(unit_number)
 	if tmp_name ~= "" then
 		for _, player in pairs(game.players) do
-			local combinator_gui = get_combinator_gui(player.index)
+			local combinator_gui = combinator_gui.get_combinator_gui(player.index)
 			if combinator_gui then
 				flib_gui.update(
 					combinator_gui,
@@ -314,7 +315,7 @@ function update_combinator_gui(player_index, unit_number)
 	end
 end
 
-function get_combinator_gui(player_index, unit_number)
+function combinator_gui.get_combinator_gui(player_index, unit_number)
 	local player = common.get_player(player_index)
 	if player then
 		local gui_windows = player.gui.screen.children
@@ -327,7 +328,7 @@ function get_combinator_gui(player_index, unit_number)
 	return nil
 end
 
-function get_combinator_gui_by_name(player_index, name)
+function combinator_gui.get_combinator_gui_by_name(player_index, name)
 	local player = common.get_player(player_index)
 	if player then
 		local gui_windows = player.gui.screen.children
@@ -340,16 +341,16 @@ function get_combinator_gui_by_name(player_index, name)
 	return nil
 end
 
-function destroy_combinator_gui(player_index, name)
-	local combinator_gui = get_combinator_gui_by_name(player_index, name)
+function combinator_gui.destroy(player_index, name)
+	local combinator_gui = combinator_gui.get_combinator_gui_by_name(player_index, name)
 	if combinator_gui then
 		combinator_gui.destroy()
 	end
 end
 
-function handle_combinator_gui_events(player_index, action)
+function combinator_gui.event_handler(player_index, action)
 	local unit_number = action["unit_number"]
-	local combinator_gui = get_combinator_gui(player_index, unit_number)
+	local combinator_gui = combinator_gui.get_combinator_gui(player_index, unit_number)
 	if not combinator_gui then
 		return
 	end
@@ -376,7 +377,7 @@ function handle_combinator_gui_events(player_index, action)
 
 	if action.action == const.GUI_ACTIONS.name_change then
 		combinator.set_hud_combinator_temp_name(unit_number, action["value"])
-		update_combinator_gui(player_index, unit_number)
+		combinator_gui.update(player_index, unit_number)
 		return
 	end
 
@@ -391,3 +392,5 @@ function handle_combinator_gui_events(player_index, action)
 		return
 	end
 end
+
+return combinator_gui

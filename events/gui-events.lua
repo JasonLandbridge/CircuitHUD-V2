@@ -6,6 +6,8 @@ local const = require("lib.constants")
 local player_settings = require("globals.player-settings")
 local player_data = require("globals.player-data")
 
+local combinator_gui = require("gui.hud-gui")
+
 local function gui_update(event)
 	-- Check if the event is meant for us
 	local action = flib_gui.read_action(event)
@@ -31,7 +33,7 @@ local function gui_update(event)
 	end
 
 	if action.gui == const.GUI_TYPES.combinator then
-		handle_combinator_gui_events(event.player_index, action)
+		combinator_gui.event_handler(event.player_index, action)
 	end
 
 	if action.gui == const.GUI_TYPES.hud then
@@ -73,7 +75,7 @@ Event.register(
 	function(event)
 		if (not (event.entity == nil)) and (event.entity.name == const.HUD_COMBINATOR_NAME) then
 			-- create the HUD Combinator Gui
-			create_combinator_gui(event.player_index, event.entity.unit_number)
+			combinator_gui.create(event.player_index, event.entity.unit_number)
 		end
 	end
 )
@@ -84,7 +86,7 @@ Event.register(
 		-- check if it's and HUD Combinator GUI and close that
 		if (not (event.element == nil)) and std_string.starts_with(event.element.name, const.HUD_NAMES.combinator_root_frame) then
 			-- create the HUD Combinator Gui
-			destroy_combinator_gui(event.player_index, event.element.name)
+			combinator_gui.destroy(event.player_index, event.element.name)
 		end
 	end
 )

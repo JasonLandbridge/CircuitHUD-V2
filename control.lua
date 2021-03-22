@@ -13,7 +13,6 @@ local base_global = require("globals.base-global")
 
 require "lib.migration"
 
-require "gui.combinator-gui"
 require "gui.settings-gui"
 
 local gui_hud = require("gui.hud-gui")
@@ -38,7 +37,7 @@ Event.on_init(
 		-- Reset all Combinator HUD references
 		combinator.check_combinator_registrations()
 		-- Ensure we have created the HUD for all players
-		 gui_hud.check_all_player_hud_visibility()
+		gui_hud.check_all_player_hud_visibility()
 	end
 )
 --#endregion
@@ -96,7 +95,7 @@ Event.register(
 			end
 			gui_hud.reset(event.player_index)
 			-- Ensure the HUD is visible on mod setting change
-			 gui_hud.update_collapse_state(event.player_index, false)
+			gui_hud.update_collapse_state(event.player_index, false)
 		end
 	end
 )
@@ -111,7 +110,7 @@ local function set_combinator_registration(entity, state)
 		else
 			combinator.unregister_combinator(entity)
 		end
-		 gui_hud.check_all_player_hud_visibility()
+		gui_hud.check_all_player_hud_visibility()
 	end
 end
 
@@ -147,14 +146,14 @@ Event.register(
 Event.register(
 	defines.events.on_player_display_resolution_changed,
 	function(event)
-		 gui_hud.should_hud_root_exist(event.player_index)
+		gui_hud.should_hud_root_exist(event.player_index)
 	end
 )
 
 Event.register(
 	defines.events.on_player_display_scale_changed,
 	function(event)
-		 gui_hud.should_hud_root_exist(event.player_index)
+		gui_hud.should_hud_root_exist(event.player_index)
 	end
 )
 
@@ -163,7 +162,7 @@ Event.register(
 	const.SHORT_PREFIX .. "toggle_hud",
 	function(event)
 		local toggle_state = not player_data.get_hud_collapsed(event.player_index)
-		 gui_hud.update_collapse_state(event.player_index, toggle_state)
+		gui_hud.update_collapse_state(event.player_index, toggle_state)
 	end
 )
 
