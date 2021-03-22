@@ -16,6 +16,7 @@ const.HUD_NAMES = {
 	hud_search_text_field = const.PREFIX .. "hud_search_textfield",
 	hud_search_button = const.PREFIX .. "hud_search_button",
 	combinator_root_frame = const.PREFIX .. "combinator_root_frame",
+	combinator_name_textfield = const.PREFIX .. "combinator_name_textfield",
 	settings_root_frame = const.PREFIX .. "settings_root_frame",
 	settings_hud_columns_slider = const.PREFIX .. "settings_hud_columns_slider",
 	settings_hud_columns_value = const.PREFIX .. "settings_hud_columns_value",

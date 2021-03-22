@@ -63,7 +63,7 @@ function player_settings.get_hud_refresh_rate_setting(player_index)
 end
 
 function player_settings.get_hud_sort_setting(player_index)
-	return player_settings.get_setting(player_index, const.SETTINGS.hud_position)
+	return player_settings.get_setting(player_index, const.SETTINGS.hud_sort)
 end
 
 function player_settings.get_hud_sort_index_setting(player_index)

@@ -31,7 +31,7 @@ Event.on_init(
 		end
 		-- Ensure the global state has been initialized
 		base_global.ensure_global_state()
-		-- Reset all Combinator HUD references
+		-- Check all Combinator HUD references
 		combinator.check_combinator_registrations()
 		-- Ensure we have created the HUD for all players
 		gui_hud.check_all_player_hud_visibility()

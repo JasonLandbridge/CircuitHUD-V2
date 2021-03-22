@@ -5,6 +5,7 @@ local const = require("lib.constants")
 local combinator = require("globals.combinator")
 local common = require("lib.common")
 local event_handler = require("events.event-handler")
+local player_data = require("globals.player-data")
 
 local gui_combinator = {}
 
@@ -277,44 +278,22 @@ function gui_combinator.create(player_index, unit_number)
 	refs.titlebar_flow.drag_target = root_frame
 	refs.name_field.select(0, 0)
 
-	refs.hud_preview.visible = true
 	refs.hud_preview.entity = combinator.get_hud_combinator_entity(unit_number)
 
 	-- We need to overwrite the "to be opened GUI" with our own GUI
 	player.opened = root_frame
 	player.opened.force_auto_center()
+
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_name_textfield, refs[const.HUD_NAMES.combinator_name_textfield])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_root_frame, root_frame)
 end
 
 function gui_combinator.update(player_index, unit_number)
 	local tmp_name = combinator.get_hud_combinator_temp_name(unit_number)
 	if tmp_name ~= "" then
-		for _, player in pairs(game.players) do
-			local combinator_gui = gui_combinator.get_combinator_gui(player.index)
-			if combinator_gui then
-				flib_gui.update(
-					combinator_gui,
-					{
-						-- Root Frame
-						{
-							children = {
-								-- Entity preview
-								{},
-								-- Combinator Name Label
-								{},
-								-- Name Text field flow
-								{
-									children = {
-										-- Name Text field
-										{
-											text = tmp_name
-										}
-									}
-								}
-							}
-						}
-					}
-				)
-			end
+		local combinator_name_textfield_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.combinator_name_textfield)
+		if combinator_name_textfield_ref then
+			combinator_name_textfield_ref.text = tmp_name
 		end
 	end
 end
@@ -349,6 +328,18 @@ function gui_combinator.destroy(player_index, name)
 	local combinator_gui = gui_combinator.get_combinator_gui_by_name(player_index, name)
 	if combinator_gui then
 		combinator_gui.destroy()
+	end
+end
+
+function gui_combinator.reset(player_index)
+	gui_combinator.destroy(player_index)
+	gui_combinator.create(player_index)
+	gui_combinator.update(player_index)
+end
+
+function gui_combinator.reset_all_players()
+	for _, player in pairs(game.players) do
+		gui_combinator.reset(player.index)
 	end
 end
 

@@ -10,7 +10,8 @@ function combinator.add_hud_combinator_ref(hud_combinator)
 		["temp_name"] = "",
 		["filters"] = {},
 		["should_filter"] = false,
-		["unit_number"] = hud_combinator.unit_number
+		["unit_number"] = hud_combinator.unit_number,
+		["priority"] = 0
 	}
 end
 

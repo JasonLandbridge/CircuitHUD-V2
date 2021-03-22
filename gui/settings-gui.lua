@@ -522,4 +522,15 @@ function gui_settings.destroy(player_index)
 	end
 end
 
+function gui_settings.reset(player_index)
+	gui_settings.destroy(player_index)
+	gui_settings.create(player_index)
+end
+
+function gui_settings.reset_all_players()
+	for _, player in pairs(game.players) do
+		gui_settings.reset(player.index)
+	end
+end
+
 return gui_settings

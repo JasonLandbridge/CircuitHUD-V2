@@ -426,7 +426,7 @@ function gui_hud.create(player_index)
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame, body_refs[const.HUD_NAMES.hud_scroll_pane_frame])
 
 	if player_data.get_is_hud_draggable(player_index) then
-		location = player_data.get_hud_location(player_index)
+		root_frame.location = player_data.get_hud_location(player_index)
 	end
 
 	-- Set HUD on the bottom-right corner of the screen
