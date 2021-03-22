@@ -354,14 +354,14 @@ end
 
 function gui_combinator.event_handler(player_index, action)
 	local unit_number = action["unit_number"]
-	local combinator_gui = gui_combinator.get_combinator_gui(player_index, unit_number)
-	if not combinator_gui then
+	local combinator_gui_ref = gui_combinator.get_combinator_gui(player_index, unit_number)
+	if not combinator_gui_ref then
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.close then
 		combinator.set_hud_combinator_temp_name(unit_number, "")
-		combinator_gui.destroy()
+		combinator_gui_ref.destroy()
 		return
 	end
 
@@ -381,7 +381,7 @@ function gui_combinator.event_handler(player_index, action)
 
 	if action.action == const.GUI_ACTIONS.name_change then
 		combinator.set_hud_combinator_temp_name(unit_number, action["value"])
-		combinator_gui.update(player_index, unit_number)
+		combinator_gui_ref.update(player_index, unit_number)
 		return
 	end
 
