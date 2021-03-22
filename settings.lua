@@ -1,5 +1,6 @@
 local const = require("lib.constants")
-
+-- DEPRECATED: EVERYTHING HERE SHOULD BE DELETED AFTER V1.3 HAS BEEN LAUNCHED
+-- Only still here to migrate any player settings to the in-game settings menu
 -- Per Player SETTINGS
 data:extend(
 	{

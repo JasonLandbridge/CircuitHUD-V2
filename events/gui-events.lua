@@ -17,7 +17,10 @@ local function gui_update(event)
 		return
 	end
 
-	if event.define_name == "on_gui_text_changed" and event.text ~= nil then
+	if event.define_name == "on_gui_click" and event.element.type == "checkbox" and event.element.state ~= nil then
+		-- Checkbox
+		action["value"] = event.element.state
+	elseif event.define_name == "on_gui_text_changed" and event.text ~= nil then
 		-- Text Field
 		action["value"] = event.text
 	elseif event.define_name == "on_gui_elem_changed" and event.element.elem_value ~= nil then
@@ -92,6 +95,5 @@ Event.register(
 		end
 	end
 )
-
 
 --#endregion

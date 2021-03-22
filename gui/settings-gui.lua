@@ -70,6 +70,7 @@ function gui_settings.create(player_index)
 						style = "ch_settings_category_frame",
 						direction = "vertical",
 						children = {
+							-- Hide HUD Header
 							{
 								type = "flow",
 								style = "flib_titlebar_flow",
@@ -78,7 +79,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hide_hud_header"},
-										tooltip = {"chv2_settings_gui_tooltips.hud_settings"}
+										tooltip = {"chv2_settings_gui_tooltips.hide_hud_header"}
 									},
 									{
 										type = "checkbox",
@@ -106,6 +107,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_position"},
+										tooltip = {"chv2_settings_gui_tooltips.hud_position"},
 										ignored_by_interaction = true
 									},
 									{
@@ -138,6 +140,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_title"},
+										tooltip = {"chv2_settings_gui_tooltips.hud_title"},
 										ignored_by_interaction = true
 									},
 									{
@@ -168,6 +171,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_columns"},
+										tooltip = {"chv2_settings_gui_tooltips.hud_columns"},
 										ignored_by_interaction = true
 									},
 									{
@@ -216,6 +220,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_max_height"},
+										tooltip = {"chv2_settings_gui_tooltips.hud_max_height"},
 										ignored_by_interaction = true
 									},
 									{
@@ -264,6 +269,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										style = const.STYLES.settings_title_label,
 										caption = {"chv2_settings_name.hud_refresh_rate"},
+										tooltip = {"chv2_settings_gui_tooltips.hud_refresh_rate"},
 										ignored_by_interaction = true
 									},
 									{
@@ -299,6 +305,60 @@ function gui_settings.create(player_index)
 										caption = tostring(player_settings.get_hud_refresh_rate_setting(player_index)),
 										style = const.STYLES.settings_title_label,
 										ref = {const.HUD_NAMES.settings_hud_refresh_rate_value}
+									}
+								}
+							},
+							-- Uncollapse HUD on new combinator
+							{
+								type = "flow",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										type = "label",
+										style = const.STYLES.settings_title_label,
+										caption = {"chv2_settings_name.uncollapse_hud_on_register_combinator"},
+										tooltip = {"chv2_settings_gui_tooltips.uncollapse_hud_on_register_combinator"}
+									},
+									{
+										type = "checkbox",
+										state = player_settings.get_uncollapse_hud_on_register_combinator_setting(player_index),
+										style_mods = {
+											top_margin = 8
+										},
+										actions = {
+											on_click = {
+												gui = const.GUI_TYPES.settings,
+												action = const.GUI_ACTIONS.update_settings,
+												name = const.SETTINGS.uncollapse_hud_on_register_combinator
+											}
+										}
+									}
+								}
+							},
+							-- Debug mode
+							{
+								type = "flow",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										type = "label",
+										style = const.STYLES.settings_title_label,
+										caption = {"chv2_settings_name.debug_mode"},
+										tooltip = {"chv2_settings_gui_tooltips.debug_mode"}
+									},
+									{
+										type = "checkbox",
+										state = player_settings.get_debug_mode_setting(player_index),
+										style_mods = {
+											top_margin = 8
+										},
+										actions = {
+											on_click = {
+												gui = const.GUI_TYPES.settings,
+												action = const.GUI_ACTIONS.update_settings,
+												name = const.SETTINGS.debug_mode
+											}
+										}
 									}
 								}
 							}
@@ -392,6 +452,18 @@ function gui_settings.event_handler(player_index, action)
 			if value_ref then
 				value_ref.caption = tostring(value)
 			end
+			return
+		end
+
+		-- Uncollapse HUD on new combinator
+		if action.name == const.SETTINGS.uncollapse_hud_on_register_combinator then
+			player_settings.set_uncollapse_hud_on_register_combinator_setting(player_index, value)
+			return
+		end
+
+		-- Debug mode
+		if action.name == const.SETTINGS.debug_mode then
+			player_settings.set_debug_mode_setting(player_index, value)
 			return
 		end
 	end
