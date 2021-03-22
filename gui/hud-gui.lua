@@ -567,6 +567,14 @@ end
 
 function gui_hud.destroy(player_index)
 	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_header_flow)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_button)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_settings_button)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_toggle_button)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
 end
 
 function gui_hud.reset(player_index)
