@@ -8,6 +8,8 @@ local player_settings = require("globals.player-settings")
 local combinator = require("globals.combinator")
 local player_data = require("globals.player-data")
 
+local gui_hud = {}
+
 -- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
 -- @returns if signal is allowed to be shown
 local function filter_signal(signals, name)
@@ -176,7 +178,7 @@ end
 
 -- Build the HUD with the signals
 -- @param player_index The index of the player
-function build_interface(player_index)
+function gui_hud.create(player_index)
 	-- First check if there are any existing HUD combinator
 	if not combinator.has_hud_combinators() then
 		common.debug_log(player_index, "There are no HUD Combinators registered so we can't create the HUD")
@@ -378,29 +380,29 @@ function build_interface(player_index)
 
 	-- Set HUD on the bottom-right corner of the screen
 	if player_data.get_is_hud_bottom_right(player_index) then
-		calculate_hud_size(player_index)
-		move_hud_bottom_right(player_index)
+		gui_hud.calculate_hud_size(player_index)
+		gui_hud.move_hud_bottom_right(player_index)
 	end
 
 	root_frame.style.maximal_height = player_settings.get_hud_max_height_setting(player_index)
 end
 
 -- Go over each player and ensure that their HUD is either visible or hidden based on the existense of HUD combinators.
-function check_all_player_hud_visibility()
+function gui_hud.check_all_player_hud_visibility()
 	-- go through each player and update their HUD
 	for _, player in pairs(game.players) do
-		should_hud_root_exist(player.index)
+		gui_hud.should_hud_root_exist(player.index)
 	end
 end
 
 -- Check  and ensure if the player has their HUD either visible or hidden based on the existense of HUD combinators.
-function should_hud_root_exist(player_index)
+function gui_hud.should_hud_root_exist(player_index)
 	if combinator.has_hud_combinators() then
 		-- Ensure we have created the HUD for all players
 		if not player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
-			build_interface(player_index)
+			gui_hud.create(player_index)
 		end
-		update_hud(player_index)
+		gui_hud.update(player_index)
 	else
 		-- Ensure all HUDS are destroyed
 		if player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
@@ -410,7 +412,7 @@ function should_hud_root_exist(player_index)
 end
 
 -- Update the HUD combinator categories and values in the HUD
-function update_hud(player_index)
+function gui_hud.update(player_index)
 	if not combinator.has_hud_combinators() or player_data.get_hud_collapsed(player_index) then
 		return
 	end
@@ -467,12 +469,12 @@ function update_hud(player_index)
 
 	local hud_position = player_settings.get_hud_position_setting(player_index)
 	if hud_position == const.HUD_POSITION.bottom_right then
-		calculate_hud_size(player_index)
-		move_hud_bottom_right(player_index)
+		gui_hud.calculate_hud_size(player_index)
+		gui_hud.move_hud_bottom_right(player_index)
 	end
 end
 
-function update_collapse_state(player_index, toggle_state)
+function gui_hud.update_collapse_state(player_index, toggle_state)
 	player_data.set_hud_collapsed(player_index, toggle_state)
 
 	local toggle_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_toggle_button)
@@ -495,32 +497,36 @@ function update_collapse_state(player_index, toggle_state)
 		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane)
 		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
 	else
-		reset_hud(player_index)
+		gui_hud.reset(player_index)
 	end
 
 	-- If bottom-right fixed than align
 	if player_settings.get_hud_position_setting(player_index) == const.HUD_POSITION.bottom_right then
-		calculate_hud_size(player_index)
-		move_hud_bottom_right(player_index)
+		gui_hud.calculate_hud_size(player_index)
+		gui_hud.move_hud_bottom_right(player_index)
 	end
 
 	common.debug_log(player_index, "Toggle button clicked! - " .. tostring(toggle_state))
 end
 
-function reset_hud(player_index)
-	player_data.destroy_hud(player_index)
-	build_interface(player_index)
-	update_hud(player_index)
+function gui_hud.destroy(player_index)
+	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
 end
 
-function reset_hud_all_players()
+function gui_hud.reset(player_index)
+	gui_hud.destroy(player_index)
+	gui_hud.create(player_index)
+	gui_hud.update(player_index)
+end
+
+function gui_hud.reset_all_players()
 	for _, player in pairs(game.players) do
-		reset_hud(player.index)
+		gui_hud.reset(player.index)
 	end
 end
 
 -- Calculate the width and height of the HUD due to GUIElement.size not being available
-function calculate_hud_size(player_index)
+function gui_hud.calculate_hud_size(player_index)
 	local player = common.get_player(player_index)
 
 	local function adjust_size_scale(size)
@@ -644,7 +650,7 @@ function calculate_hud_size(player_index)
 	return size
 end
 
-function move_hud_bottom_right(player_index)
+function gui_hud.move_hud_bottom_right(player_index)
 	local root_frame = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
 	if root_frame then
 		local player = common.get_player(player_index)
@@ -665,14 +671,14 @@ function move_hud_bottom_right(player_index)
 	end
 end
 
-function handle_hud_gui_events(player_index, action)
+function event_handler(player_index, action)
 	local player = common.get_player(player_index)
 	local unit_number = action["unit_number"]
 	local value = action["value"]
-	
+
 	if action.action == const.GUI_ACTIONS.toggle then
 		local toggle_state = not player_data.get_hud_collapsed(player_index)
-		update_collapse_state(player_index, toggle_state)
+		gui_hud.update_collapse_state(player_index, toggle_state)
 		return
 	end
 
@@ -713,7 +719,7 @@ function handle_hud_gui_events(player_index, action)
 	if action.action == const.GUI_ACTIONS.search_bar_change then
 		local text_field = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
 		player_data.set_hud_search_text(player_index, text_field.text)
-		update_hud(player_index)
+		gui_hud.update(player_index)
 		return
 	end
 
@@ -723,3 +729,5 @@ function handle_hud_gui_events(player_index, action)
 		return
 	end
 end
+
+return gui_hud

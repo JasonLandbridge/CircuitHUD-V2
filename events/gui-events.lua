@@ -35,7 +35,7 @@ local function gui_update(event)
 	end
 
 	if action.gui == const.GUI_TYPES.hud then
-		handle_hud_gui_events(event.player_index, action)
+		event_handler(event.player_index, action)
 	end
 
 	if action.gui == const.GUI_TYPES.settings then

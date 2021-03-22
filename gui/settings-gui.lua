@@ -5,6 +5,8 @@ local common = require("lib.common")
 local player_settings = require("globals.player-settings")
 local player_data = require("globals.player-data")
 
+local gui_hud = require("gui.hud-gui")
+
 local function get_settings_root_frame(player_index)
 	return player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_root_frame)
 end
@@ -204,7 +206,7 @@ function handle_settings_gui_events(player_index, action)
 		-- Set HUD Position
 		if action.name == const.SETTINGS.hud_position then
 			player_settings.set_hud_position_setting(player_index, const.HUD_POSITION_INDEX[value])
-			reset_hud(player_index)
+			gui_hud.reset(player_index)
 		end
 
 		-- HUD Columns Setting

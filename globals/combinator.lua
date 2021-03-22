@@ -1,6 +1,7 @@
 local const = require("lib.constants")
 local player_settings = require("globals.player-settings")
 local combinator = {}
+local gui_hud = require("gui.hud-gui")
 
 function combinator.add_hud_combinator_ref(hud_combinator)
 	global.hud_combinators[hud_combinator.unit_number] = {
@@ -23,7 +24,7 @@ function combinator.register_combinator(entity)
 	for k, player in pairs(game.players) do
 		-- Uncollapse the HUD when a new combinator is registered
 		if player_settings.get_uncollapse_hud_on_register_combinator_setting(player.index) then
-			update_collapse_state(player.index, false)
+			gui_hud.update_collapse_state(player.index, false)
 		end
 	end
 end

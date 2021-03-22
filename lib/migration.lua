@@ -5,6 +5,7 @@ local base_global = require("globals.base-global")
 local combinator = require("globals.combinator")
 local player_settings = require("globals.player-settings")
 local player_data = require("globals.player-data")
+local gui_hud = require "gui.hud-gui"
 
 -- each function will be run when upgrading from a version older than it
 -- for example, if we were upgraing from 1.0.3 to 1.1.0, the last two functions would run, but not the first
@@ -123,10 +124,10 @@ Event.on_configuration_changed(
 			for _, player in pairs(game.players) do
 				-- Ensure all HUDS are visible
 				if player_settings.get_hide_hud_header_setting(player.index) then
-					update_collapse_state(player.index, false)
+					 gui_hud.update_collapse_state(player.index, false)
 				end
 				-- Reset the HUD for all players
-				reset_hud(player.index)
+				gui_hud.reset_all_players()
 			end
 		end
 	end

@@ -5,6 +5,8 @@ local const = require("lib.constants")
 local combinator = require("globals.combinator")
 local common = require("lib.common")
 
+local gui_hud = require("gui.hud-gui")
+
 -- Generates the GUI Elements to be placed in children = {} property of a parent
 local function generate_signal_filter_table(unit_number)
 	local result = {}
@@ -361,14 +363,14 @@ function handle_combinator_gui_events(player_index, action)
 	if action.action == const.GUI_ACTIONS.switch_filter_state then
 		combinator.set_hud_combinator_filter_state(unit_number, action["value"])
 		-- Reset HUD all players on update
-		reset_hud_all_players()
+		gui_hud.reset_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.filter_signal_update then
 		combinator.set_hud_combinator_filter(unit_number, action.index, action["value"])
 		-- Reset HUD all players on update
-		reset_hud_all_players()
+		gui_hud.reset_all_players()
 		return
 	end
 
@@ -385,7 +387,7 @@ function handle_combinator_gui_events(player_index, action)
 		-- Reset the temp name again
 		combinator.set_hud_combinator_temp_name(unit_number, "")
 		-- Reset HUD all players on update
-		reset_hud_all_players()
+		gui_hud.reset_all_players()
 		return
 	end
 end
