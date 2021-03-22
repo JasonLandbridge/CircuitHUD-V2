@@ -3,6 +3,36 @@ local const = require("lib.constants")
 
 local event_handler = {}
 
+--#region GUI HUD
+function event_handler.gui_hud_create(player_index)
+	Event.dispatch(
+		{
+			input_name = Event.generate_event_name(const.EVENTS.gui_hud_create),
+			player_index = player_index
+		}
+	)
+end
+
+function event_handler.gui_hud_collapse_switch(player_index, state)
+	Event.dispatch(
+		{
+			input_name = Event.generate_event_name(const.EVENTS.gui_hud_collapse_switch),
+			player_index = player_index,
+			state = state
+		}
+	)
+end
+
+function event_handler.gui_hud_collapse_toggle(player_index, state)
+	Event.dispatch(
+		{
+			input_name = Event.generate_event_name(const.EVENTS.gui_hud_collapse_switch),
+			player_index = player_index,
+			state = state
+		}
+	)
+end
+
 function event_handler.reset_hud_all_players()
 	Event.dispatch(
 		{
@@ -10,6 +40,9 @@ function event_handler.reset_hud_all_players()
 		}
 	)
 end
+--#endregion
+
+--#region GUI Combinator
 
 function event_handler.gui_combinator_create(player_index, unit_number)
 	Event.dispatch(
@@ -21,14 +54,9 @@ function event_handler.gui_combinator_create(player_index, unit_number)
 	)
 end
 
-function event_handler.gui_hud_create(player_index)
-	Event.dispatch(
-		{
-			input_name = Event.generate_event_name(const.EVENTS.gui_hud_create),
-			player_index = player_index
-		}
-	)
-end
+--#endregion
+
+--#region GUI Settings
 
 function event_handler.gui_settings_create(player_index)
 	Event.dispatch(
@@ -39,14 +67,15 @@ function event_handler.gui_settings_create(player_index)
 	)
 end
 
-function event_handler.gui_hud_collapse(player_index, state)
+function event_handler.gui_settings_open(player_index)
 	Event.dispatch(
 		{
-			input_name = Event.generate_event_name(const.EVENTS.collapse_hud),
-			player_index = player_index,
-			state = state
+			input_name = Event.generate_event_name(const.EVENTS.gui_settings_open),
+			player_index = player_index
 		}
 	)
 end
+
+--#endregion
 
 return event_handler

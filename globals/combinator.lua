@@ -24,7 +24,7 @@ function combinator.register_combinator(entity)
 	for k, player in pairs(game.players) do
 		-- Uncollapse the HUD when a new combinator is registered
 		if player_settings.get_uncollapse_hud_on_register_combinator_setting(player.index) then
-			event_handler.gui_hud_collapse(player.index, false)
+			event_handler.gui_hud_collapse_switch(player.index, false)
 		end
 	end
 end

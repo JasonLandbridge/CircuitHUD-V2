@@ -82,11 +82,13 @@ const.STYLES = {
 }
 
 const.EVENTS = {
-	collapse_hud = const.SHORT_PREFIX .. "collapse_hud",
 	gui_hud_create = const.SHORT_PREFIX .. "gui_hud_create",
-	gui_settings_create = const.SHORT_PREFIX .. "gui_settings_create",
+	gui_hud_toggle = const.SHORT_PREFIX .. "gui_hud_toggle",
+	gui_hud_collapse_switch = const.SHORT_PREFIX .. "gui_hud_collapse_switch",
+	gui_hud_reset_all_players = const.SHORT_PREFIX .. "gui_hud_reset_all_players",
 	gui_combinator_create = const.SHORT_PREFIX .. "gui_combinator_create",
-	gui_hud_reset_all_players = const.SHORT_PREFIX .. "gui_hud_reset_all_players"
+	gui_settings_open = const.SHORT_PREFIX .. "gui_settings_open",
+	gui_settings_create = const.SHORT_PREFIX .. "gui_settings_create"
 }
 
 return const

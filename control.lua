@@ -12,7 +12,6 @@ local base_global = require("globals.base-global")
 require "lib.migration"
 
 local gui_hud = require("gui.hud-gui")
-local gui_settings = require("gui.settings-gui")
 
 require "events.gui-events"
 require "events.custom-events"
@@ -156,17 +155,3 @@ Event.register(
 )
 
 --#endregion
-Event.register(
-	const.SHORT_PREFIX .. "toggle_hud",
-	function(event)
-		local toggle_state = not player_data.get_hud_collapsed(event.player_index)
-		gui_hud.update_collapse_state(event.player_index, toggle_state)
-	end
-)
-
-Event.register(
-	const.SHORT_PREFIX .. "open_settings_gui",
-	function(event)
-		gui_settings.create(event.player_index)
-	end
-)
