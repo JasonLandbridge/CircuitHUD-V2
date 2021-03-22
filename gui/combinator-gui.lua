@@ -331,10 +331,10 @@ function gui_combinator.destroy(player_index, name)
 	end
 end
 
-function gui_combinator.reset(player_index)
-	gui_combinator.destroy(player_index)
-	gui_combinator.create(player_index)
-	gui_combinator.update(player_index)
+function gui_combinator.reset(player_index, unit_number)
+	gui_combinator.destroy(player_index, unit_number)
+	gui_combinator.create(player_index, unit_number)
+	gui_combinator.update(player_index, unit_number)
 end
 
 function gui_combinator.reset_all_players()

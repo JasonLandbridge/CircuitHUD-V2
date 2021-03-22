@@ -43,7 +43,7 @@ function gui_settings.create(player_index)
 								-- add the title label
 								type = "label",
 								style = "frame_title",
-								caption = "Settings"
+								caption = {"chv2_settings_gui.hud_settings"}
 							},
 							{
 								-- add a pusher (so the close button becomes right-aligned)
@@ -395,7 +395,7 @@ function gui_settings.create(player_index)
 	)
 
 	local root_frame = refs[const.HUD_NAMES.settings_root_frame]
-	refs.titlebar_flow.drag_target = root_frame
+	refs["titlebar_flow"].drag_target = root_frame
 
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_hud_columns_slider, refs[const.HUD_NAMES.settings_hud_columns_slider])
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_hud_columns_value, refs[const.HUD_NAMES.settings_hud_columns_value])
@@ -423,6 +423,8 @@ function gui_settings.event_handler(player_index, action)
 		-- Hide HUD Setting
 		if action.name == const.SETTINGS.hide_hud_header then
 			player_settings.set_hide_hud_header_setting(player_index, value)
+			local hud_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_header_flow)
+			hud_ref.visible = value
 			return
 		end
 

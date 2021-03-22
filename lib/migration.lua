@@ -137,8 +137,6 @@ Event.on_configuration_changed(
 
 				-- Reset everything
 				gui_hud.reset(player_index)
-				gui_combinator.reset(player_index)
-				gui_settings.reset(player_index)
 			end
 		end
 	end

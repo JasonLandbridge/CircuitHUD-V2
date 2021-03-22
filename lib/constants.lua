@@ -1,29 +1,29 @@
 local const = {}
 
-const.PREFIX = "CIRCUIT_HUD_"
 const.SHORT_PREFIX = "chv2_"
 const.HUD_COMBINATOR_NAME = "hud-combinator"
 const.HIDE_SIGNAL_NAME = "signal-hide-hud-comparator"
 
 const.HUD_NAMES = {
-	hud_root_frame = const.PREFIX .. "hud_root_frame",
-	hud_scroll_pane = const.PREFIX .. "hud_scroll_pane",
-	hud_scroll_pane_frame = const.PREFIX .. "hud_scroll_pane_frame",
-	hud_toggle_button = const.PREFIX .. "hud_toggle_button",
-	hud_settings_button = const.PREFIX .. "hud_settings_button",
-	hud_title_label = const.PREFIX .. "hud_title_label",
-	hud_header_spacer = const.PREFIX .. "hud_header_spacer",
-	hud_search_text_field = const.PREFIX .. "hud_search_textfield",
-	hud_search_button = const.PREFIX .. "hud_search_button",
-	combinator_root_frame = const.PREFIX .. "combinator_root_frame",
-	combinator_name_textfield = const.PREFIX .. "combinator_name_textfield",
-	settings_root_frame = const.PREFIX .. "settings_root_frame",
-	settings_hud_columns_slider = const.PREFIX .. "settings_hud_columns_slider",
-	settings_hud_columns_value = const.PREFIX .. "settings_hud_columns_value",
-	settings_hud_max_height_slider = const.PREFIX .. "settings_hud_max_height_slider",
-	settings_hud_max_height_value = const.PREFIX .. "settings_hud_max_height_value",
-	settings_hud_refresh_rate_slider = const.PREFIX .. "settings_hud_refresh_rate_slider",
-	settings_hud_refresh_rate_value = const.PREFIX .. "settings_hud_refresh_rate_value"
+	hud_root_frame = const.SHORT_PREFIX .. "hud_root_frame",
+	hud_header_flow = const.SHORT_PREFIX .. "hud_header_flow",
+	hud_scroll_pane = const.SHORT_PREFIX .. "hud_scroll_pane",
+	hud_scroll_pane_frame = const.SHORT_PREFIX .. "hud_scroll_pane_frame",
+	hud_toggle_button = const.SHORT_PREFIX .. "hud_toggle_button",
+	hud_settings_button = const.SHORT_PREFIX .. "hud_settings_button",
+	hud_title_label = const.SHORT_PREFIX .. "hud_title_label",
+	hud_header_spacer = const.SHORT_PREFIX .. "hud_header_spacer",
+	hud_search_text_field = const.SHORT_PREFIX .. "hud_search_textfield",
+	hud_search_button = const.SHORT_PREFIX .. "hud_search_button",
+	combinator_root_frame = const.SHORT_PREFIX .. "combinator_root_frame",
+	combinator_name_textfield = const.SHORT_PREFIX .. "combinator_name_textfield",
+	settings_root_frame = const.SHORT_PREFIX .. "settings_root_frame",
+	settings_hud_columns_slider = const.SHORT_PREFIX .. "settings_hud_columns_slider",
+	settings_hud_columns_value = const.SHORT_PREFIX .. "settings_hud_columns_value",
+	settings_hud_max_height_slider = const.SHORT_PREFIX .. "settings_hud_max_height_slider",
+	settings_hud_max_height_value = const.SHORT_PREFIX .. "settings_hud_max_height_value",
+	settings_hud_refresh_rate_slider = const.SHORT_PREFIX .. "settings_hud_refresh_rate_slider",
+	settings_hud_refresh_rate_value = const.SHORT_PREFIX .. "settings_hud_refresh_rate_value"
 }
 
 const.GUI_TYPES = {

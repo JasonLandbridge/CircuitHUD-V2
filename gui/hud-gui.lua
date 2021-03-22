@@ -291,6 +291,7 @@ function gui_hud.create(player_index)
 				{
 					type = "flow",
 					direction = "horizontal",
+					ref = {const.HUD_NAMES.hud_header_flow},
 					children = {
 						-- add the title label
 						{
@@ -388,6 +389,7 @@ function gui_hud.create(player_index)
 			header_refs[const.HUD_NAMES.hud_header_spacer].drag_target = root_frame
 		end
 
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_flow, header_refs[const.HUD_NAMES.hud_header_flow])
 		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_title_label, header_refs[const.HUD_NAMES.hud_title_label])
 		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_spacer, header_refs[const.HUD_NAMES.hud_header_spacer])
 		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_text_field, header_refs[const.HUD_NAMES.hud_search_text_field])
