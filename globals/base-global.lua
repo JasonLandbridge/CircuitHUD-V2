@@ -12,10 +12,6 @@ function base_global.ensure_global_state()
 	if not common.valid(global.hud_combinators) then
 		global.hud_combinators = {}
 	end
-
-	if not global.refresh_rate then
-		global.refresh_rate = 60
-	end
 end
 
 function base_global.reset_global_state()

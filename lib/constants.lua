@@ -17,8 +17,12 @@ const.HUD_NAMES = {
 	hud_search_button = const.PREFIX .. "hud_search_button",
 	combinator_root_frame = const.PREFIX .. "combinator_root_frame",
 	settings_root_frame = const.PREFIX .. "settings_root_frame",
-	settings_hud_columns_slider = const.PREFIX .. "settings_hud_columns_vslider",
-	settings_hud_columns_value = const.PREFIX .. "settings_hud_columns_value"
+	settings_hud_columns_slider = const.PREFIX .. "settings_hud_columns_slider",
+	settings_hud_columns_value = const.PREFIX .. "settings_hud_columns_value",
+	settings_hud_max_height_slider = const.PREFIX .. "settings_hud_max_height_slider",
+	settings_hud_max_height_value = const.PREFIX .. "settings_hud_max_height_value",
+	settings_hud_refresh_rate_slider = const.PREFIX .. "settings_hud_refresh_rate_slider",
+	settings_hud_refresh_rate_value = const.PREFIX .. "settings_hud_refresh_rate_value"
 }
 
 const.GUI_TYPES = {

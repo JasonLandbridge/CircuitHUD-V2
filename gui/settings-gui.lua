@@ -205,6 +205,102 @@ function gui_settings.create(player_index)
 										ref = {const.HUD_NAMES.settings_hud_columns_value}
 									}
 								}
+							},
+							-- HUD Max Height setting
+							{
+								type = "flow",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										-- add the title label
+										type = "label",
+										style = const.STYLES.settings_title_label,
+										caption = {"chv2_settings_name.hud_max_height"},
+										ignored_by_interaction = true
+									},
+									{
+										type = "flow",
+										style = "flib_titlebar_flow",
+										style_mods = {
+											top_margin = 8
+										},
+										children = {
+											{
+												type = "slider",
+												style = const.STYLES.settings_slider,
+												style_mods = {
+													horizontally_stretchable = true,
+													right_padding = 10
+												},
+												ref = {const.HUD_NAMES.settings_hud_max_height_slider},
+												value = player_settings.get_hud_max_height_setting(player_index),
+												minimum_value = 200,
+												maximum_value = 2160,
+												actions = {
+													on_value_changed = {
+														gui = const.GUI_TYPES.settings,
+														action = const.GUI_ACTIONS.update_settings,
+														name = const.SETTINGS.hud_max_height
+													}
+												}
+											}
+										}
+									},
+									{
+										type = "label",
+										caption = tostring(player_settings.get_hud_max_height_setting(player_index)),
+										style = const.STYLES.settings_title_label,
+										ref = {const.HUD_NAMES.settings_hud_max_height_value}
+									}
+								}
+							},
+							-- HUD Refresh Rate setting
+							{
+								type = "flow",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										-- add the title label
+										type = "label",
+										style = const.STYLES.settings_title_label,
+										caption = {"chv2_settings_name.hud_refresh_rate"},
+										ignored_by_interaction = true
+									},
+									{
+										type = "flow",
+										style = "flib_titlebar_flow",
+										style_mods = {
+											top_margin = 8
+										},
+										children = {
+											{
+												type = "slider",
+												style = const.STYLES.settings_slider,
+												style_mods = {
+													horizontally_stretchable = true,
+													right_padding = 10
+												},
+												ref = {const.HUD_NAMES.settings_hud_refresh_rate_slider},
+												value = player_settings.get_hud_refresh_rate_setting(player_index),
+												minimum_value = 1,
+												maximum_value = 600,
+												actions = {
+													on_value_changed = {
+														gui = const.GUI_TYPES.settings,
+														action = const.GUI_ACTIONS.update_settings,
+														name = const.SETTINGS.hud_refresh_rate
+													}
+												}
+											}
+										}
+									},
+									{
+										type = "label",
+										caption = tostring(player_settings.get_hud_refresh_rate_setting(player_index)),
+										style = const.STYLES.settings_title_label,
+										ref = {const.HUD_NAMES.settings_hud_refresh_rate_value}
+									}
+								}
 							}
 						}
 					}
@@ -218,6 +314,16 @@ function gui_settings.create(player_index)
 
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_hud_columns_slider, refs[const.HUD_NAMES.settings_hud_columns_slider])
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_hud_columns_value, refs[const.HUD_NAMES.settings_hud_columns_value])
+
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_hud_max_height_slider, refs[const.HUD_NAMES.settings_hud_max_height_slider])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_hud_max_height_value, refs[const.HUD_NAMES.settings_hud_max_height_value])
+
+	player_data.set_hud_element_ref(
+		player_index,
+		const.HUD_NAMES.settings_hud_refresh_rate_slider,
+		refs[const.HUD_NAMES.settings_hud_refresh_rate_slider]
+	)
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_hud_refresh_rate_value, refs[const.HUD_NAMES.settings_hud_refresh_rate_value])
 
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_root_frame, root_frame)
 	-- We need to overwrite the "to be opened GUI" with our own GUI
@@ -256,7 +362,36 @@ function gui_settings.event_handler(player_index, action)
 		if action.name == const.SETTINGS.hud_columns then
 			player_settings.set_hud_columns_setting(player_index, value)
 			local value_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_hud_columns_value)
-			value_ref.caption = tostring(value)
+			if value_ref then
+				value_ref.caption = tostring(value)
+			end
+			return
+		end
+
+		-- HUD Max Height Setting
+		if action.name == const.SETTINGS.hud_max_height then
+			player_settings.set_hud_max_height_setting(player_index, value)
+			local value_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_hud_max_height_value)
+			if value_ref then
+				value_ref.caption = tostring(value)
+			end
+
+			-- Set max height in style of HUD RootFrame
+			local root_frame = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
+			if root_frame then
+				root_frame.style.maximal_height = value
+			end
+
+			return
+		end
+
+		-- HUD Refresh rate Setting
+		if action.name == const.SETTINGS.hud_refresh_rate then
+			player_settings.set_hud_refresh_rate_setting(player_index, value)
+			local value_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_hud_refresh_rate_value)
+			if value_ref then
+				value_ref.caption = tostring(value)
+			end
 			return
 		end
 	end

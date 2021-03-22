@@ -83,17 +83,3 @@ data:extend(
 		}
 	}
 )
--- Runtime Global SETTINGS
-data:extend(
-	{
-		{
-			type = "int-setting",
-			name = const.SETTINGS.prefix .. const.SETTINGS.hud_refresh_rate,
-			setting_type = "runtime-global",
-			default_value = 60,
-			minimum_value = 1,
-			maximum_value = 3600,
-			order = "a-e"
-		}
-	}
-)

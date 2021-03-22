@@ -54,6 +54,7 @@ local migrations = {
 		global.textbox_hud_entity_map = nil
 
 		global["did_cleanup_and_discovery"] = nil
+		global["refresh_rate"] = nil
 
 		-- Create new filters property for each HUD Combinator
 		for _, value in pairs(global.hud_combinators) do
@@ -124,7 +125,7 @@ Event.on_configuration_changed(
 			for _, player in pairs(game.players) do
 				-- Ensure all HUDS are visible
 				if player_settings.get_hide_hud_header_setting(player.index) then
-					 gui_hud.update_collapse_state(player.index, false)
+					gui_hud.update_collapse_state(player.index, false)
 				end
 				-- Reset the HUD for all players
 				gui_hud.reset_all_players()

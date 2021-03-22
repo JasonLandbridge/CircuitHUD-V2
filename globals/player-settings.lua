@@ -57,6 +57,10 @@ function player_settings.get_hud_title_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.hud_title)
 end
 
+function player_settings.get_hud_refresh_rate_setting(player_index)
+	return player_settings.get_setting(player_index, const.SETTINGS.hud_refresh_rate)
+end
+
 function player_settings.get_uncollapse_hud_on_register_combinator_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.uncollapse_hud_on_register_combinator)
 end
@@ -90,20 +94,16 @@ function player_settings.set_hud_title_setting(player_index, value)
 	player_settings.set_setting(player_index, const.SETTINGS.hud_title, value)
 end
 
+function player_settings.set_hud_refresh_rate_setting(player_index, value)
+	player_settings.set_setting(player_index, const.SETTINGS.hud_refresh_rate, value)
+end
+
 function player_settings.set_uncollapse_hud_on_register_combinator_setting(player_index, state)
 	player_settings.set_setting(player_index, const.SETTINGS.uncollapse_hud_on_register_combinator, state)
 end
 
 function player_settings.set_debug_mode_setting(player_index, state)
 	player_settings.set_setting(player_index, const.SETTINGS.debug_mode, state)
-end
-
---#endregion
-
---#region Map Settings
-
-function player_settings.get_refresh_rate_setting()
-	return settings.global[const.SETTINGS.prefix .. const.SETTINGS.hud_refresh_rate].value
 end
 
 --#endregion

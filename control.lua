@@ -43,9 +43,9 @@ Event.on_init(
 Event.on_nth_tick(
 	1,
 	function(event)
-		if event.tick % global.refresh_rate == 0 then
-			-- go through each player and update their HUD
-			for _, player in pairs(game.players) do
+		-- go through each player and update their HUD based on the HUD Refresh rate
+		for _, player in pairs(game.players) do
+			if event.tick % player_settings.get_hud_refresh_rate_setting(player.index) == 0 then
 				gui_hud.update(player.index)
 			end
 		end
@@ -87,9 +87,6 @@ Event.register(
 	function(event)
 		-- Only update when a CircuitHUD change has been made
 		if event.player_index and string.find(event.setting, const.SETTINGS.prefix) then
-			if event.setting == "CircuitHUD_hud_refresh_rate" then
-				global.refresh_rate = player_settings.get_refresh_rate_setting()
-			end
 			gui_hud.reset(event.player_index)
 			-- Ensure the HUD is visible on mod setting change
 			gui_hud.update_collapse_state(event.player_index, false)
