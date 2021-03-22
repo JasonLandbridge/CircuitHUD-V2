@@ -2,7 +2,7 @@ local Event = require("__stdlib__/stdlib/event/event")
 local const = require("lib.constants")
 
 local player_data = require("globals.player-data")
-local gui_combinator = require("gui.hud-gui")
+local gui_combinator = require("gui.combinator-gui")
 local gui_settings = require("gui.settings-gui")
 local gui_hud = require("gui.hud-gui")
 
@@ -42,7 +42,7 @@ register_event(
 register_event(
 	const.EVENTS.gui_combinator_create,
 	function(event)
-		gui_combinator.create(event.player_index)
+		gui_combinator.create(event.player_index, event.unit_number)
 	end
 )
 --#endregion
