@@ -81,4 +81,12 @@ const.STYLES = {
 	settings_slider = const.SHORT_PREFIX .. "settings_slider_style"
 }
 
+const.EVENTS = {
+	collapse_hud = const.SHORT_PREFIX .. "collapse_hud",
+	gui_hud_create = const.SHORT_PREFIX .. "gui_hud_create",
+	gui_settings_create = const.SHORT_PREFIX .. "gui_settings_create",
+	gui_combinator_create = const.SHORT_PREFIX .. "gui_combinator_create",
+	gui_hud_reset_all_players = const.SHORT_PREFIX .. "gui_hud_reset_all_players"
+}
+
 return const

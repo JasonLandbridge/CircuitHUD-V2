@@ -6,12 +6,13 @@ local player_settings = require("globals.player-settings")
 local player_data = require("globals.player-data")
 
 local gui_hud = require("gui.hud-gui")
+local gui_settings = {}
 
 local function get_settings_root_frame(player_index)
 	return player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_root_frame)
 end
 
-function create_settings_gui(player_index)
+function gui_settings.create(player_index)
 	if get_settings_root_frame(player_index) then
 		return
 	end
@@ -194,7 +195,7 @@ function create_settings_gui(player_index)
 	player.opened.force_auto_center()
 end
 
-function handle_settings_gui_events(player_index, action)
+function gui_settings.event_handler(player_index, action)
 	local value = action["value"]
 	-- Setting update
 	if action.action == const.GUI_ACTIONS.update_settings then
@@ -218,15 +219,17 @@ function handle_settings_gui_events(player_index, action)
 	end
 
 	if action.action == const.GUI_ACTIONS.close then
-		destroy_settings_gui(player_index)
+		gui_settings.destroy(player_index)
 		return
 	end
 end
 
-function destroy_settings_gui(player_index)
+function gui_settings.destroy(player_index)
 	local root_frame = get_settings_root_frame(player_index)
 	if root_frame then
 		root_frame.destroy()
 		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.settings_root_frame)
 	end
 end
+
+return gui_settings

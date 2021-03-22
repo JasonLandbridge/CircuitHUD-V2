@@ -7,7 +7,7 @@ local common = require("lib.common")
 local player_settings = require("globals.player-settings")
 local combinator = require("globals.combinator")
 local player_data = require("globals.player-data")
-local combinator_gui = require("gui.hud-gui")
+local event_handler = require("events.event-handler")
 
 local gui_hud = {}
 
@@ -672,11 +672,12 @@ function gui_hud.move_hud_bottom_right(player_index)
 	end
 end
 
-function event_handler(player_index, action)
+function gui_hud.event_handler(player_index, action)
 	local player = common.get_player(player_index)
 	local unit_number = action["unit_number"]
 	local value = action["value"]
 
+	-- Toggle HUD collapse/expand
 	if action.action == const.GUI_ACTIONS.toggle then
 		local toggle_state = not player_data.get_hud_collapsed(player_index)
 		gui_hud.update_collapse_state(player_index, toggle_state)
@@ -697,7 +698,7 @@ function event_handler(player_index, action)
 
 	-- Open HUD Combinator
 	if action.action == const.GUI_ACTIONS.open_combinator then
-		combinator_gui.create(player_index, unit_number)
+		event_handler.gui_combinator_create(player_index, unit_number)
 		return
 	end
 
@@ -726,7 +727,7 @@ function event_handler(player_index, action)
 
 	-- Open Settings page
 	if action.action == const.GUI_ACTIONS.open_settings then
-		create_settings_gui(player_index)
+		event_handler.gui_settings_create(player_index)
 		return
 	end
 end

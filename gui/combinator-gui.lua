@@ -4,9 +4,9 @@ local std_string = require("__stdlib__/stdlib/utils/string")
 local const = require("lib.constants")
 local combinator = require("globals.combinator")
 local common = require("lib.common")
+local event_handler = require("events.event-handler")
 
-local gui_hud = require("gui.hud-gui")
-local combinator_gui = {}
+local gui_combinator = {}
 
 -- Generates the GUI Elements to be placed in children = {} property of a parent
 local function generate_signal_filter_table(unit_number)
@@ -33,10 +33,10 @@ local function generate_signal_filter_table(unit_number)
 	return result
 end
 
-function combinator_gui.create(player_index, unit_number)
+function gui_combinator.create(player_index, unit_number)
 	-- Check if it doesn't exist already
 	local player = common.get_player(player_index)
-	local combinator_gui = combinator_gui.get_combinator_gui(player_index, unit_number)
+	local combinator_gui = gui_combinator.get_combinator_gui(player_index, unit_number)
 	if combinator_gui then
 		common.debug_log(player_index, "HUD Combinator GUI with unit_number " .. tostring(unit_number) .. " already has a GUI open/created.")
 		-- We need to overwrite the "to be opened GUI" with our own GUI
@@ -281,11 +281,11 @@ function combinator_gui.create(player_index, unit_number)
 	player.opened.force_auto_center()
 end
 
-function combinator_gui.update(player_index, unit_number)
+function gui_combinator.update(player_index, unit_number)
 	local tmp_name = combinator.get_hud_combinator_temp_name(unit_number)
 	if tmp_name ~= "" then
 		for _, player in pairs(game.players) do
-			local combinator_gui = combinator_gui.get_combinator_gui(player.index)
+			local combinator_gui = gui_combinator.get_combinator_gui(player.index)
 			if combinator_gui then
 				flib_gui.update(
 					combinator_gui,
@@ -315,7 +315,7 @@ function combinator_gui.update(player_index, unit_number)
 	end
 end
 
-function combinator_gui.get_combinator_gui(player_index, unit_number)
+function gui_combinator.get_combinator_gui(player_index, unit_number)
 	local player = common.get_player(player_index)
 	if player then
 		local gui_windows = player.gui.screen.children
@@ -328,7 +328,7 @@ function combinator_gui.get_combinator_gui(player_index, unit_number)
 	return nil
 end
 
-function combinator_gui.get_combinator_gui_by_name(player_index, name)
+function gui_combinator.get_combinator_gui_by_name(player_index, name)
 	local player = common.get_player(player_index)
 	if player then
 		local gui_windows = player.gui.screen.children
@@ -341,16 +341,16 @@ function combinator_gui.get_combinator_gui_by_name(player_index, name)
 	return nil
 end
 
-function combinator_gui.destroy(player_index, name)
-	local combinator_gui = combinator_gui.get_combinator_gui_by_name(player_index, name)
+function gui_combinator.destroy(player_index, name)
+	local combinator_gui = gui_combinator.get_combinator_gui_by_name(player_index, name)
 	if combinator_gui then
 		combinator_gui.destroy()
 	end
 end
 
-function combinator_gui.event_handler(player_index, action)
+function gui_combinator.event_handler(player_index, action)
 	local unit_number = action["unit_number"]
-	local combinator_gui = combinator_gui.get_combinator_gui(player_index, unit_number)
+	local combinator_gui = gui_combinator.get_combinator_gui(player_index, unit_number)
 	if not combinator_gui then
 		return
 	end
@@ -364,14 +364,14 @@ function combinator_gui.event_handler(player_index, action)
 	if action.action == const.GUI_ACTIONS.switch_filter_state then
 		combinator.set_hud_combinator_filter_state(unit_number, action["value"])
 		-- Reset HUD all players on update
-		gui_hud.reset_all_players()
+		event_handler.reset_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.filter_signal_update then
 		combinator.set_hud_combinator_filter(unit_number, action.index, action["value"])
 		-- Reset HUD all players on update
-		gui_hud.reset_all_players()
+		event_handler.reset_all_players()
 		return
 	end
 
@@ -388,9 +388,9 @@ function combinator_gui.event_handler(player_index, action)
 		-- Reset the temp name again
 		combinator.set_hud_combinator_temp_name(unit_number, "")
 		-- Reset HUD all players on update
-		gui_hud.reset_all_players()
+		event_handler.reset_all_players()
 		return
 	end
 end
 
-return combinator_gui
+return gui_combinator

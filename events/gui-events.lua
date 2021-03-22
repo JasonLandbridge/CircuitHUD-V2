@@ -6,7 +6,9 @@ local const = require("lib.constants")
 local player_settings = require("globals.player-settings")
 local player_data = require("globals.player-data")
 
-local combinator_gui = require("gui.hud-gui")
+local gui_combinator = require("gui.hud-gui")
+local gui_settings = require("gui.settings-gui")
+local gui_hud = require("gui.hud-gui")
 
 local function gui_update(event)
 	-- Check if the event is meant for us
@@ -19,7 +21,7 @@ local function gui_update(event)
 		-- Text Field
 		action["value"] = event.text
 	elseif event.define_name == "on_gui_elem_changed" and event.element.elem_value ~= nil then
-		-- 
+		--
 		action["value"] = event.element.elem_value
 	elseif event.define_name == "on_gui_value_changed" and event.element.slider_value ~= nil then
 		-- Sliders
@@ -33,15 +35,15 @@ local function gui_update(event)
 	end
 
 	if action.gui == const.GUI_TYPES.combinator then
-		combinator_gui.event_handler(event.player_index, action)
+		gui_combinator.event_handler(event.player_index, action)
 	end
 
 	if action.gui == const.GUI_TYPES.hud then
-		event_handler(event.player_index, action)
+		gui_hud.event_handler(event.player_index, action)
 	end
 
 	if action.gui == const.GUI_TYPES.settings then
-		handle_settings_gui_events(event.player_index, action)
+		gui_settings.event_handler(event.player_index, action)
 	end
 end
 
@@ -75,7 +77,7 @@ Event.register(
 	function(event)
 		if (not (event.entity == nil)) and (event.entity.name == const.HUD_COMBINATOR_NAME) then
 			-- create the HUD Combinator Gui
-			combinator_gui.create(event.player_index, event.entity.unit_number)
+			gui_combinator.create(event.player_index)
 		end
 	end
 )
@@ -86,9 +88,10 @@ Event.register(
 		-- check if it's and HUD Combinator GUI and close that
 		if (not (event.element == nil)) and std_string.starts_with(event.element.name, const.HUD_NAMES.combinator_root_frame) then
 			-- create the HUD Combinator Gui
-			combinator_gui.destroy(event.player_index, event.element.name)
+			gui_combinator.destroy(event.player_index)
 		end
 	end
 )
+
 
 --#endregion

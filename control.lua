@@ -1,9 +1,7 @@
 local mod_gui = require "mod-gui"
-
 local Event = require("__stdlib__/stdlib/event/event")
 
 local const = require("lib.constants")
-
 local common = require("lib.common")
 
 local player_settings = require("globals.player-settings")
@@ -13,11 +11,11 @@ local base_global = require("globals.base-global")
 
 require "lib.migration"
 
-require "gui.settings-gui"
-
 local gui_hud = require("gui.hud-gui")
+local gui_settings = require("gui.settings-gui")
 
 require "events.gui-events"
+require "events.custom-events"
 
 -- Enable Lua API global Variable Viewer
 -- https://mods.factorio.com/mod/gvv
@@ -169,6 +167,6 @@ Event.register(
 Event.register(
 	const.SHORT_PREFIX .. "open_settings_gui",
 	function(event)
-		create_settings_gui(event.player_index)
+		gui_settings.create(event.player_index)
 	end
 )
