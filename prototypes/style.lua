@@ -88,3 +88,14 @@ default_gui[const.STYLES.settings_slider] = {
 	parent = "red_slider"
 	-- top_padding = 8
 }
+
+default_gui[const.STYLES.slider_count_label] = {
+	type = "label_style",
+	parent = "label",
+	minimal_width = 40,
+	minimal_height = 24,
+	maximal_width = 40,
+	maximal_height = 24,
+	margin_top = 4,
+	single_line = true
+}

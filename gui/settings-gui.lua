@@ -200,7 +200,7 @@ function gui_settings.create(player_index)
 									{
 										type = "label",
 										caption = tostring(player_settings.get_hud_columns_setting(player_index)),
-										style = const.STYLES.settings_title_label,
+										style = const.STYLES.slider_count_label,
 										ref = {const.HUD_NAMES.settings_hud_columns_value}
 									}
 								}
@@ -248,7 +248,7 @@ function gui_settings.create(player_index)
 									{
 										type = "label",
 										caption = tostring(player_settings.get_hud_max_height_setting(player_index)),
-										style = const.STYLES.settings_title_label,
+										style = const.STYLES.slider_count_label,
 										ref = {const.HUD_NAMES.settings_hud_max_height_value}
 									}
 								}
@@ -296,7 +296,7 @@ function gui_settings.create(player_index)
 									{
 										type = "label",
 										caption = tostring(player_settings.get_hud_refresh_rate_setting(player_index)),
-										style = const.STYLES.settings_title_label,
+										style = const.STYLES.slider_count_label,
 										ref = {const.HUD_NAMES.settings_hud_refresh_rate_value}
 									}
 								}

@@ -51,6 +51,7 @@ function gui_combinator.create(player_index, unit_number)
 	end
 
 	-- add the frame
+	local hud_combinator = combinator.get_hud_combinator(unit_number)
 	local ui_name = const.HUD_NAMES.combinator_root_frame .. "_" .. tostring(unit_number)
 	local refs =
 		flib_gui.build(
@@ -60,8 +61,8 @@ function gui_combinator.create(player_index, unit_number)
 				type = "frame",
 				name = ui_name,
 				style_mods = {
-					minimal_width = 500,
-					maximal_width = 500
+					minimal_width = 450,
+					maximal_width = 450
 				},
 				ref = {
 					const.HUD_NAMES.combinator_root_frame
@@ -78,7 +79,8 @@ function gui_combinator.create(player_index, unit_number)
 								-- add the title label
 								type = "label",
 								style = "frame_title",
-								caption = "HUD Combinator",
+								ref = {const.HUD_NAMES.combinator_title_label},
+								caption = hud_combinator.name,
 								ignored_by_interaction = true
 							},
 							{
@@ -128,7 +130,7 @@ function gui_combinator.create(player_index, unit_number)
 							-- Combinator Name
 							{
 								type = "label",
-								caption = "Name",
+								caption = {"chv2_combinator_gui.name"},
 								style = "heading_2_label"
 							},
 							-- Name Text field flow
@@ -153,6 +155,7 @@ function gui_combinator.create(player_index, unit_number)
 											}
 										}
 									},
+									-- confirm button
 									{
 										type = "sprite-button",
 										style = "item_and_count_select_confirm",
@@ -179,7 +182,7 @@ function gui_combinator.create(player_index, unit_number)
 										type = "label",
 										style = "heading_2_label",
 										style_mods = {top_margin = 4, bottom_margin = 4},
-										caption = {"hud_combinator_gui.filter_label"}
+										caption = {"chv2_combinator_gui.filter_label"}
 									},
 									{
 										type = "flow",
@@ -190,8 +193,8 @@ function gui_combinator.create(player_index, unit_number)
 											{
 												type = "switch",
 												switch_state = common.short_if(combinator.get_hud_combinator_filter_state(unit_number), "right", "left"),
-												left_label_caption = {"hud_combinator_gui.switch_off"},
-												right_label_caption = {"hud_combinator_gui.switch_on"},
+												left_label_caption = {"chv2_combinator_gui.switch_off"},
+												right_label_caption = {"chv2_combinator_gui.switch_on"},
 												actions = {
 													on_switch_state_changed = {
 														gui = const.GUI_TYPES.combinator,
@@ -217,7 +220,7 @@ function gui_combinator.create(player_index, unit_number)
 										type = "label",
 										style = "heading_2_label",
 										style_mods = {top_margin = 5},
-										caption = {"hud_combinator_gui.filter_signals_label"}
+										caption = {"chv2_combinator_gui.filter_signals_label"}
 									},
 									-- Filters Signals
 									{
@@ -229,39 +232,65 @@ function gui_combinator.create(player_index, unit_number)
 												ref = {"signal_table"},
 												type = "table",
 												style = "slot_table",
-												save_as = "signal_table",
 												style_mods = {width = 400},
 												column_count = 10,
 												children = generate_signal_filter_table(unit_number)
 											}
 										}
-									},
+									}
+								}
+							},
+							-- Divider
+							{type = "line", style_mods = {top_margin = 5}},
+							{
+								type = "flow",
+								direction = "horizontal",
+								style_mods = {vertical_align = "center", top_padding = 10},
+								children = {
+									-- add the priority order label
 									{
-										type = "flow",
-										direction = "horizontal",
-										style_mods = {vertical_align = "center", top_padding = 10},
-										children = {
-											{
-												type = "slider",
-												save_as = "signal_value_slider",
-												style_mods = {
-													horizontally_stretchable = true,
-													right_padding = 10
-												},
-												minimum_value = -1,
-												maximum_value = 100
-											},
-											{
-												type = "textfield",
-												style = "short_number_textfield",
-												save_as = "signal_value_text",
-												elem_mods = {numeric = true, text = "0", allow_negative = false}
-											},
-											{
-												type = "sprite-button",
-												sprite = "utility/check_mark",
-												style_mods = {left_padding = 5},
-												save_as = "signal_value_confirm"
+										type = "label",
+										style = const.STYLES.settings_title_label,
+										caption = {"chv2_combinator_gui.priority_label"},
+										tooltip = {"chv2_combinator_gui_tooltips.priority_label"}
+									},
+									-- priority change slider
+									{
+										type = "slider",
+										style = const.STYLES.settings_slider,
+										style_mods = {
+											horizontally_stretchable = true,
+											right_padding = 10
+										},
+										ref = {const.HUD_NAMES.combinator_priority_slider},
+										value = hud_combinator.priority,
+										minimum_value = -100,
+										maximum_value = 100,
+										actions = {
+											on_value_changed = {
+												gui = const.GUI_TYPES.combinator,
+												action = const.GUI_ACTIONS.priority_change,
+												unit_number = unit_number
+											}
+										}
+									},
+									-- priority change label
+									{
+										type = "label",
+										caption = tostring(hud_combinator.priority),
+										style = const.STYLES.slider_count_label,
+										ref = {const.HUD_NAMES.combinator_priority_value}
+									},
+									-- priority change confirm button
+									{
+										type = "sprite-button",
+										style = "item_and_count_select_confirm",
+										sprite = "utility/check_mark",
+										actions = {
+											on_click = {
+												gui = const.GUI_TYPES.combinator,
+												action = const.GUI_ACTIONS.priority_change_confirm,
+												unit_number = unit_number
 											}
 										}
 									}
@@ -278,11 +307,15 @@ function gui_combinator.create(player_index, unit_number)
 	refs.titlebar_flow.drag_target = root_frame
 	refs.name_field.select(0, 0)
 
-	refs.hud_preview.entity = combinator.get_hud_combinator_entity(unit_number)
+	refs.hud_preview.entity = hud_combinator.entity
 
 	-- We need to overwrite the "to be opened GUI" with our own GUI
 	player.opened = root_frame
 	player.opened.force_auto_center()
+
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_title_label, refs[const.HUD_NAMES.combinator_title_label])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_priority_slider, refs[const.HUD_NAMES.combinator_priority_slider])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_priority_value, refs[const.HUD_NAMES.combinator_priority_value])
 
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_name_textfield, refs[const.HUD_NAMES.combinator_name_textfield])
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_root_frame, root_frame)
@@ -345,6 +378,7 @@ end
 
 function gui_combinator.event_handler(player_index, action)
 	local unit_number = action["unit_number"]
+	local value = action["value"]
 	local combinator_gui_ref = gui_combinator.get_combinator_gui(player_index, unit_number)
 	if not combinator_gui_ref then
 		return
@@ -357,22 +391,21 @@ function gui_combinator.event_handler(player_index, action)
 	end
 
 	if action.action == const.GUI_ACTIONS.switch_filter_state then
-		combinator.set_hud_combinator_filter_state(unit_number, action["value"])
+		combinator.set_hud_combinator_filter_state(unit_number, value)
 		-- Reset HUD all players on update
 		event_handler.gui_hud_reset_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.filter_signal_update then
-		combinator.set_hud_combinator_filter(unit_number, action.index, action["value"])
+		combinator.set_hud_combinator_filter(unit_number, action.index, value)
 		-- Reset HUD all players on update
 		event_handler.gui_hud_reset_all_players()
 		return
 	end
 
 	if action.action == const.GUI_ACTIONS.name_change then
-		combinator.set_hud_combinator_temp_name(unit_number, action["value"])
-		combinator_gui_ref.update(player_index, unit_number)
+		combinator.set_hud_combinator_temp_name(unit_number, value)
 		return
 	end
 
@@ -380,10 +413,32 @@ function gui_combinator.event_handler(player_index, action)
 		-- Set the confirmed name from the temp name
 		local tmp_name = combinator.get_hud_combinator_temp_name(unit_number)
 		combinator.set_hud_combinator_name(unit_number, tmp_name)
+
+		local title_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.combinator_title_label)
+		if title_ref then
+			title_ref.caption = tmp_name
+		end
 		-- Reset the temp name again
 		combinator.set_hud_combinator_temp_name(unit_number, "")
 		-- Reset HUD all players on update
 		event_handler.gui_hud_reset_all_players()
+		return
+	end
+
+	if action.action == const.GUI_ACTIONS.priority_change then
+		local label_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.combinator_priority_value)
+		if label_ref then
+			label_ref.caption = tostring(value)
+		end
+		return
+	end
+
+	if action.action == const.GUI_ACTIONS.priority_change_confirm then
+		local slider_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.combinator_priority_slider)
+		if slider_ref then
+			combinator.set_hud_combinator_priority(unit_number, slider_ref.slider_value)
+			event_handler.gui_hud_reset_all_players()
+		end
 		return
 	end
 end

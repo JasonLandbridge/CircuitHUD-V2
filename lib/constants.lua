@@ -15,8 +15,13 @@ const.HUD_NAMES = {
 	hud_header_spacer = const.SHORT_PREFIX .. "hud_header_spacer",
 	hud_search_text_field = const.SHORT_PREFIX .. "hud_search_textfield",
 	hud_search_button = const.SHORT_PREFIX .. "hud_search_button",
+	-------------------------------------------------------------------------
 	combinator_root_frame = const.SHORT_PREFIX .. "combinator_root_frame",
+	combinator_title_label = const.SHORT_PREFIX .. "combinator_title_label",
 	combinator_name_textfield = const.SHORT_PREFIX .. "combinator_name_textfield",
+	combinator_priority_slider = const.SHORT_PREFIX .. "combinator_priority_slider",
+	combinator_priority_value = const.SHORT_PREFIX .. "combinator_priority_value",
+	-------------------------------------------------------------------------
 	settings_root_frame = const.SHORT_PREFIX .. "settings_root_frame",
 	settings_hud_columns_slider = const.SHORT_PREFIX .. "settings_hud_columns_slider",
 	settings_hud_columns_value = const.SHORT_PREFIX .. "settings_hud_columns_value",
@@ -99,13 +104,16 @@ const.GUI_ACTIONS = {
 	go_to_combinator = "GO_TO_COMBINATOR",
 	filter_signal_update = "FILTER_SIGNAL_UPDATE",
 	switch_filter_state = "SWITCH_FILTER_STATE",
-	name_change_confirm = "NAME_CHANGE_CONFIRM"
+	name_change_confirm = "NAME_CHANGE_CONFIRM",
+	priority_change = "PRIORITY_CHANGE",
+	priority_change_confirm = "PRIORITY_CHANGE_CONFIRM"
 }
 
 const.STYLES = {
 	hud_root_frame_style = const.SHORT_PREFIX .. "hud-root-frame-style",
 	settings_title_label = const.SHORT_PREFIX .. "settings_title_label",
-	settings_slider = const.SHORT_PREFIX .. "settings_slider_style"
+	settings_slider = const.SHORT_PREFIX .. "settings_slider_style",
+	slider_count_label = const.SHORT_PREFIX .. "slider_count_label"
 }
 
 const.EVENTS = {

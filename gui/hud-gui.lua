@@ -87,7 +87,7 @@ local function sort_hud_combinators(hud_combinators, player_index)
 		)
 	end
 
-	-- Build Order Ascending
+	-- Priority Ascending
 	if sort_mode == const.HUD_SORT.priority_ascending then
 		table.sort(
 			combinator_array,
@@ -100,7 +100,7 @@ local function sort_hud_combinators(hud_combinators, player_index)
 		)
 	end
 
-	-- Build Order Descending
+	-- Priority Descending
 	if sort_mode == const.HUD_SORT.priority_descending then
 		table.sort(
 			combinator_array,

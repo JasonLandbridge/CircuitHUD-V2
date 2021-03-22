@@ -62,9 +62,18 @@ local migrations = {
 		-- Create new filters property for each HUD Combinator
 		for _, value in pairs(global.hud_combinators) do
 			if value.entity.valid and not value["filters"] then
-				value["filters"] = {}
-				value["unit_number"] = value.entity.unit_number
-				value["should_filter"] = false
+				if value["filters"] == nil then
+					value["filters"] = {}
+				end
+				if value["unit_number"] == nil then
+					value["unit_number"] = value.entity.unit_number
+				end
+				if value["should_filter"] == nil then
+					value["should_filter"] = false
+				end
+				if value["priority"] == nil then
+					value["priority"] = 0
+				end
 			end
 		end
 

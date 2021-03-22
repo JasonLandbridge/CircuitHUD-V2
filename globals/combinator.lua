@@ -78,6 +78,14 @@ function combinator.get_hud_combinator_filter_state(unit_number)
 	return nil
 end
 
+function combinator.get_hud_combinator_priority(unit_number)
+	local hud_combinator = combinator.get_hud_combinator(unit_number)
+	if hud_combinator then
+		return hud_combinator["priority"]
+	end
+	return 0
+end
+
 function combinator.get_hud_combinators()
 	return global["hud_combinators"]
 end
@@ -115,6 +123,13 @@ function combinator.set_hud_combinator_filter_state(unit_number, state)
 	local hud_combinator = combinator.get_hud_combinator(unit_number)
 	if hud_combinator then
 		hud_combinator["should_filter"] = state
+	end
+end
+
+function combinator.set_hud_combinator_priority(unit_number, priority)
+	local hud_combinator = combinator.get_hud_combinator(unit_number)
+	if hud_combinator then
+		hud_combinator["priority"] = priority
 	end
 end
 
