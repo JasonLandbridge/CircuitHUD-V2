@@ -14,13 +14,19 @@ local function gui_update(event)
 	end
 
 	if event.define_name == "on_gui_text_changed" and event.text ~= nil then
+		-- Text Field
 		action["value"] = event.text
 	elseif event.define_name == "on_gui_elem_changed" and event.element.elem_value ~= nil then
+		-- 
 		action["value"] = event.element.elem_value
 	elseif event.define_name == "on_gui_value_changed" and event.element.slider_value ~= nil then
+		-- Sliders
 		action["value"] = event.element.slider_value
+	elseif event.define_name == "on_gui_selection_state_changed" and event.element.selected_index ~= nil then
+		-- Dropdowns
+		action["value"] = event.element.selected_index
 	elseif event.define_name == "on_gui_switch_state_changed" and event.element.switch_state ~= nil then
-		-- Right/On is true, Left/Off is false
+		-- Switches, Right/On is true, Left/Off is false
 		action["value"] = event.element.switch_state == "right"
 	end
 
@@ -43,6 +49,7 @@ Event.register(defines.events.on_gui_click, gui_update)
 Event.register(defines.events.on_gui_text_changed, gui_update)
 Event.register(defines.events.on_gui_elem_changed, gui_update)
 Event.register(defines.events.on_gui_value_changed, gui_update)
+Event.register(defines.events.on_gui_selection_state_changed, gui_update)
 Event.register(defines.events.on_gui_switch_state_changed, gui_update)
 
 --#endregion

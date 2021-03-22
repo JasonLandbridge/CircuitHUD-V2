@@ -74,12 +74,15 @@ function create_settings_gui(player_index)
 									{
 										type = "label",
 										style = const.STYLES.settings_title_label,
-										caption = {"chv2_settings_gui.hud_settings"},
+										caption = {"chv2_settings_name.hide_hud_header"},
 										tooltip = {"chv2_settings_gui_tooltips.hud_settings"}
 									},
 									{
 										type = "checkbox",
 										state = player_settings.get_hide_hud_header_setting(player_index),
+										style_mods = {
+											top_margin = 8
+										},
 										actions = {
 											on_click = {
 												gui = const.GUI_TYPES.settings,
@@ -104,7 +107,7 @@ function create_settings_gui(player_index)
 									},
 									{
 										type = "drop-down",
-										selected_index = 4,
+										selected_index = player_settings.get_hud_position_index_setting(player_index),
 										items = {
 											{"chv2_settings_gui_dropdown.hud_position-top"},
 											{"chv2_settings_gui_dropdown.hud_position-left"},
@@ -122,7 +125,7 @@ function create_settings_gui(player_index)
 									}
 								}
 							},
-							-- HUD Position setting
+							-- HUD Max Columns setting
 							{
 								type = "flow",
 								style = "flib_titlebar_flow",
@@ -195,8 +198,13 @@ function handle_settings_gui_events(player_index, action)
 	if action.action == const.GUI_ACTIONS.update_settings then
 		-- Hide HUD Setting
 		if action.name == const.SETTINGS.hide_hud_header then
-			local value = not player_settings.get_hide_hud_header_setting(player_index)
 			player_settings.set_hide_hud_header_setting(player_index, value)
+		end
+
+		-- Set HUD Position
+		if action.name == const.SETTINGS.hud_position then
+			player_settings.set_hud_position_setting(player_index, const.HUD_POSITION_INDEX[value])
+			reset_hud(player_index)
 		end
 
 		-- HUD Columns Setting

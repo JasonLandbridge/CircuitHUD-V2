@@ -39,12 +39,20 @@ const.SETTINGS = {
 	debug_mode = "debug_mode"
 }
 
+const.HUD_POSITION_INDEX = {
+	[1] = "top",
+	[2] = "left",
+	[3] = "goal",
+	[4] = "bottom-right",
+	[5] = "draggable"
+}
+
 const.HUD_POSITION = {
-	top = "top",
-	left = "left",
-	goal = "goal",
-	bottom_right = "bottom-right",
-	draggable = "draggable"
+	top = const.HUD_POSITION_INDEX[1],
+	left = const.HUD_POSITION_INDEX[2],
+	goal = const.HUD_POSITION_INDEX[3],
+	bottom_right = const.HUD_POSITION_INDEX[4],
+	draggable = const.HUD_POSITION_INDEX[5]
 }
 
 const.SIGNAL_TYPE_MAP = {

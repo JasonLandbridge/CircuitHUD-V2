@@ -31,6 +31,16 @@ function player_settings.get_hud_position_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.hud_position)
 end
 
+function player_settings.get_hud_position_index_setting(player_index)
+	local setting_value = player_settings.get_hud_position_setting(player_index)
+	for key, value in pairs(const.HUD_POSITION_INDEX) do
+		if setting_value == value then
+			return key
+		end
+	end
+	return 0
+end
+
 function player_settings.get_hud_columns_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.hud_columns)
 end
@@ -60,8 +70,8 @@ end
 
 --#region Set User Settings
 
-function player_settings.set_hud_position_setting(player_index, state)
-	player_settings.set_setting(player_index, const.SETTINGS.hud_position, state)
+function player_settings.set_hud_position_setting(player_index, value)
+	player_settings.set_setting(player_index, const.SETTINGS.hud_position, value)
 end
 
 function player_settings.set_hud_columns_setting(player_index, value)
