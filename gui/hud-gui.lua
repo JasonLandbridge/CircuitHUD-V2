@@ -140,7 +140,21 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 	for i = 1, 2, 1 do
 		-- Check if this color table already exists
 		local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
-		local table = parent_gui.add {type = "table", name = table_name, column_count = max_columns}
+		local table =
+			flib_gui.build(
+			parent_gui,
+			{
+				{
+					type = "table",
+					name = table_name,
+					column_count = max_columns,
+					ref = {"table"},
+					style_mods = {
+						top_margin = 4,
+					}
+				}
+			}
+		)
 
 		-- Check if there are signals
 		if networks[i] and networks[i].signals then
@@ -158,7 +172,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 
 				-- Check if this signal should be shown based on filtering
 				if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
-					table.add {
+					table["table"].add {
 						type = "sprite-button",
 						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
 						number = signal.count,
