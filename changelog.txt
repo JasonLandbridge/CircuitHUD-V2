@@ -11,8 +11,11 @@ Date: 2021-03-21
     - Added hotkeys for Toggeling the HUD (default: "CONTROL + SHIFT + S") and opening the settings window (default: "CONTROL + ALT + S")
   Bugfixes:
     - Fixed the collapsed button going off-screen when UI Scale is above 100% 
+    - The HUD now automatically expands when changing the HUD position in the settings
+    - Fixed many HUD glitches, should be much more fluid and stable now with better alignment.
   Optimisations:
     - Major refactor, mainly ensuring less methods are stored on the lua global level and that most methods are now in a wrapping object. Also deleted unused methods and empty files.
+    - Simplyfied the HUD size calculation greatly with better results, improving performance greatly!
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.1
 Date: 2021-03-09

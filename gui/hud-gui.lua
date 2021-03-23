@@ -285,6 +285,8 @@ function gui_hud.create(player_index)
 
 	local hud_position = player_settings.get_hud_position_setting(player_index)
 	local parent_ref = nil
+	local is_collapsed = player_data.get_hud_collapsed(player_index)
+	local is_header_hidden = player_settings.get_hide_hud_header_setting(player_index)
 
 	-- Set HUD on the left or top side of screen
 	if player_data.get_is_hud_left(player_index) or player_data.get_is_hud_top(player_index) or player_data.get_is_hud_goal(player_index) then
@@ -305,18 +307,28 @@ function gui_hud.create(player_index)
 				direction = "vertical",
 				name = const.HUD_NAMES.hud_root_frame,
 				style = const.STYLES.hud_root_frame_style,
-				ref = {
-					const.HUD_NAMES.hud_root_frame
+				ref = {const.HUD_NAMES.hud_root_frame},
+				children = {
+					{
+						type = "flow",
+						direction = "horizontal",
+						ref = {const.HUD_NAMES.hud_header_flow}
+					}
 				}
 			}
 		}
 	)
 
 	local root_frame = root_refs[const.HUD_NAMES.hud_root_frame]
+	local header_flow = root_refs[const.HUD_NAMES.hud_header_flow]
+
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_root_frame, root_frame)
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_flow, header_flow)
+
 	-- Set references to root GUI Elements
 
 	-- Only create header when the settings allow for it
-	if not player_settings.get_hide_hud_header_setting(player_index) then
+	if not is_header_hidden and not is_collapsed then
 		-- create a title_flow
 
 		local header_style = "flib_horizontal_pusher"
@@ -326,98 +338,75 @@ function gui_hud.create(player_index)
 
 		local header_refs =
 			flib_gui.build(
-			root_frame,
+			header_flow,
 			{
+				-- add the title label
 				{
-					type = "flow",
-					direction = "horizontal",
-					ref = {const.HUD_NAMES.hud_header_flow},
-					children = {
-						-- add the title label
-						{
-							type = "label",
-							style = "frame_title",
-							name = const.HUD_NAMES.hud_title_label,
-							ref = {const.HUD_NAMES.hud_title_label},
-							caption = player_settings.get_hud_title_setting(player_index)
-						},
-						-- either a draggable frame bar or empty space
-						{
-							type = "empty-widget",
-							style = header_style,
-							name = const.HUD_NAMES.hud_header_spacer,
-							ref = {const.HUD_NAMES.hud_header_spacer}
-						},
-						-- Search Text Field
-						{
-							type = "textfield",
-							style = "stretchable_textfield",
-							name = const.HUD_NAMES.hud_search_text_field,
-							style_mods = {top_margin = -3, bottom_margin = 3},
-							visible = false,
-							ref = {const.HUD_NAMES.hud_search_text_field},
-							actions = {
-								on_text_changed = {
-									gui = const.GUI_TYPES.hud,
-									action = const.GUI_ACTIONS.search_bar_change
-								}
-							}
-						},
-						-- Search Button
-						{
-							type = "sprite-button",
-							style = "frame_action_button",
-							name = const.HUD_NAMES.hud_search_button,
-							ref = {
-								const.HUD_NAMES.hud_search_button
-							},
-							tooltip = {"rcalc-gui.search-instruction"},
-							sprite = "utility/search_white",
-							hovered_sprite = "utility/search_black",
-							clicked_sprite = "utility/search_black",
-							mouse_button_filter = {"left"},
-							actions = {
-								on_click = {
-									gui = const.GUI_TYPES.hud,
-									action = const.GUI_ACTIONS.toggle_search_bar
-								}
-							}
-						},
-						-- Settings Button
-						{
-							type = "sprite-button",
-							style = "frame_action_button",
-							name = const.HUD_NAMES.hud_settings_button,
-							ref = {
-								const.HUD_NAMES.hud_settings_button
-							},
-							tooltip = {"rb-gui.settings"},
-							sprite = "rb_settings_white",
-							hovered_sprite = "rb_settings_black",
-							clicked_sprite = "rb_settings_black",
-							mouse_button_filter = {"left"},
-							actions = {
-								on_click = {
-									gui = const.GUI_TYPES.hud,
-									action = const.GUI_ACTIONS.open_settings
-								}
-							}
-						},
-						-- Toggle Button
-						{
-							type = "sprite-button",
-							name = const.HUD_NAMES.hud_toggle_button,
-							style = "frame_action_button",
-							ref = {
-								const.HUD_NAMES.hud_toggle_button
-							},
-							sprite = (player_data.get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
-							actions = {
-								on_click = {
-									gui = const.GUI_TYPES.hud,
-									action = const.GUI_ACTIONS.toggle
-								}
-							}
+					type = "label",
+					style = "frame_title",
+					name = const.HUD_NAMES.hud_title_label,
+					ref = {const.HUD_NAMES.hud_title_label},
+					caption = player_settings.get_hud_title_setting(player_index)
+				},
+				-- either a draggable frame bar or empty space
+				{
+					type = "empty-widget",
+					style = header_style,
+					name = const.HUD_NAMES.hud_header_spacer,
+					ref = {const.HUD_NAMES.hud_header_spacer}
+				},
+				-- Search Text Field
+				{
+					type = "textfield",
+					style = "stretchable_textfield",
+					name = const.HUD_NAMES.hud_search_text_field,
+					style_mods = {top_margin = -3, bottom_margin = 3},
+					visible = false,
+					ref = {const.HUD_NAMES.hud_search_text_field},
+					actions = {
+						on_text_changed = {
+							gui = const.GUI_TYPES.hud,
+							action = const.GUI_ACTIONS.search_bar_change
+						}
+					}
+				},
+				-- Search Button
+				{
+					type = "sprite-button",
+					style = "frame_action_button",
+					name = const.HUD_NAMES.hud_search_button,
+					ref = {
+						const.HUD_NAMES.hud_search_button
+					},
+					tooltip = {"rcalc-gui.search-instruction"},
+					sprite = "utility/search_white",
+					hovered_sprite = "utility/search_black",
+					clicked_sprite = "utility/search_black",
+					mouse_button_filter = {"left"},
+					actions = {
+						on_click = {
+							gui = const.GUI_TYPES.hud,
+							action = const.GUI_ACTIONS.toggle_search_bar
+						}
+					}
+				},
+				-- Settings Button
+				{
+					type = "sprite-button",
+					style = "frame_action_button",
+					name = const.HUD_NAMES.hud_settings_button,
+					ref = {
+						const.HUD_NAMES.hud_settings_button
+					},
+					tooltip = {"rb-gui.settings"},
+					sprite = "rb_settings_white",
+					hovered_sprite = "rb_settings_black",
+					clicked_sprite = "rb_settings_black",
+					mouse_button_filter = {"left"},
+					actions = {
+						on_click = {
+							gui = const.GUI_TYPES.hud,
+							action = const.GUI_ACTIONS.open_settings
 						}
 					}
 				}
@@ -429,51 +418,78 @@ function gui_hud.create(player_index)
 			header_refs[const.HUD_NAMES.hud_header_spacer].drag_target = root_frame
 		end
 
-		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_flow, header_refs[const.HUD_NAMES.hud_header_flow])
 		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_title_label, header_refs[const.HUD_NAMES.hud_title_label])
 		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_spacer, header_refs[const.HUD_NAMES.hud_header_spacer])
 		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_text_field, header_refs[const.HUD_NAMES.hud_search_text_field])
 		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_search_button, header_refs[const.HUD_NAMES.hud_search_button])
 		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_settings_button, header_refs[const.HUD_NAMES.hud_settings_button])
-		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_toggle_button, header_refs[const.HUD_NAMES.hud_toggle_button])
 	end
-	local body_refs =
-		flib_gui.build(
-		root_frame,
-		{
+
+	-- Add toggle button
+	if (is_header_hidden and is_collapsed) or (not is_header_hidden and is_collapsed) then
+		local toggle_refs =
+			flib_gui.build(
+			header_flow,
 			{
-				type = "scroll-pane",
-				name = const.HUD_NAMES.hud_scroll_pane,
-				vertical_scroll_policy = "auto-and-reserve-space",
-				style = "flib_naked_scroll_pane_no_padding",
-				style_mods = {
-					horizontal_align = "center",
-					vertically_stretchable = true
-				},
-				ref = {
-					const.HUD_NAMES.hud_scroll_pane
-				},
-				children = {
-					{
-						type = "flow",
-						name = const.HUD_NAMES.hud_scroll_pane_frame,
-						style = "hud_scrollpane_frame_style",
-						style_mods = {
-							horizontal_align = "center",
-							vertically_stretchable = true
-						},
-						ref = {
-							const.HUD_NAMES.hud_scroll_pane_frame
-						},
-						direction = "vertical"
+				{
+					-- Toggle Button
+					type = "sprite-button",
+					name = const.HUD_NAMES.hud_toggle_button,
+					style = "frame_action_button",
+					ref = {
+						const.HUD_NAMES.hud_toggle_button
+					},
+					sprite = (player_data.get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
+					actions = {
+						on_click = {
+							gui = const.GUI_TYPES.hud,
+							action = const.GUI_ACTIONS.toggle
+						}
 					}
 				}
 			}
-		}
-	)
-	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_root_frame, root_refs[const.HUD_NAMES.hud_root_frame])
-	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane, body_refs[const.HUD_NAMES.hud_scroll_pane])
-	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame, body_refs[const.HUD_NAMES.hud_scroll_pane_frame])
+		)
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_toggle_button, toggle_refs[const.HUD_NAMES.hud_toggle_button])
+	end
+
+	if not is_collapsed then
+		local body_refs =
+			flib_gui.build(
+			root_frame,
+			{
+				{
+					type = "scroll-pane",
+					name = const.HUD_NAMES.hud_scroll_pane,
+					vertical_scroll_policy = "auto-and-reserve-space",
+					style = "flib_naked_scroll_pane_no_padding",
+					style_mods = {
+						horizontal_align = "center",
+						vertically_stretchable = true
+					},
+					ref = {
+						const.HUD_NAMES.hud_scroll_pane
+					},
+					children = {
+						{
+							type = "flow",
+							name = const.HUD_NAMES.hud_scroll_pane_frame,
+							style = "hud_scrollpane_frame_style",
+							style_mods = {
+								horizontal_align = "center",
+								vertically_stretchable = true
+							},
+							ref = {
+								const.HUD_NAMES.hud_scroll_pane_frame
+							},
+							direction = "vertical"
+						}
+					}
+				}
+			}
+		)
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane, body_refs[const.HUD_NAMES.hud_scroll_pane])
+		player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame, body_refs[const.HUD_NAMES.hud_scroll_pane_frame])
+	end
 
 	if player_data.get_is_hud_draggable(player_index) then
 		root_frame.location = player_data.get_hud_location(player_index)
@@ -508,10 +524,6 @@ end
 
 -- Update the HUD combinator categories and values in the HUD
 function gui_hud.update(player_index)
-	if not combinator.has_hud_combinators() or player_data.get_hud_collapsed(player_index) then
-		return
-	end
-
 	if not player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
 		common.debug_log(player_index, "Can't update HUD because the HUD root does not exist for player with index: " .. player_index)
 		return
@@ -522,42 +534,44 @@ function gui_hud.update(player_index)
 		common.debug_log(player_index, "Can't update HUD because the scroll_pane_frame does not exist for player with index: " .. player_index)
 	end
 
-	-- Clear the frame which has the signals displayed to start the update
-	scroll_pane_frame.clear()
+	if combinator.has_hud_combinators() and not player_data.get_hud_collapsed(player_index) then
+		-- Clear the frame which has the signals displayed to start the update
+		scroll_pane_frame.clear()
 
-	-- Apply search query if there is any
-	local text = stdlib_string.trim(player_data.get_hud_search_text(player_index))
-	local hud_combinators = {}
-	if text ~= "" then
-		for key, hud_combinator in pairs(combinator.get_hud_combinators()) do
-			if stdlib_string.contains(hud_combinator.name:lower(), text:lower()) then
-				hud_combinators[key] = hud_combinator
+		-- Apply search query if there is any
+		local text = stdlib_string.trim(player_data.get_hud_search_text(player_index))
+		local hud_combinators = {}
+		if text ~= "" then
+			for key, hud_combinator in pairs(combinator.get_hud_combinators()) do
+				if stdlib_string.contains(hud_combinator.name:lower(), text:lower()) then
+					hud_combinators[key] = hud_combinator
+				end
 			end
+		else
+			hud_combinators = combinator.get_hud_combinators()
 		end
-	else
-		hud_combinators = combinator.get_hud_combinators()
-	end
 
-	-- Sort HUD Combinator
-	local hud_combinators_unit_numbers = sort_hud_combinators(hud_combinators, player_index)
+		-- Sort HUD Combinator
+		local hud_combinators_unit_numbers = sort_hud_combinators(hud_combinators, player_index)
 
-	-- Check if there were no search results.
-	if text ~= "" and table_size(hud_combinators_unit_numbers) == 0 then
-		flib_gui.build(
-			scroll_pane_frame,
-			{
+		-- Check if there were no search results.
+		if text ~= "" and table_size(hud_combinators_unit_numbers) == 0 then
+			flib_gui.build(
+				scroll_pane_frame,
 				{
-					type = "label",
-					style = "hud_combinator_label",
-					caption = "No results found!"
+					{
+						type = "label",
+						style = "hud_combinator_label",
+						caption = "No results found!"
+					}
 				}
-			}
-		)
-	else
-		-- loop over every HUD Combinator provided
-		for _, hud_combinator in ipairs(hud_combinators_unit_numbers) do
-			if hud_combinator.entity.valid then
-				render_combinator(scroll_pane_frame, hud_combinator.unit_number)
+			)
+		else
+			-- loop over every HUD Combinator provided
+			for _, hud_combinator in ipairs(hud_combinators_unit_numbers) do
+				if hud_combinator.entity.valid then
+					render_combinator(scroll_pane_frame, hud_combinator.unit_number)
+				end
 			end
 		end
 	end
@@ -567,39 +581,14 @@ function gui_hud.update(player_index)
 end
 
 function gui_hud.update_collapse_state(player_index, toggle_state)
-	player_data.set_hud_collapsed(player_index, toggle_state)
-
-	local toggle_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_toggle_button)
-	if toggle_ref then
-		if toggle_state then
-			toggle_ref.sprite = "utility/expand"
-		else
-			toggle_ref.sprite = "utility/collapse"
-		end
-	end
-
-	-- true is collapsed, false is visible
-	if toggle_state then
-		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
-		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
-		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
-		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_search_button)
-		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_settings_button)
-
-		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane)
-		player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_scroll_pane_frame)
-	else
-		gui_hud.reset(player_index)
-	end
-
-	-- If bottom-right fixed than align
-	gui_hud.calculate_hud_size(player_index)
-
 	common.debug_log(player_index, "Toggle button clicked! - " .. tostring(toggle_state))
+	player_data.set_hud_collapsed(player_index, toggle_state)
+	gui_hud.reset(player_index)
 end
 
 function gui_hud.destroy(player_index)
 	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
+	-- The rest seems unneeded but is used to deregister all stale hud refs
 	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_header_flow)
 	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
 	player_data.destroy_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)

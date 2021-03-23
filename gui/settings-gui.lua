@@ -426,13 +426,7 @@ function gui_settings.event_handler(player_index, action)
 		-- Hide HUD Setting
 		if action.name == const.SETTINGS.hide_hud_header then
 			player_settings.set_hide_hud_header_setting(player_index, value)
-			local hud_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_header_flow)
-			if hud_ref then
-				hud_ref.visible = not value
-				gui_hud.update(player_index)
-			else
-				gui_hud.reset(player_index)
-			end
+			gui_hud.reset(player_index)
 			return
 		end
 
