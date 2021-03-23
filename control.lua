@@ -140,14 +140,14 @@ Event.register(
 Event.register(
 	defines.events.on_player_display_resolution_changed,
 	function(event)
-		gui_hud.should_hud_root_exist(event.player_index)
+		gui_hud.reset(event.player_index)
 	end
 )
 
 Event.register(
 	defines.events.on_player_display_scale_changed,
 	function(event)
-		gui_hud.should_hud_root_exist(event.player_index)
+		gui_hud.reset(event.player_index)
 	end
 )
 

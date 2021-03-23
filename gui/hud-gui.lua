@@ -150,7 +150,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 					column_count = max_columns,
 					ref = {"table"},
 					style_mods = {
-						top_margin = 4,
+						top_margin = 4
 					}
 				}
 			}
@@ -187,7 +187,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 
 	return {
 		hide_signal_detected = hide_signal_detected,
-		signal_count == signal_count,
+		signal_count = signal_count,
 		signal_total_count = signal_total_count
 	}
 end
@@ -541,8 +541,6 @@ function gui_hud.create(player_index)
 	if player_data.get_is_hud_draggable(player_index) then
 		root_frame.location = player_data.get_hud_location(player_index)
 	end
-
-	root_frame.style.maximal_height = player_settings.get_hud_height_setting(player_index)
 end
 
 -- Go over each player and ensure that their HUD is either visible or hidden based on the existense of HUD combinators.
@@ -661,42 +659,41 @@ end
 -- Calculate the width and height of the HUD due to GUIElement.size not being available
 function gui_hud.calculate_hud_size(player_index)
 	local player = common.get_player(player_index)
-	local old_size = player_data.get_hud_size(player_index)
-	local new_size = {}
-	local function adjust_size_scale(size)
-		return {width = stdlib_math.round(size.width * player.display_scale), height = stdlib_math.round(size.height * player.display_scale)}
-	end
 
+	local width = 0 -- pixel width when scale is 100%
+	local height = 0 -- pixel height when scale is 100%
 	if player_data.get_hud_collapsed(player_index) then
 		-- Set collapsed size
-		new_size = adjust_size_scale({width = 40, height = 40})
+		width = 40
+		height = 40
 	else
 		common.debug_log(player_index, "Start calculating HUD size:")
 
 		local max_columns_allowed = player_settings.get_hud_columns_setting(player_index)
-		local width = (max_columns_allowed * (36 + 4)) + 4 + 12 + 12
-		local height = player_settings.get_hud_height_setting(player_index) + 4
-
-		new_size = adjust_size_scale({width = width, height = height})
+		width = (max_columns_allowed * (36 + 4)) + 40
+		height = player_settings.get_hud_height_setting(player_index)
 	end
-
-	common.debug_log(player_index, "HUD size, width: " .. tostring(new_size.width) .. ", height: " .. tostring(new_size.height))
-	player_data.set_hud_size(player_index, new_size)
 
 	-- Set max height in style of HUD RootFrame
 	local root_frame = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
 	if root_frame then
-		root_frame.style.minimal_height = new_size.height
-		root_frame.style.maximal_height = new_size.height
+		root_frame.style.minimal_width = width
+		root_frame.style.maximal_width = width
+		root_frame.style.minimal_height = height
+		root_frame.style.maximal_height = height
 	end
 
+	-- When setting the HUD Location we need the size adjusted by the display scale to set X and Y
+	local new_size = {width = width * player.display_scale, height = height * player.display_scale}
+
+	common.debug_log(player_index, "HUD size, width: " .. tostring(new_size.width) .. ", height: " .. tostring(new_size.height))
+	player_data.set_hud_size(player_index, new_size)
 	event_handler.gui_hud_size_changed(player_index, new_size)
 end
 
 function gui_hud.event_handler(player_index, action)
 	local player = common.get_player(player_index)
 	local unit_number = action["unit_number"]
-	local value = action["value"]
 
 	-- Toggle HUD collapse/expand
 	if action.action == const.GUI_ACTIONS.toggle then
