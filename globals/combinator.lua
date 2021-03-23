@@ -150,7 +150,7 @@ function combinator.check_combinator_registrations()
 
 		if hud_combinators then
 			for _, hud_combinator in pairs(hud_combinators) do
-				if not global.hud_combinators[hud_combinator.unit_number] then
+				if not combinator.get_hud_combinator(hud_combinator.unit_number) then
 					combinator.add_hud_combinator_ref(hud_combinator)
 				end
 			end
