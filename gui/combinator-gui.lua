@@ -335,7 +335,7 @@ function gui_combinator.get_combinator_gui(player_index, unit_number)
 	if player then
 		local gui_windows = player.gui.screen.children
 		for _, value in pairs(gui_windows) do
-			if std_string.ends_with(value.name, tostring(unit_number)) then
+			if value.name == const.HUD_NAMES.combinator_root_frame then
 				return value
 			end
 		end
@@ -378,14 +378,13 @@ end
 function gui_combinator.event_handler(player_index, action)
 	local unit_number = action["unit_number"]
 	local value = action["value"]
-	local combinator_gui_ref = gui_combinator.get_combinator_gui(player_index, unit_number)
-	if not combinator_gui_ref then
-		return
-	end
 
 	if action.action == const.GUI_ACTIONS.close then
 		combinator.set_hud_combinator_temp_name(unit_number, "")
-		combinator_gui_ref.destroy()
+		local combinator_gui_ref = gui_combinator.get_combinator_gui(player_index, unit_number)
+		if combinator_gui_ref then
+			combinator_gui_ref.destroy()
+		end
 		return
 	end
 
