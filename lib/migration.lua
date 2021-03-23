@@ -15,13 +15,14 @@ local gui_settings = require "gui.settings-gui"
 local migrations = {
 	["1.0.1"] = function()
 		-- clear global and recreate
-		base_global.reset_global_state()
+		base_global.ensure_global_state()
 		-- recreate all global state for players
 		for _, player in pairs(game.players) do
 			player_data.add_player_global(player.index)
 		end
 	end,
-	["1.1.0"] = function()
+	["1.2.0"] = function()
+		base_global.ensure_global_state()
 		-- Migrate to elements system instead of seperate HUD references
 		for _, player in pairs(game.players) do
 			local player_global = global.players[player.index]
@@ -48,10 +49,39 @@ local migrations = {
 		end
 	end,
 	["1.3.0"] = function()
+		-- clean-up pre v1.3.0 global references and destroy what is not needed anymore
 		-- remove textbox_hud_entity_map as it became obsolete.
 		global["textbox_hud_entity_map"] = nil
 		global["did_cleanup_and_discovery"] = nil
 		global["refresh_rate"] = nil
+		global["did_initial_render"] = nil
+		global["hud_position_map"] = nil
+		global["hud_collapsed_map"] = nil
+
+		if global["last_frame"] and table_size(global["last_frame"]) > 0 then
+			for _, value in pairs(global["last_frame"]) do
+				if value and value.valid then
+					value.destroy()
+				end
+			end
+			global["last_frame"] = nil
+		end
+
+		if global["inner_frame"] and table_size(global["inner_frame"]) > 0 then
+			for _, value in pairs(global["inner_frame"]) do
+				if value and value.valid then
+					value.destroy()
+				end
+			end
+			global["inner_frame"] = nil
+		end
+
+		if global["toggle_button"] and global["toggle_button"].valid then
+			global["toggle_button"].destroy()
+		end
+		global["toggle_button"] = nil
+
+		global["hud_collapsed_map"] = nil
 
 		-- Create new filters property for each HUD Combinator
 		for _, value in pairs(global.hud_combinators) do

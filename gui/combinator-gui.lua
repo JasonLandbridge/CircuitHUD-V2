@@ -60,8 +60,8 @@ function gui_combinator.create(player_index, unit_number)
 				type = "frame",
 				name = const.HUD_NAMES.combinator_root_frame,
 				style_mods = {
-					minimal_width = 450,
-					maximal_width = 450
+					minimal_width = 456,
+					maximal_width = 456
 				},
 				ref = {
 					const.HUD_NAMES.combinator_root_frame
@@ -181,6 +181,8 @@ function gui_combinator.create(player_index, unit_number)
 							{
 								type = "scroll-pane",
 								direction = "vertical",
+								vertical_scroll_policy = "auto-and-reserve-space",
+								horizontal_scroll_policy = "never",
 								style = "flib_naked_scroll_pane_no_padding",
 								style_mods = {
 									minimal_height = 100,
