@@ -17,12 +17,14 @@ register_event(
 		gui_hud.create(event.player_index)
 	end
 )
+
 register_event(
 	const.EVENTS.gui_hud_collapse_switch,
 	function(event)
 		gui_hud.update_collapse_state(event.player_index, event.state)
 	end
 )
+
 register_event(
 	const.EVENTS.gui_hud_toggle,
 	function(event)
@@ -30,10 +32,18 @@ register_event(
 		gui_hud.update_collapse_state(event.player_index, toggle_state)
 	end
 )
+
 register_event(
 	const.EVENTS.gui_hud_reset_all_players,
 	function()
 		gui_hud.reset_all_players()
+	end
+)
+
+register_event(
+	const.EVENTS.gui_hud_size_changed,
+	function(event)
+		gui_hud.size_changed(event.player_index, event.size)
 	end
 )
 --#endregion

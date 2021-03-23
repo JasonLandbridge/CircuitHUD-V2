@@ -40,6 +40,16 @@ function event_handler.gui_hud_reset_all_players()
 		}
 	)
 end
+
+function event_handler.gui_hud_size_changed(player_index, size)
+	Event.dispatch(
+		{
+			input_name = Event.generate_event_name(const.EVENTS.gui_hud_size_changed),
+			player_index = player_index,
+			size = size
+		}
+	)
+end
 --#endregion
 
 --#region GUI Combinator
