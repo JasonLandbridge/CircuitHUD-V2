@@ -98,10 +98,14 @@ const.GUI_ACTIONS = {
 	close = "CLOSE",
 	name_change = "NAME_CHANGED",
 	search_bar_change = "SEARCH_BAR_CHANGED",
-	open_combinator = "OPEN_COMBINATOR",
 	open_settings = "OPEN_SETTINGS",
 	update_settings = "UPDATE_SETTING",
+	-------------------------------------------------------------------------
+	open_combinator = "OPEN_COMBINATOR",
 	go_to_combinator = "GO_TO_COMBINATOR",
+	hide_combinator = "HIDE_COMBINATOR",
+	show_combinator = "SHOW_COMBINATOR",
+	-------------------------------------------------------------------------
 	filter_signal_update = "FILTER_SIGNAL_UPDATE",
 	switch_filter_state = "SWITCH_FILTER_STATE",
 	name_change_confirm = "NAME_CHANGE_CONFIRM",
@@ -114,6 +118,13 @@ const.STYLES = {
 	settings_title_label = const.SHORT_PREFIX .. "settings_title_label",
 	settings_slider = const.SHORT_PREFIX .. "settings_slider_style",
 	slider_count_label = const.SHORT_PREFIX .. "slider_count_label"
+}
+
+const.BUTTON_STYLES = {
+	edit_button = const.SHORT_PREFIX .. "edit_button",
+	hide_button = const.SHORT_PREFIX .. "hide_button",
+	show_button = const.SHORT_PREFIX .. "show_button",
+	go_to_button = const.SHORT_PREFIX .. "go_to_button"
 }
 
 const.EVENTS = {

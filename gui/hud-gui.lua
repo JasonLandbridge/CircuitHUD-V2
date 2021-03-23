@@ -118,9 +118,10 @@ end
 -- Takes the data from HUD Combinator and display it in the HUD
 -- @param scroll_pane_frame The Root frame
 -- @param hud_combinator The HUD Combinator to process
-local function render_combinator(scroll_pane_frame, unit_number)
+local function render_combinator(scroll_pane_frame, player_index, unit_number)
 	-- Check flow container for the HUD Combinator category if it doesnt exist
 	local hud_combinator = combinator.get_hud_combinator_entity(unit_number)
+	local visible = player_data.get_hud_combinator_visibilty(player_index, unit_number)
 	local flow_id = "hud_combinator_flow_" .. tostring(unit_number)
 	local refs =
 		flib_gui.build(
@@ -147,9 +148,8 @@ local function render_combinator(scroll_pane_frame, unit_number)
 							{type = "empty-widget", style = "flib_horizontal_pusher", ignored_by_interaction = true},
 							{
 								type = "button",
-								name = "CircuitHUD_goto_site_" .. flow_id,
-								tooltip = {"button-tooltips.goto-combinator"},
-								style = "CircuitHUD_goto_site",
+								tooltip = {"chv2_button_tooltips.go_to_combinator"},
+								style = const.BUTTON_STYLES.go_to_button,
 								actions = {
 									on_click = {
 										gui = const.GUI_TYPES.hud,
@@ -160,9 +160,8 @@ local function render_combinator(scroll_pane_frame, unit_number)
 							},
 							{
 								type = "button",
-								name = "CircuitHUD_open_combinator_" .. flow_id,
-								tooltip = {"button-tooltips.open-combinator"},
-								style = "CircuitHUD_open_combinator",
+								tooltip = {"chv2_button_tooltips.open_combinator"},
+								style = const.BUTTON_STYLES.edit_button,
 								actions = {
 									on_click = {
 										gui = const.GUI_TYPES.hud,
@@ -170,100 +169,121 @@ local function render_combinator(scroll_pane_frame, unit_number)
 										unit_number = unit_number
 									}
 								}
+							},
+							{
+								type = "button",
+								tooltip = common.short_if(visible, {"chv2_button_tooltips.hide_combinator"}, {"chv2_button_tooltips.show_combinator"}),
+								style = common.short_if(visible, const.BUTTON_STYLES.hide_button, const.BUTTON_STYLES.show_button),
+								actions = {
+									on_click = {
+										gui = const.GUI_TYPES.hud,
+										action = common.short_if(visible, const.GUI_ACTIONS.hide_combinator, const.GUI_ACTIONS.show_combinator),
+										unit_number = unit_number
+									}
+								}
 							}
 						}
-					},
-					{
-						type = "flow",
-						direction = "vertical",
-						style = "packed_vertical_flow",
-						ref = {"combinator_content"}
 					}
 				}
 			}
 		}
 	)
 
-	-- NOTE: This should remain local as it causes desync and save/load issues if moved elsewhere
-	local signal_name_map = {
-		["item"] = game.item_prototypes,
-		["virtual"] = game.virtual_signal_prototypes,
-		["fluid"] = game.fluid_prototypes
-	}
+	if visible then
+		-- NOTE: This should remain local as it causes desync and save/load issues if moved elsewhere
+		local signal_name_map = {
+			["item"] = game.item_prototypes,
+			["virtual"] = game.virtual_signal_prototypes,
+			["fluid"] = game.fluid_prototypes
+		}
 
-	local combinator_content = refs.combinator_content
-	-- Check if this HUD Combinator has any signals coming in to show in the HUD.
-	local max_columns = player_settings.get_hud_columns_setting(scroll_pane_frame.player_index)
+		local combinator_refs =
+			flib_gui.build(
+			refs["hud_combinator_flow"],
+			{
+				{
+					type = "flow",
+					direction = "vertical",
+					style = "packed_vertical_flow",
+					ref = {"combinator_content"}
+				}
+			}
+		)
 
-	local red_network = hud_combinator.get_circuit_network(defines.wire_type.red)
-	local green_network = hud_combinator.get_circuit_network(defines.wire_type.green)
+		local combinator_content = combinator_refs.combinator_content
+		-- Check if this HUD Combinator has any signals coming in to show in the HUD.
+		local max_columns = player_settings.get_hud_columns_setting(scroll_pane_frame.player_index)
 
-	local networks = {green_network, red_network}
-	local network_colors = {"green", "red"}
-	local network_styles = {"green_circuit_network_content_slot", "red_circuit_network_content_slot"}
-	local signals_filter = combinator.get_hud_combinator_filters(unit_number)
-	local should_filter = combinator.get_hud_combinator_filter_state(unit_number)
+		local red_network = hud_combinator.get_circuit_network(defines.wire_type.red)
+		local green_network = hud_combinator.get_circuit_network(defines.wire_type.green)
 
-	if should_filter and table_size(signals_filter) == 0 then
-		combinator_content.add {type = "label", style = "hud_combinator_label", caption = "Filter is on but no signals have been selected"}
-		return
-	end
+		local networks = {green_network, red_network}
+		local network_colors = {"green", "red"}
+		local network_styles = {"green_circuit_network_content_slot", "red_circuit_network_content_slot"}
+		local signals_filter = combinator.get_hud_combinator_filters(unit_number)
+		local should_filter = combinator.get_hud_combinator_filter_state(unit_number)
 
-	local hide_signal_detected = false
-	local signal_total_count = 0
-	local signal_count = 0
-	-- Display the item signals coming from the red and green circuit if any
-	for i = 1, 2, 1 do
-		-- Check if this color table already exists
-		local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
-		local table = combinator_content.add {type = "table", name = table_name, column_count = max_columns}
+		if should_filter and table_size(signals_filter) == 0 then
+			combinator_content.add {type = "label", style = "hud_combinator_label", caption = "Filter is on but no signals have been selected"}
+			return
+		end
 
-		-- Check if there are signals
-		if networks[i] and networks[i].signals then
-			-- Add to total signal count
-			signal_total_count = signal_total_count + table_size(networks[i].signals)
-			for j, signal in pairs(networks[i].signals) do
-				local signal_type = signal.signal.type
-				local signal_name = signal.signal.name
+		local hide_signal_detected = false
+		local signal_total_count = 0
+		local signal_count = 0
+		-- Display the item signals coming from the red and green circuit if any
+		for i = 1, 2, 1 do
+			-- Check if this color table already exists
+			local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
+			local table = combinator_content.add {type = "table", name = table_name, column_count = max_columns}
 
-				-- Check if any signal is meant to hide everything
-				if hide_signal_detected or signal_name == const.HIDE_SIGNAL_NAME then
-					hide_signal_detected = true
-					break
-				end
+			-- Check if there are signals
+			if networks[i] and networks[i].signals then
+				-- Add to total signal count
+				signal_total_count = signal_total_count + table_size(networks[i].signals)
+				for j, signal in pairs(networks[i].signals) do
+					local signal_type = signal.signal.type
+					local signal_name = signal.signal.name
 
-				-- Check if this signal should be shown based on filtering
-				if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
-					table.add {
-						type = "sprite-button",
-						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
-						number = signal.count,
-						style = network_styles[i],
-						tooltip = signal_name_map[signal_type][signal_name].localised_name
-					}
-					signal_count = signal_count + 1
+					-- Check if any signal is meant to hide everything
+					if hide_signal_detected or signal_name == const.HIDE_SIGNAL_NAME then
+						hide_signal_detected = true
+						break
+					end
+
+					-- Check if this signal should be shown based on filtering
+					if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
+						table.add {
+							type = "sprite-button",
+							sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
+							number = signal.count,
+							style = network_styles[i],
+							tooltip = signal_name_map[signal_type][signal_name].localised_name
+						}
+						signal_count = signal_count + 1
+					end
 				end
 			end
 		end
-	end
 
-	if hide_signal_detected then
-		refs.hud_combinator_flow.destroy()
-		return
-	end
+		if hide_signal_detected then
+			refs.hud_combinator_flow.destroy()
+			return
+		end
 
-	-- No signals were shown due to too strict filtering circuit
-	if signal_count == 0 and signal_total_count > 0 then
-		combinator_content.clear()
-		combinator_content.add {type = "label", style = "hud_combinator_label", caption = "No signals passed filtering"}
-		return
-	end
+		-- No signals were shown due to too strict filtering circuit
+		if signal_count == 0 and signal_total_count > 0 then
+			combinator_content.clear()
+			combinator_content.add {type = "label", style = "hud_combinator_label", caption = "No signals passed filtering"}
+			return
+		end
 
-	-- No signals were shown due to now signals on the connected circuit
-	if signal_count == 0 and signal_total_count == 0 then
-		combinator_content.clear()
-		combinator_content.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
-		return
+		-- No signals were shown due to now signals on the connected circuit
+		if signal_count == 0 and signal_total_count == 0 then
+			combinator_content.clear()
+			combinator_content.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
+			return
+		end
 	end
 end
 
@@ -570,7 +590,7 @@ function gui_hud.update(player_index)
 			-- loop over every HUD Combinator provided
 			for _, hud_combinator in ipairs(hud_combinators_unit_numbers) do
 				if hud_combinator.entity.valid then
-					render_combinator(scroll_pane_frame, hud_combinator.unit_number)
+					render_combinator(scroll_pane_frame, player_index, hud_combinator.unit_number)
 				end
 			end
 		end
@@ -673,6 +693,20 @@ function gui_hud.event_handler(player_index, action)
 	-- Open HUD Combinator
 	if action.action == const.GUI_ACTIONS.open_combinator then
 		event_handler.gui_combinator_create(player_index, unit_number)
+		return
+	end
+
+	-- Show HUD Combinator
+	if action.action == const.GUI_ACTIONS.show_combinator then
+		player_data.set_hud_combinator_visibilty(player_index, unit_number, true)
+		gui_hud.update(player_index)
+		return
+	end
+
+	-- Hide HUD Combinator
+	if action.action == const.GUI_ACTIONS.hide_combinator then
+		player_data.set_hud_combinator_visibilty(player_index, unit_number, false)
+		gui_hud.update(player_index)
 		return
 	end
 

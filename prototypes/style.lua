@@ -28,7 +28,6 @@ default_gui["hud_scrollpane_frame_style"] = {
 
 default_gui["combinator_flow_style"] = {
 	type = "vertical_flow_style",
-	minimal_height = 50,
 	top_padding = 4,
 	right_padding = 4,
 	bottom_padding = 4,

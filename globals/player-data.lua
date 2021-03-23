@@ -45,6 +45,7 @@ end
 function player_data.get_hud_search_text(player_index)
 	return player_data.get_player_global(player_index).search_text
 end
+
 --#endregion
 
 --#region Get HUD Helpers
@@ -91,6 +92,27 @@ end
 
 function player_data.set_hud_element_ref(player_index, key, gui_element)
 	player_data.get_player_global(player_index).elements[key] = gui_element
+end
+
+--#endregion
+
+--#region
+
+local function get_hud_combinator_data(player_index, unit_number)
+	local hud_combinators = player_data.get_player_global(player_index)["hud_combinators"]
+	local hud_combinator = hud_combinators[unit_number]
+	if not hud_combinator then
+		hud_combinators[unit_number] = {visible = true}
+	end
+	return hud_combinators[unit_number]
+end
+
+function player_data.set_hud_combinator_visibilty(player_index, unit_number, state)
+	get_hud_combinator_data(player_index, unit_number).visible = state
+end
+
+function player_data.get_hud_combinator_visibilty(player_index, unit_number)
+	return get_hud_combinator_data(player_index, unit_number).visible
 end
 
 --#endregion
