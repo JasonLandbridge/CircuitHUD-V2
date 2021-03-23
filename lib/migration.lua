@@ -95,7 +95,7 @@ local migrations = {
 				player_settings.set_hud_columns_setting(value)
 
 				-- set_hud_max_height_setting
-				value = settings[setting_prefix .. "hud_max_height"].value
+				value = settings[setting_prefix .. "hud_height"].value
 				player_settings.set_hud_height_setting(value)
 
 				-- set_hide_hud_header_setting

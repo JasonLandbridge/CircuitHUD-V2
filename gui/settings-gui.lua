@@ -4,6 +4,7 @@ local const = require("lib.constants")
 local common = require("lib.common")
 local player_settings = require("globals.player-settings")
 local player_data = require("globals.player-data")
+local event_handler = require("events.event-handler")
 
 local gui_hud = require("gui.hud-gui")
 local gui_settings = {}
@@ -449,6 +450,7 @@ function gui_settings.event_handler(player_index, action)
 		if action.name == const.SETTINGS.hud_position then
 			player_settings.set_hud_position_setting(player_index, const.HUD_POSITION_INDEX[value])
 			gui_hud.reset(player_index)
+			event_handler.gui_hud_collapse_switch(player_index, false)
 			return
 		end
 

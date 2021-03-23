@@ -13,6 +13,7 @@ function event_handler.gui_hud_create(player_index)
 	)
 end
 
+-- Fires an event to collapse/uncollapse the HUD
 function event_handler.gui_hud_collapse_switch(player_index, state)
 	Event.dispatch(
 		{
