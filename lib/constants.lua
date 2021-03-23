@@ -21,6 +21,7 @@ const.HUD_NAMES = {
 	combinator_name_textfield = const.SHORT_PREFIX .. "combinator_name_textfield",
 	combinator_priority_slider = const.SHORT_PREFIX .. "combinator_priority_slider",
 	combinator_priority_value = const.SHORT_PREFIX .. "combinator_priority_value",
+	combinator_signal_preview = const.SHORT_PREFIX .. "combinator_signal_preview",
 	-------------------------------------------------------------------------
 	settings_root_frame = const.SHORT_PREFIX .. "settings_root_frame",
 	settings_hud_columns_slider = const.SHORT_PREFIX .. "settings_hud_columns_slider",

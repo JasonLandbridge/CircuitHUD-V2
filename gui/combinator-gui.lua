@@ -6,7 +6,7 @@ local combinator = require("globals.combinator")
 local common = require("lib.common")
 local event_handler = require("events.event-handler")
 local player_data = require("globals.player-data")
-
+local gui_hud = require("gui.hud-gui")
 local gui_combinator = {}
 
 -- Generates the GUI Elements to be placed in children = {} property of a parent
@@ -171,57 +171,68 @@ function gui_combinator.create(player_index, unit_number)
 							},
 							-- Divider
 							{type = "line", style_mods = {top_margin = 5}},
-							-- On/Off filter switch
+							-- Incoming signals label
 							{
-								type = "flow",
-								direction = "horizontal",
-								style = "flib_titlebar_flow",
-								children = {
-									{
-										type = "label",
-										style = "heading_2_label",
-										style_mods = {top_margin = 4, bottom_margin = 4},
-										caption = {"chv2_combinator_gui.filter_label"}
-									},
-									{
-										type = "flow",
-										direction = "horizontal",
-										style = "flib_titlebar_flow",
-										style_mods = {top_margin = 6, bottom_margin = 4},
-										children = {
-											{
-												type = "switch",
-												switch_state = common.short_if(combinator.get_hud_combinator_filter_state(unit_number), "right", "left"),
-												left_label_caption = {"chv2_combinator_gui.switch_off"},
-												right_label_caption = {"chv2_combinator_gui.switch_on"},
-												actions = {
-													on_switch_state_changed = {
-														gui = const.GUI_TYPES.combinator,
-														action = const.GUI_ACTIONS.switch_filter_state,
-														unit_number = unit_number
-													}
-												}
-											}
-										}
-									}
+								type = "label",
+								caption = {"chv2_combinator_gui.incoming_signals"},
+								style = "heading_2_label"
+							},
+							-- Signal Preview
+							{
+								type = "scroll-pane",
+								direction = "vertical",
+								style = "flib_naked_scroll_pane_no_padding",
+								style_mods = {
+									minimal_height = 100,
+									maximal_height = 250,
+									horizontally_stretchable = true
+								},
+								ref = {
+									const.HUD_NAMES.combinator_signal_preview
 								}
 							},
 							-- Divider
 							{type = "line", style_mods = {top_margin = 5}},
-							-- Signal Table
 							{
 								type = "flow",
 								direction = "vertical",
-								style_mods = {horizontal_align = "center"},
 								children = {
-									-- Filters Label
+									-- On/Off filter switch
 									{
-										type = "label",
-										style = "heading_2_label",
-										style_mods = {top_margin = 5},
-										caption = {"chv2_combinator_gui.filter_signals_label"}
+										type = "flow",
+										direction = "horizontal",
+										style = "flib_titlebar_flow",
+										children = {
+											{
+												type = "label",
+												style = "heading_2_label",
+												style_mods = {top_margin = 4, bottom_margin = 4},
+												caption = {"chv2_combinator_gui.filter_signals_label"}
+											},
+											{
+												type = "flow",
+												direction = "horizontal",
+												style = "flib_titlebar_flow",
+												style_mods = {top_margin = 6, bottom_margin = 4},
+												children = {
+													{
+														type = "switch",
+														switch_state = common.short_if(combinator.get_hud_combinator_filter_state(unit_number), "right", "left"),
+														left_label_caption = {"chv2_combinator_gui.switch_off"},
+														right_label_caption = {"chv2_combinator_gui.switch_on"},
+														actions = {
+															on_switch_state_changed = {
+																gui = const.GUI_TYPES.combinator,
+																action = const.GUI_ACTIONS.switch_filter_state,
+																unit_number = unit_number
+															}
+														}
+													}
+												}
+											}
+										}
 									},
-									-- Filters Signals
+									-- Filters Signals table
 									{
 										type = "frame",
 										direction = "vertical",
@@ -308,6 +319,9 @@ function gui_combinator.create(player_index, unit_number)
 
 	refs.hud_preview.entity = hud_combinator.entity
 
+	-- Render the preview signals
+	gui_hud.render_signals(hud_combinator, refs[const.HUD_NAMES.combinator_signal_preview], 10, {})
+
 	-- We need to overwrite the "to be opened GUI" with our own GUI
 	player.opened = root_frame
 	player.opened.force_auto_center()
@@ -315,6 +329,7 @@ function gui_combinator.create(player_index, unit_number)
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_title_label, refs[const.HUD_NAMES.combinator_title_label])
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_priority_slider, refs[const.HUD_NAMES.combinator_priority_slider])
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_priority_value, refs[const.HUD_NAMES.combinator_priority_value])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_signal_preview, refs[const.HUD_NAMES.combinator_signal_preview])
 
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_name_textfield, refs[const.HUD_NAMES.combinator_name_textfield])
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_root_frame, root_frame)
