@@ -446,7 +446,7 @@ function gui_hud.create(player_index)
 	end
 
 	-- Add toggle button
-	if (is_header_hidden and is_collapsed) or (not is_header_hidden and is_collapsed) then
+	if (is_header_hidden and is_collapsed) or (not is_header_hidden and is_collapsed) or (not is_header_hidden and not is_collapsed) then
 		local toggle_refs =
 			flib_gui.build(
 			header_flow,

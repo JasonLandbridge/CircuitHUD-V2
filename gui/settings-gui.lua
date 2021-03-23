@@ -29,6 +29,7 @@ function gui_settings.create(player_index)
 					minimal_width = 500,
 					maximal_width = 500
 				},
+				name = const.HUD_NAMES.settings_root_frame,
 				ref = {
 					const.HUD_NAMES.settings_root_frame
 				},

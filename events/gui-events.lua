@@ -89,9 +89,18 @@ Event.register(
 	defines.events.on_gui_closed,
 	function(event)
 		-- check if it's and HUD Combinator GUI and close that
-		if (not (event.element == nil)) and std_string.starts_with(event.element.name, const.HUD_NAMES.combinator_root_frame) then
+		if (event.element) then
+			-- Destroy Settings Gui
+			if event.element.name == const.HUD_NAMES.settings_root_frame then
+				gui_settings.destroy(event.player_index)
+				return
+			end
+
 			-- Destroy HUD Combinator Gui
-			gui_combinator.destroy(event.player_index, event.element.name)
+			if event.element.name == const.HUD_NAMES.combinator_root_frame then
+				gui_combinator.destroy(event.player_index, event.element.name)
+				return
+			end
 		end
 	end
 )

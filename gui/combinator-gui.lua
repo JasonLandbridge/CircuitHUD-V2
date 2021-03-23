@@ -52,14 +52,13 @@ function gui_combinator.create(player_index, unit_number)
 
 	-- add the frame
 	local hud_combinator = combinator.get_hud_combinator(unit_number)
-	local ui_name = const.HUD_NAMES.combinator_root_frame .. "_" .. tostring(unit_number)
 	local refs =
 		flib_gui.build(
 		player.gui.screen,
 		{
 			{
 				type = "frame",
-				name = ui_name,
+				name = const.HUD_NAMES.combinator_root_frame,
 				style_mods = {
 					minimal_width = 450,
 					maximal_width = 450
