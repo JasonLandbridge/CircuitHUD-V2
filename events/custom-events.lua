@@ -50,9 +50,9 @@ register_event(
 
 --#region GUI Combinator
 register_event(
-	const.EVENTS.gui_combinator_create,
+	const.EVENTS.open_hud_combinator,
 	function(event)
-		gui_combinator.create(event.player_index, event.unit_number)
+		gui_combinator.reset(event.player_index, event.unit_number)
 	end
 )
 --#endregion

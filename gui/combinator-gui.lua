@@ -380,8 +380,20 @@ function gui_combinator.destroy(player_index, name)
 	end
 end
 
+function gui_combinator.destroy_all(player_index)
+	local player = common.get_player(player_index)
+	if player then
+		local gui_windows = player.gui.screen.children
+		for _, value in pairs(gui_windows) do
+			if value.name == const.HUD_NAMES.combinator_root_frame then
+				return value.destroy()
+			end
+		end
+	end
+end
+
 function gui_combinator.reset(player_index, unit_number)
-	gui_combinator.destroy(player_index, unit_number)
+	gui_combinator.destroy_all(player_index)
 	gui_combinator.create(player_index, unit_number)
 	gui_combinator.update(player_index, unit_number)
 end

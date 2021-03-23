@@ -134,7 +134,7 @@ const.EVENTS = {
 	gui_hud_collapse_switch = const.SHORT_PREFIX .. "gui_hud_collapse_switch",
 	gui_hud_reset_all_players = const.SHORT_PREFIX .. "gui_hud_reset_all_players",
 	gui_hud_size_changed = const.SHORT_PREFIX .. "gui_hud_size_changed",
-	gui_combinator_create = const.SHORT_PREFIX .. "gui_combinator_create",
+	open_hud_combinator = const.SHORT_PREFIX .. "gui_open_hud_combinator",
 	gui_settings_open = const.SHORT_PREFIX .. "gui_settings_open",
 	gui_settings_create = const.SHORT_PREFIX .. "gui_settings_create"
 }

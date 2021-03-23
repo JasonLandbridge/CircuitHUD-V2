@@ -55,10 +55,10 @@ end
 
 --#region GUI Combinator
 
-function event_handler.gui_combinator_create(player_index, unit_number)
+function event_handler.open_hud_combinator(player_index, unit_number)
 	Event.dispatch(
 		{
-			input_name = Event.generate_event_name(const.EVENTS.gui_combinator_create),
+			input_name = Event.generate_event_name(const.EVENTS.open_hud_combinator),
 			player_index = player_index,
 			unit_number = unit_number
 		}

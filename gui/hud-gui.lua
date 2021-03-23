@@ -716,7 +716,7 @@ function gui_hud.event_handler(player_index, action)
 
 	-- Open HUD Combinator
 	if action.action == const.GUI_ACTIONS.open_combinator then
-		event_handler.gui_combinator_create(player_index, unit_number)
+		event_handler.open_hud_combinator(player_index, unit_number)
 		return
 	end
 
