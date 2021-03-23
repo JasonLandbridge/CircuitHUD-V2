@@ -19,7 +19,7 @@ function player_settings.default_player_settings()
 	settings[const.SETTINGS.hud_title] = "Circuit HUD V2"
 	settings[const.SETTINGS.hud_position] = const.HUD_POSITION.bottom_right
 	settings[const.SETTINGS.hud_columns] = 8
-	settings[const.SETTINGS.hud_max_height] = 600
+	settings[const.SETTINGS.hud_height] = 600
 	settings[const.SETTINGS.hud_refresh_rate] = 60
 	settings[const.SETTINGS.hud_sort] = const.HUD_SORT.none
 	settings[const.SETTINGS.uncollapse_hud_on_register_combinator] = true
@@ -46,8 +46,8 @@ function player_settings.get_hud_columns_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.hud_columns)
 end
 
-function player_settings.get_hud_max_height_setting(player_index)
-	return player_settings.get_setting(player_index, const.SETTINGS.hud_max_height)
+function player_settings.get_hud_height_setting(player_index)
+	return player_settings.get_setting(player_index, const.SETTINGS.hud_height)
 end
 
 function player_settings.get_hide_hud_header_setting(player_index)
@@ -97,8 +97,8 @@ function player_settings.set_hud_columns_setting(player_index, value)
 	player_settings.set_setting(player_index, const.SETTINGS.hud_columns, value)
 end
 
-function player_settings.set_hud_max_height_setting(player_index, value)
-	player_settings.set_setting(player_index, const.SETTINGS.hud_max_height, value)
+function player_settings.set_hud_height_setting(player_index, value)
+	player_settings.set_setting(player_index, const.SETTINGS.hud_height, value)
 end
 
 function player_settings.set_hide_hud_header_setting(player_index, state)

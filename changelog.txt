@@ -5,6 +5,7 @@ Date: 2021-03-21
     - HUD Combinators have signal filtering functionality, this avoids long chains of arithmetic combinators to get the right signal display!
     - The HUD now has buttons for each HUD Combinator, which means you can now edit from anywhere, zoom to and hide each HUD Combinator!
     - You can now search and filter for HUD Combinators straight from the HUD itself (Thanks @Taurondir for the idea!)
+    - Greatly improved the size and position control of the HUD!
     - Added more helpful messages in the HUD based on the HUD Combinator state!
     - Player specific settings are no longer accessible in the Mod settings but are now configurable from the Circuit HUD directly (Thanks @AngrySlipper for the idea!)
     - Added hotkeys for Toggeling the HUD (default: "CONTROL + SHIFT + S") and opening the settings window (default: "CONTROL + ALT + S")

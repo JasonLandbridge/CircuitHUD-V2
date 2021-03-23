@@ -47,7 +47,7 @@ data:extend(
 		},
 		{
 			type = "int-setting",
-			name = const.SETTINGS.prefix .. const.SETTINGS.hud_max_height,
+			name = const.SETTINGS.prefix .. const.SETTINGS.hud_height,
 			setting_type = "runtime-per-user",
 			default_value = 600,
 			minimum_value = 200,
