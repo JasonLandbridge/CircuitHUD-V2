@@ -257,7 +257,7 @@ hudCombinatorEntity.sprites = {
 hudCombinatorEntity.fast_replaceable_group = "constant-combinator"
 hudCombinatorEntity.next_upgrade = nil
 hudCombinatorEntity.item_slot_count = 0
-hudCombinatorEntity.minable = {mining_time = 3.0, result = hud_combinator_name}
+hudCombinatorEntity.minable = {mining_time = 1.0, result = hud_combinator_name}
 
 --#endregion
 

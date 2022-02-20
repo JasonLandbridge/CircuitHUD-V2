@@ -10,6 +10,8 @@ local gui_hud = require("gui.hud-gui")
 local gui_combinator = {}
 
 -- Generates the GUI Elements to be placed in children = {} property of a parent
+---@param unit_number number
+---@return table
 local function generate_signal_filter_table(unit_number)
 	if not unit_number then
 		return
@@ -17,6 +19,7 @@ local function generate_signal_filter_table(unit_number)
 
 	local result = {}
 	local filters = combinator.get_hud_combinator_filters(unit_number)
+
 	for i = 1, 50, 1 do
 		result[i] = {
 			name = "circuit_hud_signal_button__" .. i,
