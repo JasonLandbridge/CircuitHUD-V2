@@ -1,4 +1,4 @@
-local flib_gui = require("__flib__.gui")
+local flib_gui = require("gui")
 
 local const = require("lib.constants")
 local common = require("lib.common")
@@ -20,7 +20,7 @@ function gui_settings.create(player_index)
 	local player = common.get_player(player_index)
 
 	local refs =
-		flib_gui.add(
+		flib_gui.build(
 			player.gui.screen,
 			{
 				{

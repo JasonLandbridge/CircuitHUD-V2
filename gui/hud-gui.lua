@@ -1,5 +1,6 @@
+local stdlib_math = require("__kry_stdlib__/stdlib/utils/math")
 local stdlib_string = require("__kry_stdlib__/stdlib/utils/string")
-local flib_gui = require("__flib__.gui")
+local flib_gui = require("gui")
 
 local const = require("lib.constants")
 local common = require("lib.common")
@@ -128,7 +129,6 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 	network_styles[defines.wire_type.green] = "green_circuit_network_content_slot"
 	network_styles[defines.wire_type.red] = "red_circuit_network_content_slot"
 
-
 	-- NOTE: This should remain local as it causes desync and save/load issues if moved elsewhere
 	local signal_name_map = {
 		["item"] = prototypes.item,
@@ -144,7 +144,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 		-- Check if this color table already exists
 		local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
 		local table =
-			flib_gui.add(
+			flib_gui.build(
 				parent_gui,
 				{
 					{
@@ -164,6 +164,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 			-- Add to total signal count
 			signal_total_count = signal_total_count + table_size(networks[i].signals)
 			for j, signal in pairs(networks[i].signals) do
+				local signal_type = signal.signal.type
 				local signal_name = signal.signal.name
 
 				-- Check if any signal is meant to hide everything
@@ -190,9 +191,9 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 
 				-- Check if this signal should be shown based on filtering
 				if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
-					table[table_name].add {
+					table["table"].add {
 						type = "sprite-button",
-						sprite = "item/" .. signal_name,
+						sprite = "item" .. "/" .. signal_name,
 						number = signal.count,
 						style = style,
 						tooltip = localised_name
@@ -219,7 +220,7 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 	local visible = player_data.get_hud_combinator_visibilty(player_index, unit_number)
 	local flow_id = "hud_combinator_flow_" .. tostring(unit_number)
 	local refs =
-		flib_gui.add(
+		flib_gui.build(
 			scroll_pane_frame,
 			{
 				{
@@ -289,19 +290,19 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 
 	if visible then
 		local combinator_refs =
-			flib_gui.add(
-				refs[flow_id],
+			flib_gui.build(
+				refs["hud_combinator_flow"],
 				{
-					type = "flow",
-					direction = "vertical",
-					style = "packed_vertical_flow",
-					ref = { "combinator_content" },
-					name = "combinator_content"
+					{
+						type = "flow",
+						direction = "vertical",
+						style = "packed_vertical_flow",
+						ref = { "combinator_content" }
+					}
 				}
-
 			)
 
-		local combinator_content = combinator_refs["combinator_content"]
+		local combinator_content = combinator_refs.combinator_content
 		-- Check if this HUD Combinator has any signals coming in to show in the HUD.
 		local max_columns = player_settings.get_hud_columns_setting(scroll_pane_frame.player_index)
 		local signals_filter = combinator.get_hud_combinator_filters(unit_number)
@@ -367,29 +368,28 @@ function gui_hud.create(player_index)
 	end
 
 	local root_refs =
-		flib_gui.add(
+		flib_gui.build(
 			parent_ref,
 			{
-				type = "frame",
-				direction = "vertical",
-				name = const.HUD_NAMES.hud_root_frame,
-				style = const.STYLES.hud_root_frame_style,
-				ref = { const.HUD_NAMES.hud_root_frame },
+				{
+					type = "frame",
+					direction = "vertical",
+					name = const.HUD_NAMES.hud_root_frame,
+					style = const.STYLES.hud_root_frame_style,
+					ref = { const.HUD_NAMES.hud_root_frame },
+					children = {
+						{
+							type = "flow",
+							direction = "horizontal",
+							ref = { const.HUD_NAMES.hud_header_flow }
+						}
+					}
+				}
 			}
 		)
 
-	log("what is this")
-
 	local root_frame = root_refs[const.HUD_NAMES.hud_root_frame]
-
-	local frame_refs = flib_gui.add(root_frame, {
-		type = "flow",
-		direction = "horizontal",
-		name = const.HUD_NAMES.hud_header_flow,
-		ref = { const.HUD_NAMES.hud_header_flow }
-	})
-
-	local header_flow = frame_refs[const.HUD_NAMES.hud_header_flow]
+	local header_flow = root_refs[const.HUD_NAMES.hud_header_flow]
 
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_root_frame, root_frame)
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.hud_header_flow, header_flow)
@@ -406,7 +406,7 @@ function gui_hud.create(player_index)
 		end
 
 		local header_refs =
-			flib_gui.add(
+			flib_gui.build(
 				header_flow,
 				{
 					-- add the title label
@@ -502,7 +502,7 @@ function gui_hud.create(player_index)
 	-- Add toggle button
 	if (is_header_hidden and is_collapsed) or (not is_header_hidden and is_collapsed) or (not is_header_hidden and not is_collapsed) then
 		local toggle_refs =
-			flib_gui.add(
+			flib_gui.build(
 				header_flow,
 				{
 					{
@@ -530,7 +530,7 @@ function gui_hud.create(player_index)
 
 	if not is_collapsed then
 		local body_refs =
-			flib_gui.add(
+			flib_gui.build(
 				root_frame,
 				{
 					{
@@ -634,7 +634,7 @@ function gui_hud.update(player_index)
 
 		-- Check if there were no search results.
 		if text ~= "" and table_size(hud_combinators_unit_numbers) == 0 then
-			flib_gui.add(
+			flib_gui.build(
 				scroll_pane_frame,
 				{
 					{
@@ -742,7 +742,7 @@ function gui_hud.event_handler(player_index, action)
 			local hud_combinator = combinator.get_hud_combinator_entity(unit_number)
 			if hud_combinator and hud_combinator.valid then
 				-- open the map on the coordinates
-				player.zoom_to_world(hud_combinator.position, 2)
+				player.centered_on = hud_combinator
 			end
 		end
 		return

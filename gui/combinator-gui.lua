@@ -1,4 +1,5 @@
-local flib_gui = require("__flib__.gui")
+local flib_gui = require("gui")
+local std_string = require("__kry_stdlib__/stdlib/utils/string")
 
 local const = require("lib.constants")
 local combinator = require("globals.combinator")
@@ -53,7 +54,7 @@ function gui_combinator.create(player_index, unit_number)
 	-- add the frame
 	local hud_combinator = combinator.get_hud_combinator(unit_number)
 	local refs =
-		flib_gui.add(
+		flib_gui.build(
 			player.gui.screen,
 			{
 				{
