@@ -44,26 +44,15 @@ Event.on_nth_tick(
 	1,
 	function(event)
 		-- go through each player and update their HUD based on the HUD Refresh rate
-		log("on nth tick")
-		if event == nil then
-			log("nil event?")
-		else
-			for _, player in pairs(game.players) do
-				log("in loop")
-				log("event.tick " .. event.tick)
-				local setting = player_settings.get_hud_refresh_rate_setting(player.index)
+		for _, player in pairs(game.players) do
+			local setting = player_settings.get_hud_refresh_rate_setting(player.index)
 
-				if setting == nil then
-					log("refresh was nil")
-					setting = 60
-				end
+			if setting == nil then
+				setting = 60
+			end
 
-
-
-				if event.tick % setting == 0 then
-					log("in event check")
-					gui_hud.update(player.index)
-				end
+			if event.tick % setting == 0 then
+				gui_hud.update(player.index)
 			end
 		end
 	end
