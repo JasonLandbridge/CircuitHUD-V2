@@ -10,6 +10,9 @@ local gui_settings = require("gui.settings-gui")
 local gui_hud = require("gui.hud-gui")
 
 
+-- Legacy flib GUI functions, though they don't work properly as I don't understand what read_action is trying to do.
+-- All the .tags are empty so it bails out early
+
 local mod_name = script.mod_name
 local gui_event_defines = {}
 local event_id_to_string_mapping = {}
@@ -26,9 +29,20 @@ local function read_action_legacy(event_data)
 		return
 	end
 
-	local event_name = event_id_to_string_mapping[event_data.name]
+	local mod_tags = elem.tags[mod_name]
+	if not mod_tags then
+		return
+	end
 
-	return event_name
+	local elem_actions = mod_tags.flib
+	if not elem_actions then
+		return
+	end
+
+	local event_name = event_id_to_string_mapping[event_data.name]
+	local msg = elem_actions[event_name]
+
+	return msg
 end
 
 local function gui_update(event)
