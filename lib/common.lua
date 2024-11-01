@@ -1,5 +1,5 @@
 local player_settings = require("globals.player-settings")
-local stdlib_Is = require("__stdlib__/stdlib/utils/is")
+local stdlib_Is = require("__kry_stdlib__/stdlib/utils/is")
 
 local common = {}
 -- Gets the player object by player reference

@@ -2,6 +2,12 @@ local const = require("lib.constants")
 
 local player_settings = {}
 
+if global == nil then
+	global = {}
+	global.players = {}
+	global.hud_combinators = {}
+end
+
 function player_settings.get_setting(player_index, string_path)
 	if global.players and global.players[player_index] and global.players[player_index]["settings"] then
 		return global.players[player_index]["settings"][string_path]
