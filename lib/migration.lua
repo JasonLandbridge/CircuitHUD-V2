@@ -1,4 +1,4 @@
-local Event = require("__stdlib__/stdlib/event/event")
+local Event = require("__kry_stdlib__/stdlib/event/event")
 local migration = require("__flib__.migration")
 local const = require("lib.constants")
 local base_global = require("globals.base-global")

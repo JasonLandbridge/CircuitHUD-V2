@@ -90,7 +90,12 @@ const.HUD_SORT = {
 const.SIGNAL_TYPE_MAP = {
 	["item"] = "item",
 	["virtual"] = "virtual-signal",
-	["fluid"] = "fluid"
+	["fluid"] = "fluid",
+	["entity"] = "entity",
+	["recipe"] = "recipe",
+	["space-location"] = "space-location",
+	["quality"] = "quality",
+	["asteroid-chunk"] = "asteroid-chunk"
 }
 
 const.GUI_ACTIONS = {

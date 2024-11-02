@@ -1,6 +1,5 @@
-local Event = require("__stdlib__/stdlib/event/event")
-local flib_gui = require("__flib__.gui-beta")
-local std_string = require("__stdlib__/stdlib/utils/string")
+local Event = require("__kry_stdlib__/stdlib/event/event")
+local flib_gui = require("gui")
 
 local const = require("lib.constants")
 local player_settings = require("globals.player-settings")

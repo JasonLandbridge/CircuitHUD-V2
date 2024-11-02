@@ -270,8 +270,8 @@ hudCombinatorItem.icon_size = 64
 
 --#region  The HUD Combinator Recipe
 local hudCombinatorRecipe = flib_data_util.copy_prototype(data.raw.recipe["iron-chest"], hud_combinator_name)
-hudCombinatorRecipe.ingredients = {{"electronic-circuit", 2}, {"copper-cable", 5}}
-hudCombinatorRecipe.result = hud_combinator_name
+hudCombinatorRecipe.ingredients = {{type="item", name="electronic-circuit", amount=2}, {type="item", name="copper-cable", amount=5}}
+hudCombinatorRecipe.results = {{type="item", name=hud_combinator_name, amount=1}}
 --#endregion
 
 data:extend {hudCombinatorEntity, hudCombinatorItem, hudCombinatorRecipe}
