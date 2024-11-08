@@ -110,14 +110,14 @@ end
 Event.register(
 	defines.events.on_built_entity,
 	function(event)
-		set_combinator_registration(event.created_entity, true)
+		set_combinator_registration(event.entity, true)
 	end
 )
 
 Event.register(
 	defines.events.on_robot_built_entity,
 	function(event)
-		set_combinator_registration(event.created_entity, true)
+		set_combinator_registration(event.entity, true)
 	end
 )
 
