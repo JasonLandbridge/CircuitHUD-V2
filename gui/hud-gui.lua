@@ -1,6 +1,5 @@
-local stdlib_math = require("__stdlib__/stdlib/utils/math")
-local stdlib_string = require("__stdlib__/stdlib/utils/string")
-local flib_gui = require("__flib__.gui-beta")
+local stdlib_string = require("stdlib/utils/string")
+local flib_gui = require("__flib__.gui")
 
 local const = require("lib.constants")
 local common = require("lib.common")

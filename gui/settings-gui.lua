@@ -1,4 +1,4 @@
-local flib_gui = require("__flib__.gui-beta")
+local flib_gui = require("__flib__.gui")
 
 local const = require("lib.constants")
 local common = require("lib.common")

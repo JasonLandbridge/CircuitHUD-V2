@@ -1,5 +1,5 @@
-local flib_data_util = require("__flib__.data-util")
-local const = require("lib.constants")
+local flib_data_util = require('__flib__.data-util')
+local const = require('lib.constants')
 local hud_combinator_name = const.HUD_COMBINATOR_NAME
 
 --#region The HUD Combinator Entity

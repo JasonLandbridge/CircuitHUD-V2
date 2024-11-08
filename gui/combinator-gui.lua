@@ -1,5 +1,4 @@
-local flib_gui = require("__flib__.gui-beta")
-local std_string = require("__stdlib__/stdlib/utils/string")
+local flib_gui = require('__flib__.gui')
 
 local const = require("lib.constants")
 local combinator = require("globals.combinator")

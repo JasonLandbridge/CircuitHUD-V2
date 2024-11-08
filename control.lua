@@ -1,5 +1,4 @@
-local mod_gui = require "mod-gui"
-local Event = require("__stdlib__/stdlib/event/event")
+local Event = require("stdlib/event/event")
 
 local const = require("lib.constants")
 local common = require("lib.common")

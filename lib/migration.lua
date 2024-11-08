@@ -1,4 +1,4 @@
-local Event = require("__stdlib__/stdlib/event/event")
+local Event = require("stdlib/event/event")
 local migration = require("__flib__.migration")
 local const = require("lib.constants")
 local base_global = require("globals.base-global")
@@ -6,9 +6,7 @@ local combinator = require("globals.combinator")
 local player_settings = require("globals.player-settings")
 local player_data = require("globals.player-data")
 
-local gui_hud = require "gui.hud-gui"
-local gui_combinator = require "gui.combinator-gui"
-local gui_settings = require "gui.settings-gui"
+local gui_hud = require("gui.hud-gui")
 
 -- each function will be run when upgrading from a version older than it
 -- for example, if we were upgraing from 1.0.3 to 1.1.0, the last two functions would run, but not the first
