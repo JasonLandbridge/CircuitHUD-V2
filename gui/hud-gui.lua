@@ -8,6 +8,7 @@ local combinator = require("globals.combinator")
 local player_data = require("globals.player-data")
 local event_handler = require("events.event-handler")
 
+local gui_handlers = {}
 local gui_hud = {}
 
 -- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
@@ -127,9 +128,9 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 
 	-- NOTE: This should remain local as it causes desync and save/load issues if moved elsewhere
 	local signal_name_map = {
-		["item"] = game.item_prototypes,
-		["virtual"] = game.virtual_signal_prototypes,
-		["fluid"] = game.fluid_prototypes
+		["item"] = prototypes.item,
+		["virtual"] = prototypes.virtual_signal,
+		["fluid"] = prototypes.fluid
 	}
 
 	local hide_signal_detected = false
@@ -140,14 +141,14 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 		-- Check if this color table already exists
 		local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
 		local table =
-			flib_gui.build(
+			flib_gui.add(
 			parent_gui,
 			{
 				{
 					type = "table",
 					name = table_name,
 					column_count = max_columns,
-					ref = {"table"},
+-- 					ref = {"table"},
 					style_mods = {
 						top_margin = 4
 					}
@@ -204,7 +205,7 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 	local visible = player_data.get_hud_combinator_visibilty(player_index, unit_number)
 	local flow_id = "hud_combinator_flow_" .. tostring(unit_number)
 	local refs =
-		flib_gui.build(
+		flib_gui.add(
 		scroll_pane_frame,
 		{
 			{
@@ -212,7 +213,6 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 				direction = "vertical",
 				name = flow_id,
 				style = "combinator_flow_style",
-				ref = {"hud_combinator_flow"},
 				children = {
 					{
 						type = "flow",
@@ -230,36 +230,33 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 								type = "button",
 								tooltip = {"chv2_button_tooltips.go_to_combinator"},
 								style = const.BUTTON_STYLES.go_to_button,
-								actions = {
-									on_click = {
-										gui = const.GUI_TYPES.hud,
-										action = const.GUI_ACTIONS.go_to_combinator,
-										unit_number = unit_number
-									}
+								handler = {
+									[defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.go_to_combinator],
+                                },
+                                tags = {
+										unit_number = unit_number,
 								}
 							},
 							{
 								type = "button",
 								tooltip = {"chv2_button_tooltips.open_combinator"},
 								style = const.BUTTON_STYLES.edit_button,
-								actions = {
-									on_click = {
-										gui = const.GUI_TYPES.hud,
-										action = const.GUI_ACTIONS.open_combinator,
-										unit_number = unit_number
-									}
+								handler = {
+									[defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.open_combinator],
+                                },
+                                tags = {
+										unit_number = unit_number,
 								}
 							},
 							{
 								type = "button",
 								tooltip = common.short_if(visible, {"chv2_button_tooltips.hide_combinator"}, {"chv2_button_tooltips.show_combinator"}),
 								style = common.short_if(visible, const.BUTTON_STYLES.hide_button, const.BUTTON_STYLES.show_button),
-								actions = {
-									on_click = {
-										gui = const.GUI_TYPES.hud,
-										action = common.short_if(visible, const.GUI_ACTIONS.hide_combinator, const.GUI_ACTIONS.show_combinator),
-										unit_number = unit_number
-									}
+								handler = {
+									[defines.events.on_gui_click] = gui_handlers[common.short_if(visible, const.GUI_ACTIONS.hide_combinator, const.GUI_ACTIONS.show_combinator)],
+                                },
+                                tags = {
+										unit_number = unit_number,
 								}
 							}
 						}
@@ -271,14 +268,14 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 
 	if visible then
 		local combinator_refs =
-			flib_gui.build(
-			refs["hud_combinator_flow"],
+			flib_gui.add(
+			refs[flow_id],
 			{
 				{
 					type = "flow",
 					direction = "vertical",
 					style = "packed_vertical_flow",
-					ref = {"combinator_content"}
+                    name = 'combinator_content',
 				}
 			}
 		)
@@ -348,8 +345,10 @@ function gui_hud.create(player_index)
 		parent_ref = player.gui.screen
 	end
 
+    assert(parent_ref)
+
 	local root_refs =
-		flib_gui.build(
+		flib_gui.add(
 		parent_ref,
 		{
 			{
@@ -357,12 +356,11 @@ function gui_hud.create(player_index)
 				direction = "vertical",
 				name = const.HUD_NAMES.hud_root_frame,
 				style = const.STYLES.hud_root_frame_style,
-				ref = {const.HUD_NAMES.hud_root_frame},
 				children = {
 					{
 						type = "flow",
 						direction = "horizontal",
-						ref = {const.HUD_NAMES.hud_header_flow}
+						name = const.HUD_NAMES.hud_header_flow,
 					}
 				}
 			}
@@ -387,7 +385,7 @@ function gui_hud.create(player_index)
 		end
 
 		local header_refs =
-			flib_gui.build(
+			flib_gui.add(
 			header_flow,
 			{
 				-- add the title label
@@ -395,7 +393,6 @@ function gui_hud.create(player_index)
 					type = "label",
 					style = "frame_title",
 					name = const.HUD_NAMES.hud_title_label,
-					ref = {const.HUD_NAMES.hud_title_label},
 					caption = player_settings.get_hud_title_setting(player_index)
 				},
 				-- either a draggable frame bar or empty space
@@ -403,7 +400,6 @@ function gui_hud.create(player_index)
 					type = "empty-widget",
 					style = header_style,
 					name = const.HUD_NAMES.hud_header_spacer,
-					ref = {const.HUD_NAMES.hud_header_spacer}
 				},
 				-- Search Text Field
 				{
@@ -412,53 +408,37 @@ function gui_hud.create(player_index)
 					name = const.HUD_NAMES.hud_search_text_field,
 					style_mods = {top_margin = -3, bottom_margin = 3},
 					visible = false,
-					ref = {const.HUD_NAMES.hud_search_text_field},
-					actions = {
-						on_text_changed = {
-							gui = const.GUI_TYPES.hud,
-							action = const.GUI_ACTIONS.search_bar_change
-						}
-					}
+					handler = {
+                        [defines.events.on_gui_text_changed] = gui_handlers[const.GUI_ACTIONS.search_bar_change],
+                    },
 				},
 				-- Search Button
 				{
 					type = "sprite-button",
 					style = "frame_action_button",
 					name = const.HUD_NAMES.hud_search_button,
-					ref = {
-						const.HUD_NAMES.hud_search_button
-					},
 					tooltip = {"rcalc-gui.search-instruction"},
-					sprite = "utility/search_white",
-					hovered_sprite = "utility/search_black",
-					clicked_sprite = "utility/search_black",
+					sprite = "utility/search",
+					hovered_sprite = "utility/search",
+					clicked_sprite = "utility/search",
 					mouse_button_filter = {"left"},
-					actions = {
-						on_click = {
-							gui = const.GUI_TYPES.hud,
-							action = const.GUI_ACTIONS.toggle_search_bar
-						}
-					}
+					handler = {
+                        [defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.toggle_search_bar],
+                    },
 				},
 				-- Settings Button
 				{
 					type = "sprite-button",
 					style = "frame_action_button",
 					name = const.HUD_NAMES.hud_settings_button,
-					ref = {
-						const.HUD_NAMES.hud_settings_button
-					},
 					tooltip = {"rb-gui.settings"},
 					sprite = "rb_settings_white",
 					hovered_sprite = "rb_settings_black",
 					clicked_sprite = "rb_settings_black",
 					mouse_button_filter = {"left"},
-					actions = {
-						on_click = {
-							gui = const.GUI_TYPES.hud,
-							action = const.GUI_ACTIONS.open_settings
-						}
-					}
+					handler = {
+                        [defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.open_settings],
+                    },
 				}
 			}
 		)
@@ -478,7 +458,7 @@ function gui_hud.create(player_index)
 	-- Add toggle button
 	if (is_header_hidden and is_collapsed) or (not is_header_hidden and is_collapsed) or (not is_header_hidden and not is_collapsed) then
 		local toggle_refs =
-			flib_gui.build(
+			flib_gui.add(
 			header_flow,
 			{
 				{
@@ -486,16 +466,10 @@ function gui_hud.create(player_index)
 					type = "sprite-button",
 					name = const.HUD_NAMES.hud_toggle_button,
 					style = "frame_action_button",
-					ref = {
-						const.HUD_NAMES.hud_toggle_button
-					},
 					sprite = (player_data.get_hud_collapsed(player_index) == true) and "utility/expand" or "utility/collapse",
-					actions = {
-						on_click = {
-							gui = const.GUI_TYPES.hud,
-							action = const.GUI_ACTIONS.toggle
-						}
-					}
+					handler = {
+                        [defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.toggle],
+                    },
 				}
 			}
 		)
@@ -504,7 +478,7 @@ function gui_hud.create(player_index)
 
 	if not is_collapsed then
 		local body_refs =
-			flib_gui.build(
+			flib_gui.add(
 			root_frame,
 			{
 				{
@@ -516,9 +490,6 @@ function gui_hud.create(player_index)
 						horizontal_align = "center",
 						vertically_stretchable = true
 					},
-					ref = {
-						const.HUD_NAMES.hud_scroll_pane
-					},
 					children = {
 						{
 							type = "flow",
@@ -527,9 +498,6 @@ function gui_hud.create(player_index)
 							style_mods = {
 								horizontal_align = "center",
 								vertically_stretchable = true
-							},
-							ref = {
-								const.HUD_NAMES.hud_scroll_pane_frame
 							},
 							direction = "vertical"
 						}
@@ -604,7 +572,7 @@ function gui_hud.update(player_index)
 
 		-- Check if there were no search results.
 		if text ~= "" and table_size(hud_combinators_unit_numbers) == 0 then
-			flib_gui.build(
+			flib_gui.add(
 				scroll_pane_frame,
 				{
 					{
@@ -694,79 +662,6 @@ function gui_hud.calculate_hud_size(player_index)
 	event_handler.gui_hud_size_changed(player_index, new_size)
 end
 
-function gui_hud.event_handler(player_index, action)
-	local player = common.get_player(player_index)
-	local unit_number = action["unit_number"]
-
-	-- Toggle HUD collapse/expand
-	if action.action == const.GUI_ACTIONS.toggle then
-		local toggle_state = not player_data.get_hud_collapsed(player_index)
-		gui_hud.update_collapse_state(player_index, toggle_state)
-		return
-	end
-
-	if action.action == const.GUI_ACTIONS.go_to_combinator then
-		if unit_number then
-			-- find the entity
-			local hud_combinator = combinator.get_hud_combinator_entity(unit_number)
-			if hud_combinator and hud_combinator.valid then
-				-- open the map on the coordinates
-				player.zoom_to_world(hud_combinator.position, 2)
-			end
-		end
-		return
-	end
-
-	-- Open HUD Combinator
-	if action.action == const.GUI_ACTIONS.open_combinator then
-		event_handler.open_hud_combinator(player_index, unit_number)
-		return
-	end
-
-	-- Show HUD Combinator
-	if action.action == const.GUI_ACTIONS.show_combinator then
-		player_data.set_hud_combinator_visibilty(player_index, unit_number, true)
-		gui_hud.update(player_index)
-		return
-	end
-
-	-- Hide HUD Combinator
-	if action.action == const.GUI_ACTIONS.hide_combinator then
-		player_data.set_hud_combinator_visibilty(player_index, unit_number, false)
-		gui_hud.update(player_index)
-		return
-	end
-
-	-- Toggle Search Bar
-	if action.action == const.GUI_ACTIONS.toggle_search_bar then
-		-- Show/Hide the search text field
-		local text_field = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
-		local state = not text_field.visible
-		text_field.visible = state
-
-		-- Hide/Show the following GUI Elements
-		local title_label = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
-		title_label.visible = not state
-		local header_spacer = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_header_spacer)
-		header_spacer.visible = not state
-		return
-	end
-
-	-- Search Text Changed
-	if action.action == const.GUI_ACTIONS.search_bar_change then
-		local text_field = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_search_text_field)
-		player_data.set_hud_search_text(player_index, text_field.text)
-		gui_hud.update(player_index)
-		return
-	end
-
-	-- Open Settings page
-	if action.action == const.GUI_ACTIONS.open_settings then
-		event_handler.gui_settings_create(player_index)
-		return
-	end
-end
-
 function gui_hud.size_changed(player_index, size)
 	local root_frame = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame)
 	-- Only change location if rootframe is part of the Screen GUI
@@ -797,5 +692,64 @@ function gui_hud.size_changed(player_index, size)
 		end
 	end
 end
+
+gui_handlers[const.GUI_ACTIONS.toggle] = function(params)
+    local toggle_state = not player_data.get_hud_collapsed(params.player_index)
+    gui_hud.update_collapse_state(params.player_index, toggle_state)
+end
+
+gui_handlers[const.GUI_ACTIONS.go_to_combinator] = function(params)
+    if params.unit_number then
+        -- find the entity
+        local hud_combinator = combinator.get_hud_combinator_entity(params.unit_number)
+        if hud_combinator and hud_combinator.valid then
+            -- open the map on the coordinates
+            game.players[params.player_index].set_controller {
+                type = defines.controllers.remote,
+                position = hud_combinator.position,
+                surface = hud_combinator.surface,
+            }
+        end
+    end
+end
+
+gui_handlers[const.GUI_ACTIONS.open_combinator] = function(params)
+    event_handler.open_hud_combinator(params.player_index, params.unit_number)
+end
+
+gui_handlers[const.GUI_ACTIONS.show_combinator] = function(params)
+    player_data.set_hud_combinator_visibilty(params.player_index, params.unit_number, true)
+    gui_hud.update(params.player_index)
+end
+
+gui_handlers[const.GUI_ACTIONS.hide_combinator] = function(params)
+    player_data.set_hud_combinator_visibilty(params.player_index, params.unit_number, false)
+    gui_hud.update(params.player_index)
+end
+
+gui_handlers[const.GUI_ACTIONS.toggle_search_bar] = function(params)
+		-- Show/Hide the search text field
+		local text_field = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.hud_search_text_field)
+		local state = not text_field.visible
+		text_field.visible = state
+
+		-- Hide/Show the following GUI Elements
+		local title_label = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.hud_title_label)
+		title_label.visible = not state
+		local header_spacer = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.hud_header_spacer)
+		header_spacer.visible = not state
+end
+
+gui_handlers[const.GUI_ACTIONS.search_bar_change] = function(params)
+    local text_field = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.hud_search_text_field)
+    player_data.set_hud_search_text(params.player_index, text_field.text)
+    gui_hud.update(params.player_index)
+end
+
+gui_handlers[const.GUI_ACTIONS.open_settings] = function(params)
+    event_handler.gui_settings_create(params.player_index)
+end
+
+flib_gui.add_handlers(gui_handlers, common.gui_wrapper)
 
 return gui_hud

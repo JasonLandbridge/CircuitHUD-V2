@@ -8,6 +8,7 @@ local event_handler = require("events.event-handler")
 
 local gui_hud = require("gui.hud-gui")
 local gui_settings = {}
+local gui_handlers = {}
 
 local function get_settings_root_frame(player_index)
 	return player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_root_frame)
@@ -20,7 +21,7 @@ function gui_settings.create(player_index)
 	local player = common.get_player(player_index)
 
 	local refs =
-		flib_gui.build(
+		flib_gui.add(
 		player.gui.screen,
 		{
 			{
@@ -30,9 +31,6 @@ function gui_settings.create(player_index)
 					maximal_width = 500
 				},
 				name = const.HUD_NAMES.settings_root_frame,
-				ref = {
-					const.HUD_NAMES.settings_root_frame
-				},
 				direction = "vertical",
 				children = {
 					-- Titlebar
@@ -50,17 +48,15 @@ function gui_settings.create(player_index)
 								-- add a pusher (so the close button becomes right-aligned)
 								type = "empty-widget",
 								style = "flib_titlebar_drag_handle",
-								ref = {"titlebar_flow"}
+								name = "titlebar_flow",
 							},
 							{
 								type = "sprite-button",
 								style = "frame_action_button",
-								sprite = "utility/close_white",
-								actions = {
-									on_click = {
-										gui = const.GUI_TYPES.settings,
-										action = const.GUI_ACTIONS.close
-									}
+								sprite = "utility/close",
+								handler = {
+									[defines.events.on_gui_click] = gui_handlers[const.SETTINGS.close],
+                                    [defines.events.on_gui_closed] = gui_handlers[const.SETTINGS.close],
 								}
 							}
 						}
@@ -87,12 +83,8 @@ function gui_settings.create(player_index)
 										style_mods = {
 											top_margin = 8
 										},
-										actions = {
-											on_click = {
-												gui = const.GUI_TYPES.settings,
-												action = const.GUI_ACTIONS.update_settings,
-												name = const.SETTINGS.hide_hud_header
-											}
+										handler = {
+											[defines.events.on_gui_click] = gui_handlers[const.SETTINGS.hide_hud_header],
 										}
 									}
 								}
@@ -119,12 +111,8 @@ function gui_settings.create(player_index)
 											{"chv2_settings_gui_dropdown.hud_position-bottom-right"},
 											{"chv2_settings_gui_dropdown.hud_position-draggable"}
 										},
-										actions = {
-											on_selection_state_changed = {
-												gui = const.GUI_TYPES.settings,
-												action = const.GUI_ACTIONS.update_settings,
-												name = const.SETTINGS.hud_position
-											}
+										handler = {
+											[defines.events.on_gui_selection_state_changed] = gui_handlers[const.SETTINGS.hud_position],
 										}
 									}
 								}
@@ -144,17 +132,11 @@ function gui_settings.create(player_index)
 									{
 										-- Name Text field
 										type = "textfield",
-										ref = {
-											"name_field"
-										},
+										name = "name_field",
 										style = "stretchable_textfield",
 										text = player_settings.get_hud_title_setting(player_index),
-										actions = {
-											on_text_changed = {
-												gui = const.GUI_TYPES.settings,
-												action = const.GUI_ACTIONS.update_settings,
-												name = const.SETTINGS.hud_title
-											}
+										handler = {
+											[defines.events.on_gui_text_changed] =  gui_handlers[const.SETTINGS.hud_title],
 										}
 									}
 								}
@@ -175,7 +157,7 @@ function gui_settings.create(player_index)
 										type = "flow",
 										style = "flib_titlebar_flow",
 										style_mods = {
-											top_margin = 8
+											top_margin = 8,
 										},
 										children = {
 											{
@@ -185,16 +167,12 @@ function gui_settings.create(player_index)
 													horizontally_stretchable = true,
 													right_padding = 10
 												},
-												ref = {const.HUD_NAMES.settings_hud_columns_slider},
+												name = const.HUD_NAMES.settings_hud_columns_slider,
 												value = player_settings.get_hud_columns_setting(player_index),
 												minimum_value = 4,
 												maximum_value = 30,
-												actions = {
-													on_value_changed = {
-														gui = const.GUI_TYPES.settings,
-														action = const.GUI_ACTIONS.update_settings,
-														name = const.SETTINGS.hud_columns
-													}
+												handler = {
+													[defines.events.on_gui_value_changed] = gui_handlers[const.SETTINGS.hud_columns],
 												}
 											}
 										}
@@ -203,7 +181,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										caption = tostring(player_settings.get_hud_columns_setting(player_index)),
 										style = const.STYLES.slider_count_label,
-										ref = {const.HUD_NAMES.settings_hud_columns_value}
+										name = const.HUD_NAMES.settings_hud_columns_value,
 									}
 								}
 							},
@@ -233,16 +211,12 @@ function gui_settings.create(player_index)
 													horizontally_stretchable = true,
 													right_padding = 10
 												},
-												ref = {const.HUD_NAMES.settings_hud_height_slider},
+												name = const.HUD_NAMES.settings_hud_height_slider,
 												value = player_settings.get_hud_height_setting(player_index),
 												minimum_value = 50,
 												maximum_value = 2160,
-												actions = {
-													on_value_changed = {
-														gui = const.GUI_TYPES.settings,
-														action = const.GUI_ACTIONS.update_settings,
-														name = const.SETTINGS.hud_height
-													}
+												handler = {
+													[defines.events.on_gui_value_changed] = gui_handlers[const.SETTINGS.hud_height],
 												}
 											}
 										}
@@ -251,7 +225,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										caption = tostring(player_settings.get_hud_height_setting(player_index)),
 										style = const.STYLES.slider_count_label,
-										ref = {const.HUD_NAMES.settings_hud_height_value}
+										name = const.HUD_NAMES.settings_hud_height_value,
 									}
 								}
 							},
@@ -281,16 +255,12 @@ function gui_settings.create(player_index)
 													horizontally_stretchable = true,
 													right_padding = 10
 												},
-												ref = {const.HUD_NAMES.settings_hud_refresh_rate_slider},
+												name = const.HUD_NAMES.settings_hud_refresh_rate_slider,
 												value = player_settings.get_hud_refresh_rate_setting(player_index),
 												minimum_value = 1,
 												maximum_value = 600,
-												actions = {
-													on_value_changed = {
-														gui = const.GUI_TYPES.settings,
-														action = const.GUI_ACTIONS.update_settings,
-														name = const.SETTINGS.hud_refresh_rate
-													}
+												handler = {
+													[defines.events.on_gui_value_changed] = gui_handlers[const.SETTINGS.hud_refresh_rate],
 												}
 											}
 										}
@@ -299,7 +269,7 @@ function gui_settings.create(player_index)
 										type = "label",
 										caption = tostring(player_settings.get_hud_refresh_rate_setting(player_index)),
 										style = const.STYLES.slider_count_label,
-										ref = {const.HUD_NAMES.settings_hud_refresh_rate_value}
+										name = const.HUD_NAMES.settings_hud_refresh_rate_value,
 									}
 								}
 							},
@@ -327,12 +297,8 @@ function gui_settings.create(player_index)
 											{"chv2_settings_gui_dropdown.hud_sort_build_order_ascending"},
 											{"chv2_settings_gui_dropdown.hud_sort_build_order_descending"}
 										},
-										actions = {
-											on_selection_state_changed = {
-												gui = const.GUI_TYPES.settings,
-												action = const.GUI_ACTIONS.update_settings,
-												name = const.SETTINGS.hud_sort
-											}
+										handler = {
+											[defines.events.on_gui_selection_state_changed] = gui_handlers[const.SETTINGS.hud_sort],
 										}
 									}
 								}
@@ -354,12 +320,8 @@ function gui_settings.create(player_index)
 										style_mods = {
 											top_margin = 8
 										},
-										actions = {
-											on_click = {
-												gui = const.GUI_TYPES.settings,
-												action = const.GUI_ACTIONS.update_settings,
-												name = const.SETTINGS.uncollapse_hud_on_register_combinator
-											}
+										handler = {
+											[defines.events.on_gui_click] = gui_handlers[const.SETTINGS.uncollapse_hud_on_register_combinator],
 										}
 									}
 								}
@@ -381,12 +343,8 @@ function gui_settings.create(player_index)
 										style_mods = {
 											top_margin = 8
 										},
-										actions = {
-											on_click = {
-												gui = const.GUI_TYPES.settings,
-												action = const.GUI_ACTIONS.update_settings,
-												name = const.SETTINGS.debug_mode
-											}
+										handler = {
+											[defines.events.on_gui_click] = gui_handlers[const.SETTINGS.debug_mode],
 										}
 									}
 								}
@@ -420,94 +378,6 @@ function gui_settings.create(player_index)
 	player.opened.force_auto_center()
 end
 
-function gui_settings.event_handler(player_index, action)
-	local value = action["value"]
-	-- Setting update
-	if action.action == const.GUI_ACTIONS.update_settings then
-		-- Hide HUD Setting
-		if action.name == const.SETTINGS.hide_hud_header then
-			player_settings.set_hide_hud_header_setting(player_index, value)
-			gui_hud.reset(player_index)
-			return
-		end
-
-		-- Set HUD Title
-		if action.name == const.SETTINGS.hud_title then
-			player_settings.set_hud_title_setting(player_index, value)
-			local hud_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_title_label)
-			if hud_ref then
-				hud_ref.caption = value
-			end
-			return
-		end
-
-		-- Set HUD Position
-		if action.name == const.SETTINGS.hud_position then
-			player_settings.set_hud_position_setting(player_index, const.HUD_POSITION_INDEX[value])
-			gui_hud.reset(player_index)
-			event_handler.gui_hud_collapse_switch(player_index, false)
-			return
-		end
-
-		-- HUD Columns Setting
-		if action.name == const.SETTINGS.hud_columns then
-			player_settings.set_hud_columns_setting(player_index, value)
-			local value_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_hud_columns_value)
-			if value_ref then
-				value_ref.caption = tostring(value)
-			end
-			return
-		end
-
-		-- HUD Max Height Setting
-		if action.name == const.SETTINGS.hud_height then
-			player_settings.set_hud_height_setting(player_index, value)
-			local value_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_hud_height_value)
-			if value_ref then
-				value_ref.caption = tostring(value)
-			end
-
-			gui_hud.calculate_hud_size(player_index)
-
-			return
-		end
-
-		-- HUD Refresh rate Setting
-		if action.name == const.SETTINGS.hud_refresh_rate then
-			player_settings.set_hud_refresh_rate_setting(player_index, value)
-			local value_ref = player_data.get_hud_ref(player_index, const.HUD_NAMES.settings_hud_refresh_rate_value)
-			if value_ref then
-				value_ref.caption = tostring(value)
-			end
-			return
-		end
-
-		-- Set HUD Sort
-		if action.name == const.SETTINGS.hud_sort then
-			player_settings.set_hud_sort_setting(player_index, const.HUD_SORT_INDEX[value])
-			gui_hud.reset(player_index)
-			return
-		end
-
-		-- Uncollapse HUD on new combinator
-		if action.name == const.SETTINGS.uncollapse_hud_on_register_combinator then
-			player_settings.set_uncollapse_hud_on_register_combinator_setting(player_index, value)
-			return
-		end
-
-		-- Debug mode
-		if action.name == const.SETTINGS.debug_mode then
-			player_settings.set_debug_mode_setting(player_index, value)
-			return
-		end
-	end
-
-	if action.action == const.GUI_ACTIONS.close then
-		gui_settings.destroy(player_index)
-		return
-	end
-end
-
 function gui_settings.destroy(player_index)
 	local root_frame = get_settings_root_frame(player_index)
 	if root_frame then
@@ -526,5 +396,88 @@ function gui_settings.reset_all_players()
 		gui_settings.reset(player.index)
 	end
 end
+
+gui_handlers[const.SETTINGS.hide_hud_header] = function(params)
+    player_settings.set_hide_hud_header_setting(params.player_index, params.value)
+    gui_hud.reset(params.player_index)
+    return
+end
+
+-- Set HUD Title
+gui_handlers[const.SETTINGS.hud_title] = function(params)
+    player_settings.set_hud_title_setting(params.player_index, params.value)
+    local hud_ref = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.hud_title_label)
+    if hud_ref then
+        hud_ref.caption = params.value
+    end
+    return
+end
+
+-- Set HUD Position
+gui_handlers[const.SETTINGS.hud_position] = function(params)
+    player_settings.set_hud_position_setting(params.player_index, const.HUD_POSITION_INDEX[params.value])
+    gui_hud.reset(params.player_index)
+    event_handler.gui_hud_collapse_switch(params.player_index, false)
+    return
+end
+
+-- HUD Columns Setting
+gui_handlers[const.SETTINGS.hud_columns] = function(params)
+    player_settings.set_hud_columns_setting(params.player_index, params.value)
+    local value_ref = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.settings_hud_columns_value)
+    if value_ref then
+        value_ref.caption = tostring(params.value)
+    end
+    return
+end
+
+-- HUD Max Height Setting
+gui_handlers[const.SETTINGS.hud_height] = function(params)
+    player_settings.set_hud_height_setting(params.player_index, params.value)
+    local value_ref = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.settings_hud_height_value)
+    if value_ref then
+        value_ref.caption = tostring(params.value)
+    end
+
+    gui_hud.calculate_hud_size(params.player_index)
+
+    return
+end
+
+-- HUD Refresh rate Setting
+gui_handlers[const.SETTINGS.hud_refresh_rate] = function(params)
+    player_settings.set_hud_refresh_rate_setting(params.player_index, params.value)
+    local value_ref = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.settings_hud_refresh_rate_value)
+    if value_ref then
+        value_ref.caption = tostring(params.value)
+    end
+    return
+end
+
+-- Set HUD Sort
+gui_handlers[const.SETTINGS.hud_sort] = function(params)
+    player_settings.set_hud_sort_setting(params.player_index, const.HUD_SORT_INDEX[params.value])
+    gui_hud.reset(params.player_index)
+    return
+end
+
+-- Uncollapse HUD on new combinator
+gui_handlers[const.SETTINGS.uncollapse_hud_on_register_combinator] = function(params)
+    player_settings.set_uncollapse_hud_on_register_combinator_setting(params.player_index, params.value)
+    return
+end
+
+-- Debug mode
+gui_handlers[const.SETTINGS.debug_mode] = function(params)
+    player_settings.set_debug_mode_setting(params.player_index, params.value)
+    return
+end
+
+gui_handlers[const.SETTINGS.close] = function(params)
+    gui_settings.destroy(params.player_index)
+    return
+end
+
+flib_gui.add_handlers(gui_handlers, common.gui_wrapper)
 
 return gui_settings

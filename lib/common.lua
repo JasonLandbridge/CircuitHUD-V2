@@ -53,4 +53,39 @@ function common.short_if(condition, true_result, false_result)
 	return false_result
 end
 
+function common.gui_wrapper(event, handler)
+    local element = event.element
+    if not stdlib_Is.Valid(element) then return false end
+
+    local params = {
+        player_index = event.player_index,
+        gui = element.tags['gui'],
+        unit_number = element.tags['unit_number'],
+        index = element.tags['index'],
+    }
+
+    if event.define_name == 'on_gui_click' and event.element.type == 'checkbox' and event.element.state ~= nil then
+        -- Checkbox
+        params.value = event.element.state
+    elseif event.define_name == 'on_gui_text_changed' and event.text ~= nil then
+        -- Text Field
+        params.value = event.text
+    elseif event.define_name == 'on_gui_elem_changed' and event.element.elem_value ~= nil then
+        -- Element select
+        params.value = event.element.elem_value
+    elseif event.define_name == 'on_gui_value_changed' and event.element.slider_value ~= nil then
+        -- Sliders
+        params.value = event.element.slider_value
+    elseif event.define_name == 'on_gui_selection_state_changed' and event.element.selected_index ~= nil then
+        -- Dropdowns
+        params.value = event.element.selected_index
+    elseif event.define_name == 'on_gui_switch_state_changed' and event.element.switch_state ~= nil then
+        -- Switches, Right/On is true, Left/Off is false
+        params.value = event.element.switch_state == 'right'
+    end
+
+    return handler(params)
+end
+
+
 return common
