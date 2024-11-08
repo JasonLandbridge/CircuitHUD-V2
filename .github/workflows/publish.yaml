@@ -1,0 +1,17 @@
+on:
+  push: 
+  workflow_dispatch: 
+
+name: Publish
+jobs:
+  publish-mod:
+    name: Publish CircuitHUD-V2 to Factorio Mod Portal
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Publish Mod
+        uses: shanemadden/factorio-mod-portal-publish@stable
+        env:
+          FACTORIO_USER: '${{ secrets.FACTORIO_USER }}'
+          FACTORIO_PASSWORD: '${{ secrets.FACTORIO_PASSWORD }}'
