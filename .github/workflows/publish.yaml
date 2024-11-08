@@ -1,5 +1,3 @@
-name: Publish CircuitHUD-V2 to Factorio Mod Portal
-
 on:
     push:
         branches:
@@ -8,6 +6,7 @@ on:
 
 jobs:
     publish-mod:
+        name: Publish CircuitHUD-V2 to Factorio Mod Portal
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
