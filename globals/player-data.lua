@@ -22,11 +22,11 @@ function player_data.get_player_global(player_index)
 		return
 	end
 
-	local global_player = global.players[player_index]
+	local global_player = storage.players[player_index]
 	if not global_player then
 		player_data.add_player_global(player_index)
 	end
-	return global.players[player_index]
+	return storage.players[player_index]
 end
 
 --#region Get Player Properties
@@ -128,19 +128,21 @@ end
 --#region Add Properties
 function player_data.add_player_global(player_index)
 	local player = common.get_player(player_index)
-	global.players[player_index] = player_data_default
+	storage.players[player_index] = player_data_default
 	common.debug_log(player_index, "initialize global for player" .. player.name)
 end
 --#endregion
 
 --#region Remove Properties
 function player_data.remove_player_global(player_index)
-	global.players[player_index] = nil
+	storage.players[player_index] = nil
 end
 
 function player_data.destroy_hud_ref(player_index, key)
 	local player = player_data.get_player_global(player_index)
-	if player.elements[key] then
+    if not player then return end
+
+    if player.elements[key] then
 		player.elements[key].destroy()
 		player.elements[key] = nil
 	end
@@ -186,7 +188,7 @@ function player_data.destroy_hud(player_index)
 	end
 
 	-- Clear all elements for the player
-	global.players[player_index].elements = {}
+	storage.players[player_index].elements = {}
 end
 
 return player_data

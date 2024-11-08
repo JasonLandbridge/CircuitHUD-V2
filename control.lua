@@ -1,5 +1,4 @@
-local mod_gui = require "mod-gui"
-local Event = require("__stdlib__/stdlib/event/event")
+local Event = require("stdlib/event/event")
 
 local const = require("lib.constants")
 local common = require("lib.common")
@@ -111,14 +110,14 @@ end
 Event.register(
 	defines.events.on_built_entity,
 	function(event)
-		set_combinator_registration(event.created_entity, true)
+		set_combinator_registration(event.entity, true)
 	end
 )
 
 Event.register(
 	defines.events.on_robot_built_entity,
 	function(event)
-		set_combinator_registration(event.created_entity, true)
+		set_combinator_registration(event.entity, true)
 	end
 )
 

@@ -48,7 +48,8 @@ const.SETTINGS = {
 	hud_height = "hud_height",
 	hud_sort = "hud_sort",
 	uncollapse_hud_on_register_combinator = "uncollapse_hud_on_register_combinator",
-	debug_mode = "debug_mode"
+	debug_mode = "debug_mode",
+    close = "close"
 }
 
 const.HUD_POSITION_INDEX = {
