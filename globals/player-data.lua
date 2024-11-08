@@ -1,6 +1,7 @@
 local const = require("lib.constants")
 local player_settings = require("globals.player-settings")
 local common = require("lib.common")
+local next = next
 
 local player_data_default = {
 	hud_collapsed = false,
@@ -108,11 +109,18 @@ local function get_hud_combinator_data(player_index, unit_number)
 end
 
 function player_data.set_hud_combinator_visibilty(player_index, unit_number, state)
-	get_hud_combinator_data(player_index, unit_number).visible = state
+	local hud_combinator = get_hud_combinator_data(player_index, unit_number)
+	if hud_combinator then
+		hud_combinator.visible = state
+	end
 end
 
 function player_data.get_hud_combinator_visibilty(player_index, unit_number)
-	return get_hud_combinator_data(player_index, unit_number).visible
+	local hud_combinator = get_hud_combinator_data(player_index, unit_number)
+	if hud_combinator then
+		return hud_combinator.visible
+	end
+	return false
 end
 
 --#endregion

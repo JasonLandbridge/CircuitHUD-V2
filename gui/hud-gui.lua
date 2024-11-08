@@ -196,6 +196,10 @@ end
 -- @param scroll_pane_frame The Root frame
 -- @param hud_combinator The HUD Combinator to process
 function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
+	if not scroll_pane_frame or not unit_number then
+		return
+	end
+
 	-- Check flow container for the HUD Combinator category if it doesnt exist
 	local hud_combinator = combinator.get_hud_combinator(unit_number)
 	local visible = player_data.get_hud_combinator_visibilty(player_index, unit_number)
