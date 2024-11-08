@@ -1,19 +1,35 @@
-on:
-  push: 
-    branches:
-        - master
-  workflow_dispatch: 
+name: Publish CircuitHUD-V2 to Factorio Mod Portal
 
-name: Publish
+on:
+    push:
+        branches:
+            - master
+    workflow_dispatch: 
+
 jobs:
-  publish-mod:
-    name: Publish CircuitHUD-V2 to Factorio Mod Portal
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Publish Mod
-        uses: shanemadden/factorio-mod-portal-publish@stable
-        env:
-          FACTORIO_USER: '${{ secrets.FACTORIO_USER }}'
-          FACTORIO_PASSWORD: '${{ secrets.FACTORIO_PASSWORD }}'
+    publish-mod:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20'
+
+            - name: Validate Mod
+              uses: TheBrutalX/factorio-mod-uploader-action
+              with:
+                  action: validate
+
+            - name: Create zip
+              uses: TheBrutalX/factorio-mod-uploader-action
+              with:
+                  action: compress
+
+            - name: Upload Mod
+              uses: TheBrutalX/factorio-mod-uploader-action
+              with:
+                  action: upload
+                  factorio-api-key: ${{ secrets.FACTORIO_API_KEY }}
