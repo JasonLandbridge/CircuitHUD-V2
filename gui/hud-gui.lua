@@ -119,8 +119,8 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 	local unit_number = hud_combinator.unit_number
 	local should_filter = combinator.get_hud_combinator_filter_state(unit_number)
 
-	local red_network = hud_combinator.entity.get_circuit_network(defines.wire_type.red)
-	local green_network = hud_combinator.entity.get_circuit_network(defines.wire_type.green)
+	local red_network = hud_combinator.entity.get_circuit_network(defines.wire_connector_id.circuit_red)
+	local green_network = hud_combinator.entity.get_circuit_network(defines.wire_connector_id.circuit_green)
 
 	local networks = {green_network, red_network}
 	local network_colors = {"green", "red"}
@@ -148,7 +148,6 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 					type = "table",
 					name = table_name,
 					column_count = max_columns,
--- 					ref = {"table"},
 					style_mods = {
 						top_margin = 4
 					}
@@ -161,7 +160,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 			-- Add to total signal count
 			signal_total_count = signal_total_count + table_size(networks[i].signals)
 			for j, signal in pairs(networks[i].signals) do
-				local signal_type = signal.signal.type
+				local signal_type = signal.signal.type or 'item'
 				local signal_name = signal.signal.name
 
 				-- Check if any signal is meant to hide everything
@@ -172,7 +171,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 
 				-- Check if this signal should be shown based on filtering
 				if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
-					table["table"].add {
+					table[table_name].add {
 						type = "sprite-button",
 						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
 						number = signal.count,
