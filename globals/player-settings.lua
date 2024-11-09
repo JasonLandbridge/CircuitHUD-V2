@@ -3,8 +3,8 @@ local const = require("lib.constants")
 local player_settings = {}
 
 function player_settings.get_setting(player_index, string_path)
-	if global.players and global.players[player_index] and global.players[player_index]["settings"] then
-		return global.players[player_index]["settings"][string_path]
+	if storage.players and storage.players[player_index] and storage.players[player_index]["settings"] then
+		return storage.players[player_index]["settings"][string_path]
 	end
 end
 
@@ -12,7 +12,7 @@ function player_settings.set_setting(player_index, string_path, value)
 	if string_path == nil or value == nil then
 		return
 	end
-	global.players[player_index]["settings"][string_path] = value
+	storage.players[player_index]["settings"][string_path] = value
 end
 
 function player_settings.default_player_settings()

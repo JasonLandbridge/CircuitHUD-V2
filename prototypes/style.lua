@@ -73,6 +73,12 @@ default_gui["ch_settings_category_frame"] = {
 	right_padding = 8
 }
 
+default_gui['container_inside_shallow_frame'] = {
+    type = "frame_style",
+    parent = "inside_shallow_frame",
+    minimal_width = 4*40 + 2*12 -- 4 slots
+}
+
 default_gui[const.STYLES.settings_title_label] = {
 	type = "label_style",
 	parent = "label",

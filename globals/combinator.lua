@@ -4,7 +4,7 @@ local player_settings = require("globals.player-settings")
 local combinator = {}
 
 function combinator.add_hud_combinator_ref(hud_combinator)
-	global.hud_combinators[hud_combinator.unit_number] = {
+	storage.hud_combinators[hud_combinator.unit_number] = {
 		["entity"] = hud_combinator,
 		["name"] = "HUD Combinator #" .. hud_combinator.unit_number,
 		["temp_name"] = "",
@@ -16,7 +16,7 @@ function combinator.add_hud_combinator_ref(hud_combinator)
 end
 
 local function remove_hud_combinator_ref(unit_number)
-	global.hud_combinators[unit_number] = nil
+	storage.hud_combinators[unit_number] = nil
 end
 
 function combinator.register_combinator(entity)
@@ -36,7 +36,7 @@ end
 
 --#region Get Combinator Helpers
 function combinator.get_hud_combinator(unit_number)
-	return global.hud_combinators[unit_number]
+	return storage.hud_combinators[unit_number]
 end
 
 function combinator.get_hud_combinator_entity(unit_number)
@@ -87,7 +87,7 @@ function combinator.get_hud_combinator_priority(unit_number)
 end
 
 function combinator.get_hud_combinators()
-	return global["hud_combinators"]
+	return storage["hud_combinators"]
 end
 
 function combinator.has_hud_combinators()
@@ -137,7 +137,7 @@ end
 
 function combinator.check_combinator_registrations()
 	-- clean the map for invalid entities
-	for key, meta_entity in pairs(global.hud_combinators) do
+	for key, meta_entity in pairs(storage.hud_combinators) do
 		if (not meta_entity.entity) or (not meta_entity.entity.valid) then
 			remove_hud_combinator_ref(key)
 		end
