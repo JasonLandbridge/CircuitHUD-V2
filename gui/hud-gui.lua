@@ -1,4 +1,5 @@
 local stdlib_string = require("stdlib/utils/string")
+local util = require("util")
 local flib_gui = require("__flib__.gui")
 
 local const = require("lib.constants")
@@ -13,12 +14,12 @@ local gui_hud = {}
 
 -- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
 -- @returns if signal is allowed to be shown
-local function filter_signal(signals, name)
-	if table_size(signals) == 0 then
+local function filter_signal(signals_filter, signal_name, signal_quality)
+	if table_size(signals_filter) == 0 then
 		return true
 	end
-	for _, value in pairs(signals) do
-		if value.name == name then
+	for _, value in pairs(signals_filter) do
+		if value.name == signal_name and value.quality == signal_quality then
 			return true
 		end
 	end
@@ -162,6 +163,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 			for j, signal in pairs(networks[i].signals) do
 				local signal_type = signal.signal.type or 'item'
 				local signal_name = signal.signal.name
+				local signal_quality = signal.signal.quality
 
 				-- Check if any signal is meant to hide everything
 				if hide_signal_detected or signal_name == const.HIDE_SIGNAL_NAME then
@@ -170,13 +172,23 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 				end
 
 				-- Check if this signal should be shown based on filtering
-				if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
+				if common.short_if(should_filter, filter_signal(signals_filter, signal_name, signal_quality), true) then
+					base_tooltip = signal_name_map[signal_type][signal_name].localised_name
+					count_str = util.format_number(signal.count, true)
+					if signal_quality == nil then
+						caption = "[item=" .. signal_name .. "] " .. count_str
+						tooltip = base_tooltip
+					else
+						caption = "[item=" .. signal_name .. ",quality=" .. signal_quality .. "] " .. count_str
+						-- Some languages may prefer a different order here, but I don't know if there's a
+						-- localized template for that which we could use
+						tooltip = {"", prototypes.quality[signal_quality].localised_name, " ", base_tooltip}
+					end
+
 					table[table_name].add {
-						type = "sprite-button",
-						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
-						number = signal.count,
-						style = network_styles[i],
-						tooltip = signal_name_map[signal_type][signal_name].localised_name
+						type = "label",
+						caption = caption,
+						tooltip = tooltip,
 					}
 					signal_count = signal_count + 1
 				end
@@ -641,7 +653,7 @@ function gui_hud.calculate_hud_size(player_index)
 		common.debug_log(player_index, "Start calculating HUD size:")
 
 		local max_columns_allowed = player_settings.get_hud_columns_setting(player_index)
-		width = (max_columns_allowed * (36 + 4)) + 40
+		width = (max_columns_allowed * (52 + 4)) + 40
 		height = player_settings.get_hud_height_setting(player_index)
 	end
 
