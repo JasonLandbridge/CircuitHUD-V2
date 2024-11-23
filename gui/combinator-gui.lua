@@ -15,7 +15,7 @@ local gui_handlers = {}
 ---@return table
 local function generate_signal_filter_table(unit_number)
     if not unit_number then
-        return
+        return {}
     end
 
     local result = {}
@@ -147,9 +147,13 @@ function gui_combinator.create(player_index, unit_number)
                                             text = combinator.get_hud_combinator_name(unit_number),
                                             handler = {
                                                 [defines.events.on_gui_text_changed] = gui_handlers[const.GUI_ACTIONS.name_change],
+                                                [defines.events.on_gui_confirmed] = gui_handlers[const.GUI_ACTIONS.name_change_confirm],
                                             },
                                             tags = {
                                                 unit_number = unit_number,
+                                            },
+                                            elem_mods = {
+                                                lose_focus_on_confirm = true,
                                             },
                                         },
                                         -- confirm button
@@ -316,6 +320,11 @@ function gui_combinator.create(player_index, unit_number)
 
     -- Render the preview signals
     gui_hud.render_signals(hud_combinator, refs[const.HUD_NAMES.combinator_signal_preview], 10, {})
+
+    -- prime the combinator name, otherwise pressing the "ack" button without typing anything will erase
+    -- the combinator name
+    combinator.set_hud_combinator_temp_name(unit_number, combinator.get_hud_combinator_name(unit_number))
+
 
     -- We need to overwrite the "to be opened GUI" with our own GUI
     player.opened = root_frame

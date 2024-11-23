@@ -410,7 +410,10 @@ function gui_hud.create(player_index)
 					handler = {
                         [defines.events.on_gui_text_changed] = gui_handlers[const.GUI_ACTIONS.search_bar_change],
                     },
-				},
+                    elem_mods = {
+                        lose_focus_on_confirm = true,
+                    },
+                },
 				-- Search Button
 				{
 					type = "sprite-button",
