@@ -122,6 +122,13 @@ Event.register(
 )
 
 Event.register(
+	defines.events.on_space_platform_built_entity,
+	function(event)
+		set_combinator_registration(event.entity, true)
+	end
+)
+
+Event.register(
 	defines.events.on_player_mined_entity,
 	function(event)
 		set_combinator_registration(event.entity, false)
@@ -130,6 +137,13 @@ Event.register(
 
 Event.register(
 	defines.events.on_robot_mined_entity,
+	function(event)
+		set_combinator_registration(event.entity, false)
+	end
+)
+
+Event.register(
+	defines.events.on_space_platform_mined_entity,
 	function(event)
 		set_combinator_registration(event.entity, false)
 	end
