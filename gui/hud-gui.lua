@@ -738,6 +738,10 @@ gui_handlers[const.GUI_ACTIONS.toggle_search_bar] = function(params)
 		title_label.visible = not state
 		local header_spacer = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.hud_header_spacer)
 		header_spacer.visible = not state
+
+        if text_field.visible then
+            text_field.focus()
+        end
 end
 
 gui_handlers[const.GUI_ACTIONS.search_bar_change] = function(params)
