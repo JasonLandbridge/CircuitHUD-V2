@@ -41,6 +41,15 @@ local function generate_signal_filter_table(unit_number)
     return result
 end
 
+function gui_combinator.update_signals(player_index, unit_number)
+	local preview = player_data.get_hud_ref(player_index, const.HUD_NAMES.combinator_signal_preview)
+	if not (preview and preview.valid) then return end
+
+	local hud_combinator = combinator.get_hud_combinator(unit_number)
+	-- Render the preview signals
+	gui_hud.render_signals(hud_combinator, preview, 10, {})
+end
+
 function gui_combinator.create(player_index, unit_number)
     -- Check if it doesn't exist already
     local player = common.get_player(player_index)
@@ -68,6 +77,9 @@ function gui_combinator.create(player_index, unit_number)
                         maximal_width = 456
                     },
                     direction = 'vertical',
+                    tags = {
+                      unit_number = unit_number,
+                    },
                     children = {
                         -- Titlebar
                         {
@@ -318,13 +330,10 @@ function gui_combinator.create(player_index, unit_number)
 
     refs.hud_preview.entity = hud_combinator.entity
 
-    -- Render the preview signals
-    gui_hud.render_signals(hud_combinator, refs[const.HUD_NAMES.combinator_signal_preview], 10, {})
 
     -- prime the combinator name, otherwise pressing the "ack" button without typing anything will erase
     -- the combinator name
     combinator.set_hud_combinator_temp_name(unit_number, combinator.get_hud_combinator_name(unit_number))
-
 
     -- We need to overwrite the "to be opened GUI" with our own GUI
     player.opened = root_frame
@@ -337,6 +346,9 @@ function gui_combinator.create(player_index, unit_number)
 
     player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_name_textfield, refs[const.HUD_NAMES.combinator_name_textfield])
     player_data.set_hud_element_ref(player_index, const.HUD_NAMES.combinator_root_frame, root_frame)
+
+    -- all the refs need to be set correctly before calling this to render the preview signals
+    gui_combinator.update_signals(player_index, unit_number)
 end
 
 function gui_combinator.update(player_index, unit_number)
