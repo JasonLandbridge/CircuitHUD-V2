@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.1.0
+Date: 2024-11-23
+  Changes:
+    - Support building on space platforms
+    - Search textbox is now focused when the search button is clicked
+    - Update the signal preview when the combinator gui is opened
+  Bugfixes:
+    - when clicking the "confirm name" button without typing anything, the name was deleted
+---------------------------------------------------------------------------------------------------
 Version: 2.0.1
 Date: 2021-11-10
   Changes:

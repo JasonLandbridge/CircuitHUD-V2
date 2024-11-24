@@ -115,7 +115,16 @@ local function sort_hud_combinators(hud_combinators, player_index)
 	return combinator_array
 end
 
+local function find_child(name, children)
+	for _, child in pairs(children) do
+		if name == child.name then return { [name] = child } end
+	end
+	return nil
+end
+
 function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals_filter)
+	if not (parent_gui and parent_gui.valid) then return end
+
 	local unit_number = hud_combinator.unit_number
 	local should_filter = combinator.get_hud_combinator_filter_state(unit_number)
 
@@ -140,8 +149,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 	for i = 1, 2, 1 do
 		-- Check if this color table already exists
 		local table_name = "hud_combinator_" .. network_colors[i] .. "_table"
-		local table =
-			flib_gui.add(
+		local table = find_child(table_name, parent_gui.children) or flib_gui.add(
 			parent_gui,
 			{
 				{
@@ -154,6 +162,8 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 				}
 			}
 		)
+
+		for _, c in pairs(table[table_name].children) do c.destroy() end
 
 		-- Check if there are signals
 		if networks[i] and networks[i].signals then
@@ -410,7 +420,10 @@ function gui_hud.create(player_index)
 					handler = {
                         [defines.events.on_gui_text_changed] = gui_handlers[const.GUI_ACTIONS.search_bar_change],
                     },
-				},
+                    elem_mods = {
+                        lose_focus_on_confirm = true,
+                    },
+                },
 				-- Search Button
 				{
 					type = "sprite-button",
@@ -738,6 +751,10 @@ gui_handlers[const.GUI_ACTIONS.toggle_search_bar] = function(params)
 		title_label.visible = not state
 		local header_spacer = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.hud_header_spacer)
 		header_spacer.visible = not state
+
+        if text_field.visible then
+            text_field.focus()
+        end
 end
 
 gui_handlers[const.GUI_ACTIONS.search_bar_change] = function(params)

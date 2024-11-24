@@ -11,6 +11,7 @@ local base_global = require("globals.base-global")
 require "lib.migration"
 
 local gui_hud = require("gui.hud-gui")
+local gui_combinator = require('gui.combinator-gui')
 
 require "events.gui-events"
 require "events.custom-events"
@@ -46,6 +47,13 @@ Event.on_nth_tick(
 		for _, player in pairs(game.players) do
 			if event.tick % player_settings.get_hud_refresh_rate_setting(player.index) == 0 then
 				gui_hud.update(player.index)
+				local combinator_gui = gui_combinator.get_combinator_gui(player.index)
+				if combinator_gui then
+					local unit_number = combinator_gui.tags['unit_number']
+					if unit_number then
+						gui_combinator.update_signals(player.index, unit_number)
+					end
+				end
 			end
 		end
 	end
@@ -122,6 +130,13 @@ Event.register(
 )
 
 Event.register(
+	defines.events.on_space_platform_built_entity,
+	function(event)
+		set_combinator_registration(event.entity, true)
+	end
+)
+
+Event.register(
 	defines.events.on_player_mined_entity,
 	function(event)
 		set_combinator_registration(event.entity, false)
@@ -130,6 +145,13 @@ Event.register(
 
 Event.register(
 	defines.events.on_robot_mined_entity,
+	function(event)
+		set_combinator_registration(event.entity, false)
+	end
+)
+
+Event.register(
+	defines.events.on_space_platform_mined_entity,
 	function(event)
 		set_combinator_registration(event.entity, false)
 	end
