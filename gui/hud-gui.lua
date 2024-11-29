@@ -711,17 +711,31 @@ gui_handlers[const.GUI_ACTIONS.toggle] = function(params)
     gui_hud.update_collapse_state(params.player_index, toggle_state)
 end
 
+-- heuristics based on testing and some obscure forum posts (https://forums.factorio.com/viewtopic.php?p=461581#p461581)
+
+local exp_factor = -0.105 -- this matches the "1.05" from the forum post, divided by 10 (zoom level goes 0..10 and not 0..1 )
+local base_factor = 3     -- the resulting curve with this base matches the first 30 zoom scales with very small error bars
+
+local function compute_zoom(zoom_level)
+    -- note: Computation is 0 .. n, so zoom level is 1 .. n-1
+    return base_factor * math.exp(exp_factor * (zoom_level - 1))
+end
+
 gui_handlers[const.GUI_ACTIONS.go_to_combinator] = function(params)
     if params.unit_number then
         -- find the entity
         local hud_combinator = combinator.get_hud_combinator_entity(params.unit_number)
         if hud_combinator and hud_combinator.valid then
-            -- open the map on the coordinates
-            game.players[params.player_index].set_controller {
-                type = defines.controllers.remote,
-                position = hud_combinator.position,
-                surface = hud_combinator.surface,
-            }
+            local player = game.players[params.player_index]
+            if player then
+                -- open the map on the coordinates
+                player.set_controller {
+                    type = defines.controllers.remote,
+                    position = hud_combinator.position,
+                    surface = hud_combinator.surface,
+                }
+                player.zoom = compute_zoom(player_settings.get_map_zoom_factor_setting(params.player_index))
+            end
         end
     end
 end

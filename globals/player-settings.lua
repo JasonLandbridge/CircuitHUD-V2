@@ -26,6 +26,7 @@ function player_settings.default_player_settings()
 	settings[const.SETTINGS.hud_sort] = const.HUD_SORT.none
 	settings[const.SETTINGS.uncollapse_hud_on_register_combinator] = true
 	settings[const.SETTINGS.debug_mode] = false
+	settings[const.SETTINGS.map_zoom_factor] = 2
 	return settings
 end
 
@@ -87,6 +88,11 @@ function player_settings.get_debug_mode_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.debug_mode)
 end
 
+-- Returns the user map zoom
+function player_settings.get_map_zoom_factor_setting(player_index)
+	return player_settings.get_setting(player_index, const.SETTINGS.map_zoom_factor)
+end
+
 --#endregion
 
 --#region Set User Settings
@@ -125,6 +131,10 @@ end
 
 function player_settings.set_debug_mode_setting(player_index, state)
 	player_settings.set_setting(player_index, const.SETTINGS.debug_mode, state)
+end
+
+function player_settings.set_map_zoom_factor_setting(player_index, state)
+	player_settings.set_setting(player_index, const.SETTINGS.map_zoom_factor, state)
 end
 
 --#endregion

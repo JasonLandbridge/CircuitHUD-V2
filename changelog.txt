@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.2.0
+Date: 2024-??-??
+  Changes:
+    - Fix map zoom when going to a HUD location.
+    - Make map zoom configurable with a setting (Map zoom factor).
+---------------------------------------------------------------------------------------------------
 Version: 2.1.0
 Date: 2024-11-23
   Changes:
