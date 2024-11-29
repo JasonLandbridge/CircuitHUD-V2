@@ -4,6 +4,8 @@ Date: 2024-??-??
   Changes:
     - Fix map zoom when going to a HUD location.
     - Make map zoom configurable with a setting (Map zoom factor).
+    - Add support for quality filtering in the GUI. The display still does not show
+      quality (there is no appropriate GUI element that shows quality and count).
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.0
 Date: 2024-11-23

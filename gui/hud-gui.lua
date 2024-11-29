@@ -13,12 +13,12 @@ local gui_hud = {}
 
 -- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
 -- @returns if signal is allowed to be shown
-local function filter_signal(signals, name)
+local function filter_signal(signals, signal)
 	if table_size(signals) == 0 then
 		return true
 	end
 	for _, value in pairs(signals) do
-		if value.name == name then
+		if value.name == signal.signal.name and value.quality == signal.signal.quality then
 			return true
 		end
 	end
@@ -180,14 +180,37 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 				end
 
 				-- Check if this signal should be shown based on filtering
-				if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
-					table[table_name].add {
+				if common.short_if(should_filter, filter_signal(signals_filter, signal), true) then
+					local button = {
 						type = "sprite-button",
 						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
 						number = signal.count,
 						style = network_styles[i],
-						tooltip = signal_name_map[signal_type][signal_name].localised_name
+						tooltip = signal_name_map[signal_type][signal_name].localised_name,
 					}
+
+
+					if signal_type == 'item' then
+						button.elem_tooltip = {
+							type = 'item-with-quality',
+							name = signal_name,
+							quality = signal.signal.quality,
+						}
+					elseif signal_type == 'virtual' then
+						button.elem_tooltip = {
+							type = 'signal',
+							signal_type = 'virtual', -- see https://forums.factorio.com/viewtopic.php?f=7&t=123237
+							name = signal_name,
+						}
+					else
+						button.elem_tooltip = {
+							type = signal_type,
+							name = signal_name,
+						}
+					end
+
+					table[table_name].add(button)
+
 					signal_count = signal_count + 1
 				end
 			end
