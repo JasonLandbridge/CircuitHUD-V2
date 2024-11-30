@@ -13,12 +13,12 @@ local gui_hud = {}
 
 -- Checks if the signal is allowed to be shown based on the filters set for this HUD Combinator
 -- @returns if signal is allowed to be shown
-local function filter_signal(signals, name)
+local function filter_signal(signals, signal)
 	if table_size(signals) == 0 then
 		return true
 	end
 	for _, value in pairs(signals) do
-		if value.name == name then
+		if value.name == signal.signal.name and value.quality == signal.signal.quality then
 			return true
 		end
 	end
@@ -180,14 +180,37 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 				end
 
 				-- Check if this signal should be shown based on filtering
-				if common.short_if(should_filter, filter_signal(signals_filter, signal_name), true) then
-					table[table_name].add {
+				if common.short_if(should_filter, filter_signal(signals_filter, signal), true) then
+					local button = {
 						type = "sprite-button",
 						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
 						number = signal.count,
 						style = network_styles[i],
-						tooltip = signal_name_map[signal_type][signal_name].localised_name
+						tooltip = signal_name_map[signal_type][signal_name].localised_name,
 					}
+
+
+					if signal_type == 'item' then
+						button.elem_tooltip = {
+							type = 'item-with-quality',
+							name = signal_name,
+							quality = signal.signal.quality,
+						}
+					elseif signal_type == 'virtual' then
+						button.elem_tooltip = {
+							type = 'signal',
+							signal_type = 'virtual', -- see https://forums.factorio.com/viewtopic.php?f=7&t=123237
+							name = signal_name,
+						}
+					else
+						button.elem_tooltip = {
+							type = signal_type,
+							name = signal_name,
+						}
+					end
+
+					table[table_name].add(button)
+
 					signal_count = signal_count + 1
 				end
 			end
@@ -711,17 +734,31 @@ gui_handlers[const.GUI_ACTIONS.toggle] = function(params)
     gui_hud.update_collapse_state(params.player_index, toggle_state)
 end
 
+-- heuristics based on testing and some obscure forum posts (https://forums.factorio.com/viewtopic.php?p=461581#p461581)
+
+local exp_factor = -0.105 -- this matches the "1.05" from the forum post, divided by 10 (zoom level goes 0..10 and not 0..1 )
+local base_factor = 3     -- the resulting curve with this base matches the first 30 zoom scales with very small error bars
+
+local function compute_zoom(zoom_level)
+    -- note: Computation is 0 .. n, so zoom level is 1 .. n-1
+    return base_factor * math.exp(exp_factor * (zoom_level - 1))
+end
+
 gui_handlers[const.GUI_ACTIONS.go_to_combinator] = function(params)
     if params.unit_number then
         -- find the entity
         local hud_combinator = combinator.get_hud_combinator_entity(params.unit_number)
         if hud_combinator and hud_combinator.valid then
-            -- open the map on the coordinates
-            game.players[params.player_index].set_controller {
-                type = defines.controllers.remote,
-                position = hud_combinator.position,
-                surface = hud_combinator.surface,
-            }
+            local player = game.players[params.player_index]
+            if player then
+                -- open the map on the coordinates
+                player.set_controller {
+                    type = defines.controllers.remote,
+                    position = hud_combinator.position,
+                    surface = hud_combinator.surface,
+                }
+                player.zoom = compute_zoom(player_settings.get_map_zoom_factor_setting(params.player_index))
+            end
         end
     end
 end

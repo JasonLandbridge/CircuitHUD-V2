@@ -326,6 +326,50 @@ function gui_settings.create(player_index)
 									}
 								}
 							},
+							-- Map Zoom
+							{
+								type = "flow",
+								style = "flib_titlebar_flow",
+								children = {
+									{
+										-- add the title label
+										type = "label",
+										style = const.STYLES.settings_title_label,
+										caption = {"chv2_settings_name.map_zoom_factor"},
+										tooltip = {"chv2_settings_gui_tooltips.map_zoom_factor"}
+									},
+									{
+										type = "flow",
+										style = "flib_titlebar_flow",
+										style_mods = {
+											top_margin = 8
+										},
+										children = {
+											{
+												type = "slider",
+												style = const.STYLES.settings_slider,
+												style_mods = {
+													horizontally_stretchable = true,
+													right_padding = 10
+												},
+												name = const.HUD_NAMES.settings_map_zoom_factor_slider,
+												value = player_settings.get_map_zoom_factor_setting(player_index),
+												minimum_value = 1,
+												maximum_value = 10,
+												handler = {
+													[defines.events.on_gui_value_changed] = gui_handlers[const.SETTINGS.map_zoom_factor],
+												}
+											}
+										}
+									},
+									{
+										type = "label",
+										caption = tostring(player_settings.get_map_zoom_factor_setting(player_index)),
+										style = const.STYLES.slider_count_label,
+										name = const.HUD_NAMES.settings_map_zoom_factor_value,
+									}
+								}
+							},
 							-- Debug mode
 							{
 								type = "flow",
@@ -348,7 +392,7 @@ function gui_settings.create(player_index)
 										}
 									}
 								}
-							}
+							},
 						}
 					}
 				}
@@ -373,6 +417,10 @@ function gui_settings.create(player_index)
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_hud_refresh_rate_value, refs[const.HUD_NAMES.settings_hud_refresh_rate_value])
 
 	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_root_frame, root_frame)
+
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_map_zoom_factor_slider, refs[const.HUD_NAMES.settings_map_zoom_factor_slider])
+	player_data.set_hud_element_ref(player_index, const.HUD_NAMES.settings_map_zoom_factor_value, refs[const.HUD_NAMES.settings_map_zoom_factor_value])
+
 	-- We need to overwrite the "to be opened GUI" with our own GUI
 	player.opened = root_frame
 	player.opened.force_auto_center()
@@ -471,6 +519,16 @@ end
 gui_handlers[const.SETTINGS.debug_mode] = function(params)
     player_settings.set_debug_mode_setting(params.player_index, params.value)
     return
+end
+
+-- Map Zoom
+gui_handlers[const.SETTINGS.map_zoom_factor] = function(params)
+	player_settings.set_map_zoom_factor_setting(params.player_index, params.value)
+	local value_ref = player_data.get_hud_ref(params.player_index, const.HUD_NAMES.settings_map_zoom_factor_value)
+	if value_ref then
+		value_ref.caption = tostring(params.value)
+	end
+	return
 end
 
 gui_handlers[const.SETTINGS.close] = function(params)

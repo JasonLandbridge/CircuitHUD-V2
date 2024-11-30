@@ -29,7 +29,9 @@ const.HUD_NAMES = {
 	settings_hud_height_slider = const.SHORT_PREFIX .. "settings_hud_height_slider",
 	settings_hud_height_value = const.SHORT_PREFIX .. "settings_hud_height_value",
 	settings_hud_refresh_rate_slider = const.SHORT_PREFIX .. "settings_hud_refresh_rate_slider",
-	settings_hud_refresh_rate_value = const.SHORT_PREFIX .. "settings_hud_refresh_rate_value"
+	settings_hud_refresh_rate_value = const.SHORT_PREFIX .. "settings_hud_refresh_rate_value",
+	settings_map_zoom_factor_slider = const.SHORT_PREFIX .. "settings_map_zoom_factor_slider",
+	settings_map_zoom_factor_value = const.SHORT_PREFIX .. "settings_map_zoom_factor_value",
 }
 
 const.GUI_TYPES = {
@@ -48,6 +50,7 @@ const.SETTINGS = {
 	hud_height = "hud_height",
 	hud_sort = "hud_sort",
 	uncollapse_hud_on_register_combinator = "uncollapse_hud_on_register_combinator",
+	map_zoom_factor = "map_zoom_factor",
 	debug_mode = "debug_mode",
     close = "close"
 }

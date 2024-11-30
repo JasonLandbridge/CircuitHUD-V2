@@ -74,6 +74,14 @@ data:extend(
 			hidden = true
 		},
 		{
+			type = "int-setting",
+			name = const.SETTINGS.prefix .. const.SETTINGS.map_zoom_factor,
+			setting_type = "runtime-per-user",
+			default_value = 2,
+			order = "a-g",
+			hidden = true
+		},
+		{
 			type = "string-setting",
 			name = const.SETTINGS.prefix .. const.SETTINGS.debug_mode,
 			setting_type = "runtime-per-user",
