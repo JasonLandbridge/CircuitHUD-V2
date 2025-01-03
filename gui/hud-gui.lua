@@ -441,12 +441,13 @@ function gui_hud.create(player_index)
 					style_mods = {top_margin = -3, bottom_margin = 3},
 					visible = false,
 					handler = {
-                        [defines.events.on_gui_text_changed] = gui_handlers[const.GUI_ACTIONS.search_bar_change],
-                    },
-                    elem_mods = {
-                        lose_focus_on_confirm = true,
-                    },
-                },
+												[defines.events.on_gui_text_changed] = gui_handlers[const.GUI_ACTIONS.search_bar_change],
+												[defines.events.on_gui_confirmed] = gui_handlers[const.GUI_ACTIONS.toggle_search_bar],
+										},
+										elem_mods = {
+												lose_focus_on_confirm = true,
+										},
+								},
 				-- Search Button
 				{
 					type = "sprite-button",

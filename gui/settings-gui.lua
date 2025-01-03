@@ -136,8 +136,11 @@ function gui_settings.create(player_index)
 										style = "stretchable_textfield",
 										text = player_settings.get_hud_title_setting(player_index),
 										handler = {
-											[defines.events.on_gui_text_changed] =  gui_handlers[const.SETTINGS.hud_title],
-										}
+											[defines.events.on_gui_text_changed] =	gui_handlers[const.SETTINGS.hud_title],
+										},
+										elem_mods = {
+												lose_focus_on_confirm = true,
+										},
 									}
 								}
 							},

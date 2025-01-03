@@ -16,12 +16,23 @@ end
 
 --#region GUI interaction
 
-Event.register(defines.events.on_gui_click, gui_update)
-Event.register(defines.events.on_gui_text_changed, gui_update)
-Event.register(defines.events.on_gui_elem_changed, gui_update)
-Event.register(defines.events.on_gui_value_changed, gui_update)
-Event.register(defines.events.on_gui_selection_state_changed, gui_update)
-Event.register(defines.events.on_gui_switch_state_changed, gui_update)
+-- unused events
+-- on_gui_checked_state_changed
+-- on_gui_hover
+-- on_gui_leave
+-- on_gui_location_changed
+-- on_gui_selected_tab_changed
+
+-- registered events
+Event.register({
+				defines.events.on_gui_click,
+				defines.events.on_gui_confirmed,
+				defines.events.on_gui_elem_changed,
+				defines.events.on_gui_selection_state_changed,
+				defines.events.on_gui_switch_state_changed,
+				defines.events.on_gui_text_changed,
+				defines.events.on_gui_value_changed
+		}, gui_update)
 
 --#endregion
 
