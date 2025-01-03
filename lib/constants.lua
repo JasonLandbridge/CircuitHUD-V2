@@ -91,10 +91,9 @@ const.HUD_SORT = {
 	build_order_descending = const.HUD_SORT_INDEX[7]
 }
 
+-- things that are named differently when used in a sprite button
 const.SIGNAL_TYPE_MAP = {
-	["item"] = "item",
 	["virtual"] = "virtual-signal",
-	["fluid"] = "fluid"
 }
 
 const.GUI_ACTIONS = {
