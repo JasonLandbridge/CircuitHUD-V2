@@ -1,6 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.2.1
+Date: 2025-01-02
+  Changes:
+    - Allow text field updates by pressing Enter.
+---------------------------------------------------------------------------------------------------
 Version: 2.2.0
-Date: 2024-??-??
+Date: 2024-11-24
   Changes:
     - Fix map zoom when going to a HUD location.
     - Make map zoom configurable with a setting (Map zoom factor).
@@ -42,13 +47,13 @@ Date: 2021-03-21
     - The combinators in the HUD can now be sorted by name, build order and priority in both ascending and descending mode.
     - Added hotkeys for Toggeling the HUD (default: "CONTROL + SHIFT + S") and opening the settings window (default: "CONTROL + ALT + S")
     - Mining the HUD Combinator now takes 3 seconds, up from 0.1 to prevent accidental mining.
-    - Each player can now change their individual HUD update time in real time from the settings menu. 
+    - Each player can now change their individual HUD update time in real time from the settings menu.
   Bugfixes:
-    - Fixed the collapsed button going off-screen when UI Scale is above 100% 
+    - Fixed the collapsed button going off-screen when UI Scale is above 100%
     - The HUD now automatically expands when changing the HUD position in the settings
     - Fixed many HUD glitches, should be much more fluid and stable now with better alignment, especially in the bottom-right corner.
     - Fixed the HUD Combinator GUI and Settings GUI not closing on pressing Escape and E.
-    - The HUD Combinator GUI now has the correct name as the title, and updates on confirm. 
+    - The HUD Combinator GUI now has the correct name as the title, and updates on confirm.
   Optimisations:
     - Major refactor, mainly ensuring less methods are stored on the lua global level and that most methods are now in a wrapping object. Also deleted unused methods and empty files.
     - Now uses Factorio Library for better migration management
