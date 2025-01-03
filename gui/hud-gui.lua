@@ -137,9 +137,10 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 
 	-- NOTE: This should remain local as it causes desync and save/load issues if moved elsewhere
 	local signal_name_map = {
-		["item"] = prototypes.item,
-		["virtual"] = prototypes.virtual_signal,
-		["fluid"] = prototypes.fluid
+		['item'] = prototypes.item,
+		['virtual'] = prototypes.virtual_signal,
+		['fluid'] = prototypes.fluid,
+		['entity'] = prototypes.entity,
 	}
 
 	local hide_signal_detected = false
@@ -181,9 +182,11 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 
 				-- Check if this signal should be shown based on filtering
 				if common.short_if(should_filter, filter_signal(signals_filter, signal), true) then
+					local type = const.SIGNAL_TYPE_MAP[signal_type] or signal_type
+
 					local button = {
 						type = "sprite-button",
-						sprite = const.SIGNAL_TYPE_MAP[signal_type] .. "/" .. signal_name,
+						sprite = type .. "/" .. signal_name,
 						number = signal.count,
 						style = network_styles[i],
 						tooltip = signal_name_map[signal_type][signal_name].localised_name,
