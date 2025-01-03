@@ -49,7 +49,7 @@ end
 -- local player, player_data = Player.get(event.player_index)
 function Player.get(player)
     player = Game.get_player(player)
-    return player, storage.players and storage.players[player.index] or Player.init(player.index)
+    return player, Player.pdata(player.index)
 end
 
 --- Get the players saved data table. Creates it if it doesn't exsist.
@@ -120,11 +120,6 @@ function Player.update_force(event)
     pdata.force = player.force.name
 end
 
-function Player.dump_data()
-    game.write_file(Player.get_file_path('Player/player_data.lua'), 'return ' .. inspect(Player._new_player_data, { longkeys = true, arraykeys = true }))
-    game.write_file(Player.get_file_path('Player/storage.lua'), 'return ' .. inspect(storage.players or nil, { longkeys = true, arraykeys = true }))
-end
-
 function Player.register_init()
     Event.register(Event.core_events.init, Player.init)
     return Player
@@ -134,9 +129,11 @@ function Player.register_events(do_on_init)
     Event.register(defines.events.on_player_created, Player.init)
     Event.register(defines.events.on_player_changed_force, Player.update_force)
     Event.register(defines.events.on_player_removed, Player.remove)
+
     if do_on_init then
         Player.register_init()
     end
+
     return Player
 end
 
