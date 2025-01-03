@@ -4,6 +4,7 @@ Date: 2025-01-02
   Changes:
     - Allow text field updates by pressing Enter.
     - fix crash with entity signals (reported by @therealzoomgod on github, thank you!)
+    - fix crash when entity is ghost-revived (e.g. by the repair tower mod). reported by @diamond-lizard and @wtchapell on github, thank you!)
 ---------------------------------------------------------------------------------------------------
 Version: 2.2.0
 Date: 2024-11-24
