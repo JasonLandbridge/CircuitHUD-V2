@@ -4,15 +4,18 @@ local player_settings = require("globals.player-settings")
 local combinator = {}
 
 function combinator.add_hud_combinator_ref(hud_combinator)
-	storage.hud_combinators[hud_combinator.unit_number] = {
-		["entity"] = hud_combinator,
-		["name"] = "HUD Combinator #" .. hud_combinator.unit_number,
-		["temp_name"] = "",
-		["filters"] = {},
-		["should_filter"] = false,
-		["unit_number"] = hud_combinator.unit_number,
-		["priority"] = 0
+
+		-- if revive, entity already exists...
+	storage.hud_combinators[hud_combinator.unit_number] = storage.hud_combinators[hud_combinator.unit_number] or {
+		name = "HUD Combinator #" .. hud_combinator.unit_number,
+		temp_name = "",
+		filters = {},
+		should_filter = false,
+		unit_number = hud_combinator.unit_number,
+		priority = 0
 	}
+
+	storage.hud_combinators[hud_combinator.unit_number].entity = hud_combinator
 end
 
 local function remove_hud_combinator_ref(unit_number)

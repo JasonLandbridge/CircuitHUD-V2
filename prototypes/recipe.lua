@@ -139,6 +139,9 @@ hudCombinatorEntity.sprites = {
     }
 }
 
+hudCombinatorEntity.icon = '__CircuitHUD-V2__/graphics/icon/hud-combinator.png'
+hudCombinatorEntity.icon_size = 64
+
 hudCombinatorEntity.fast_replaceable_group = 'constant-combinator'
 hudCombinatorEntity.next_upgrade = nil
 hudCombinatorEntity.item_slot_count = 0

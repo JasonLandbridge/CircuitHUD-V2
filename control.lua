@@ -105,57 +105,39 @@ Event.register(
 --#region Register / De-register HUD Combinator
 
 local function set_combinator_registration(entity, state)
-	if entity.name == const.HUD_COMBINATOR_NAME then
 		if state then
-			combinator.register_combinator(entity)
+				combinator.register_combinator(entity)
 		else
-			combinator.unregister_combinator(entity)
+				combinator.unregister_combinator(entity)
 		end
 		gui_hud.check_all_player_hud_visibility()
-	end
+end
+
+local entity_filter = function(event)
+		return event and event.entity.name == const.HUD_COMBINATOR_NAME and true or false
 end
 
 Event.register(
-	defines.events.on_built_entity,
-	function(event)
-		set_combinator_registration(event.entity, true)
-	end
+		{
+			defines.events.on_built_entity,
+			defines.events.on_robot_built_entity,
+			defines.events.on_space_platform_built_entity,
+			defines.events.script_raised_revive,
+		},
+		function(event) set_combinator_registration(event.entity, true) end,
+		entity_filter
 )
 
 Event.register(
-	defines.events.on_robot_built_entity,
-	function(event)
-		set_combinator_registration(event.entity, true)
-	end
+		{
+			defines.events.on_player_mined_entity,
+			defines.events.on_robot_mined_entity,
+			defines.events.on_space_platform_mined_entity,
+		},
+		function(event) set_combinator_registration(event.entity, false) end,
+		entity_filter
 )
 
-Event.register(
-	defines.events.on_space_platform_built_entity,
-	function(event)
-		set_combinator_registration(event.entity, true)
-	end
-)
-
-Event.register(
-	defines.events.on_player_mined_entity,
-	function(event)
-		set_combinator_registration(event.entity, false)
-	end
-)
-
-Event.register(
-	defines.events.on_robot_mined_entity,
-	function(event)
-		set_combinator_registration(event.entity, false)
-	end
-)
-
-Event.register(
-	defines.events.on_space_platform_mined_entity,
-	function(event)
-		set_combinator_registration(event.entity, false)
-	end
-)
 --#endregion
 
 Event.register(

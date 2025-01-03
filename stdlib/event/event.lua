@@ -131,7 +131,7 @@ function Event.register(event_id, handler, filter, pattern, options)
     --Recursively handle event id tables
     if Type.Table(event_id) then
         for _, id in pairs(event_id) do
-            Event.register(id, handler)
+            Event.register(id, handler, filter, pattern, options)
         end
         return Event
     end
