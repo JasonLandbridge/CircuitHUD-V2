@@ -1,3 +1,5 @@
+local util = require('util')
+
 local const = require("lib.constants")
 local player_settings = require("globals.player-settings")
 local common = require("lib.common")
@@ -128,7 +130,7 @@ end
 --#region Add Properties
 function player_data.add_player_global(player_index)
 	local player = common.get_player(player_index)
-	storage.players[player_index] = player_data_default
+	storage.players[player_index] = util.copy(player_data_default)
 	common.debug_log(player_index, "initialize global for player" .. player.name)
 end
 --#endregion

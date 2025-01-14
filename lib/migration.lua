@@ -150,9 +150,6 @@ local migrations = {
 local function run_on_config_changed(config_changed_data)
 	-- migrate save to current config
 	if migration.on_config_changed(config_changed_data, migrations) then
-		-- Run a refresh which will always be done after any migration
-		-- Original version had a fuck-ton of unneeded on_tick events, which are now refactored away
-		Event.remove(defines.events.on_tick)
 
 		base_global.ensure_global_state()
 
