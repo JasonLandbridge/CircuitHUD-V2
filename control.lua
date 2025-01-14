@@ -22,27 +22,11 @@ if script.active_mods["gvv"] then
 	require("__gvv__.gvv")()
 end
 
---#region OnInit
+--#region Event Registrations
+local function register_events()
 
-Event.on_init(
-	function()
-		for _, player in pairs(game.players) do
-			common.debug_log(player.index, "On Init")
-		end
-		-- Ensure the global state has been initialized
-		base_global.ensure_global_state()
-		-- Check all Combinator HUD references
-		combinator.check_combinator_registrations()
-		-- Ensure we have created the HUD for all players
-		gui_hud.check_all_player_hud_visibility()
-	end
-)
---#endregion
-
---#region On Nth Tick
-Event.on_nth_tick(
-	1,
-	function(event)
+	--#region On Nth Tick
+	Event.on_nth_tick(1, function(event)
 		-- go through each player and update their HUD based on the HUD Refresh rate
 		for _, player in pairs(game.players) do
 			if event.tick % player_settings.get_hud_refresh_rate_setting(player.index) == 0 then
@@ -56,102 +40,108 @@ Event.on_nth_tick(
 				end
 			end
 		end
-	end
-)
+	end)
 
---#endregion
+	--#endregion
+	--#region On Player Created
 
---#region Event Registrations
-
---#region On Player Created
-
-Event.register(
-	defines.events.on_player_created,
-	function(event)
+	Event.register(defines.events.on_player_created, function(event)
 		local player = common.get_player(event.player_index)
 		player_data.add_player_global(event.player_index)
 		gui_hud.create(event.player_index)
-		common.debug_log(event.player_index, "Circuit HUD created for player " .. player.name)
-	end
-)
+		common.debug_log(event.player_index, 'Circuit HUD created for player ' .. player.name)
+	end)
 
---#endregion
+	--#endregion
+	--#region On Player Removed
 
---#region On Player Removed
-
-Event.register(
-	defines.events.on_player_removed,
-	function(event)
+	Event.register(defines.events.on_player_removed, function(event)
 		player_data.remove_player_global(event.player_index)
-	end
-)
---#endregion
+	end)
 
---#region On Runtime Mod Setting Changed
+	--#endregion
+	--#region On Runtime Mod Setting Changed
 
-Event.register(
-	defines.events.on_runtime_mod_setting_changed,
-	function(event)
+	Event.register(defines.events.on_runtime_mod_setting_changed, function(event)
 		-- Only update when a CircuitHUD change has been made
 		if event.player_index and string.find(event.setting, const.SETTINGS.prefix) then
 			gui_hud.reset(event.player_index)
 			-- Ensure the HUD is visible on mod setting change
 			gui_hud.update_collapse_state(event.player_index, false)
 		end
-	end
-)
---#endregion
+	end)
 
---#region Register / De-register HUD Combinator
+	--#endregion
+	--#region Register / De-register HUD Combinator
 
-local function set_combinator_registration(entity, state)
+	local function set_combinator_registration(entity, state)
 		if state then
-				combinator.register_combinator(entity)
+			combinator.register_combinator(entity)
 		else
-				combinator.unregister_combinator(entity)
+			combinator.unregister_combinator(entity)
 		end
 		gui_hud.check_all_player_hud_visibility()
-end
+	end
 
-local entity_filter = function(event)
+	local entity_filter = function(event)
 		return event and event.entity.name == const.HUD_COMBINATOR_NAME and true or false
-end
+	end
 
-Event.register(
-		{
+	Event.register({
 			defines.events.on_built_entity,
 			defines.events.on_robot_built_entity,
 			defines.events.on_space_platform_built_entity,
 			defines.events.script_raised_revive,
-		},
-		function(event) set_combinator_registration(event.entity, true) end,
-		entity_filter
-)
+		}, function(event)
+			set_combinator_registration(event.entity, true)
+		end,
+		entity_filter)
 
-Event.register(
-		{
+	Event.register({
 			defines.events.on_player_mined_entity,
 			defines.events.on_robot_mined_entity,
 			defines.events.on_space_platform_mined_entity,
-		},
-		function(event) set_combinator_registration(event.entity, false) end,
-		entity_filter
-)
+		}, function(event)
+			set_combinator_registration(event.entity, false)
+		end,
+		entity_filter)
+
+	--#endregion
+	--#region Resolution Changes
+
+	Event.register(defines.events.on_player_display_resolution_changed, function(event)
+		gui_hud.reset(event.player_index)
+	end)
+
+	Event.register(defines.events.on_player_display_scale_changed, function(event)
+		gui_hud.reset(event.player_index)
+	end)
+
+	--#endregion
+end
 
 --#endregion
 
-Event.register(
-	defines.events.on_player_display_resolution_changed,
-	function(event)
-		gui_hud.reset(event.player_index)
-	end
-)
+--#region OnInit
 
-Event.register(
-	defines.events.on_player_display_scale_changed,
-	function(event)
-		gui_hud.reset(event.player_index)
+Event.on_init(function()
+	for _, player in pairs(game.players) do
+		common.debug_log(player.index, 'On Init')
 	end
-)
+	-- Ensure the global state has been initialized
+	base_global.ensure_global_state()
+	-- Check all Combinator HUD references
+	combinator.check_combinator_registrations()
+	-- Ensure we have created the HUD for all players
+	gui_hud.check_all_player_hud_visibility()
+
+	register_events()
+end)
+
+--#endregion
+
+--#region OnLoad
+
+Event.on_load(register_events)
 
 --#endregion
