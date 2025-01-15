@@ -158,6 +158,7 @@ hudCombinatorItem.icon_size = 64
 
 --#region  The HUD Combinator Recipe
 local hudCombinatorRecipe = flib_data_util.copy_prototype(data.raw.recipe['iron-chest'], hud_combinator_name)
+hudCombinatorRecipe.enabled = false
 hudCombinatorRecipe.ingredients = {
     { type = 'item', name = 'electronic-circuit', amount = 2 },
     { type = 'item', name = 'copper-cable',       amount = 5 },
@@ -169,3 +170,7 @@ hudCombinatorRecipe.results = {
 --#endregion
 
 data:extend { hudCombinatorEntity, hudCombinatorItem, hudCombinatorRecipe }
+
+assert(data.raw['technology']['circuit-network'])
+
+table.insert(data.raw['technology']['circuit-network'].effects, { type = 'unlock-recipe', recipe = hud_combinator_name })

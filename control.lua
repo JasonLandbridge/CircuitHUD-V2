@@ -22,6 +22,17 @@ if script.active_mods["gvv"] then
 	require("__gvv__.gvv")()
 end
 
+--#region on_configuration_changed
+local function on_configuration_changed()
+     -- enable hud if circuit network is researched.
+     for _, force in pairs(game.forces) do
+        if force.recipes[const.HUD_COMBINATOR_NAME] and force.technologies['circuit-network'] then
+            force.recipes[const.HUD_COMBINATOR_NAME].enabled = force.technologies['circuit-network'].researched
+        end
+    end
+end
+--#endregion
+
 --#region Event Registrations
 local function register_events()
 
@@ -116,6 +127,8 @@ local function register_events()
 	Event.register(defines.events.on_player_display_scale_changed, function(event)
 		gui_hud.reset(event.player_index)
 	end)
+
+    Event.on_configuration_changed(on_configuration_changed)
 
 	--#endregion
 end
