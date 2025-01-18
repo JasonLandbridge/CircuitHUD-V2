@@ -66,6 +66,15 @@ default_gui["hud_combinator_label"] = {
 	want_ellipsis = true
 }
 
+default_gui["hud_combinator_warning"] = {
+	type = "label_style",
+	parent = "label",
+	left_padding = 4,
+	right_padding = 4,
+    horizontally_stretchable = 'stretch_and_expand',
+    horizontal_align = 'center',
+}
+
 default_gui["ch_settings_category_frame"] = {
 	type = "frame_style",
 	parent = "bordered_frame",

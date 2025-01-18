@@ -1,9 +1,11 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.2.2
-Date: ????-??-??
+Date: 2025-01-18
   Changes:
     - Multiplayer fixes
     - Enable recipe only if 'circuit-network' technology has been researched
+    - Show search text when search bar is toggled
+    - Add some missing localization
 ---------------------------------------------------------------------------------------------------
 Version: 2.2.1
 Date: 2025-01-02
