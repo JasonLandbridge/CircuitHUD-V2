@@ -322,7 +322,7 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 		local should_filter = combinator.get_hud_combinator_filter_state(unit_number)
 
 		if should_filter and table_size(signals_filter) == 0 then
-			combinator_content.add {type = "label", style = "hud_combinator_label", caption = "Filter is on but no signals have been selected"}
+			combinator_content.add {type = "label", style = "hud_combinator_label", caption = { "chv2_hud_gui.no_signals_selected" } }
 			return
 		end
 
@@ -336,14 +336,14 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 		-- No signals were shown due to too strict filtering circuit
 		if result.signal_count == 0 and result.signal_total_count > 0 then
 			combinator_content.clear()
-			combinator_content.add {type = "label", style = "hud_combinator_label", caption = "No signals passed filtering"}
+			combinator_content.add {type = "label", style = "hud_combinator_label", caption = { "chv2_hud_gui.no_signals_passed_filter" } }
 			return
 		end
 
 		-- No signals were shown due to now signals on the connected circuit
 		if result.signal_count == 0 and result.signal_total_count == 0 then
 			combinator_content.clear()
-			combinator_content.add {type = "label", style = "hud_combinator_label", caption = "No signal"}
+			combinator_content.add {type = "label", style = "hud_combinator_label", caption = { "chv2_hud_gui.no_signal" } }
 			return
 		end
 	end
@@ -441,16 +441,16 @@ function gui_hud.create(player_index)
 					type = "textfield",
 					style = "stretchable_textfield",
 					name = const.HUD_NAMES.hud_search_text_field,
-					style_mods = {top_margin = -3, bottom_margin = 3},
+					style_mods = { top_margin = -3, bottom_margin = 3 },
 					visible = false,
 					handler = {
-												[defines.events.on_gui_text_changed] = gui_handlers[const.GUI_ACTIONS.search_bar_change],
-												[defines.events.on_gui_confirmed] = gui_handlers[const.GUI_ACTIONS.toggle_search_bar],
-										},
-										elem_mods = {
-												lose_focus_on_confirm = true,
-										},
-								},
+						[defines.events.on_gui_text_changed] = gui_handlers[const.GUI_ACTIONS.search_bar_change],
+						[defines.events.on_gui_confirmed] = gui_handlers[const.GUI_ACTIONS.toggle_search_bar],
+					},
+					elem_mods = {
+						lose_focus_on_confirm = true,
+					},
+				},
 				-- Search Button
 				{
 					type = "sprite-button",
@@ -617,8 +617,8 @@ function gui_hud.update(player_index)
 				{
 					{
 						type = "label",
-						style = "hud_combinator_label",
-						caption = "No results found!"
+						style = "hud_combinator_warning",
+						caption = { "chv2_hud_gui.no_results" },
 					}
 				}
 			)
@@ -678,8 +678,6 @@ function gui_hud.calculate_hud_size(player_index)
 		width = 40
 		height = 40
 	else
-		common.debug_log(player_index, "Start calculating HUD size:")
-
 		local max_columns_allowed = player_settings.get_hud_columns_setting(player_index)
 		width = (max_columns_allowed * (36 + 4)) + 40
 		height = player_settings.get_hud_height_setting(player_index)
@@ -697,7 +695,6 @@ function gui_hud.calculate_hud_size(player_index)
 	-- When setting the HUD Location we need the size adjusted by the display scale to set X and Y
 	local new_size = {width = width * player.display_scale, height = height * player.display_scale}
 
-	common.debug_log(player_index, "HUD size, width: " .. tostring(new_size.width) .. ", height: " .. tostring(new_size.height))
 	player_data.set_hud_size(player_index, new_size)
 	event_handler.gui_hud_size_changed(player_index, new_size)
 end
@@ -794,6 +791,7 @@ gui_handlers[const.GUI_ACTIONS.toggle_search_bar] = function(params)
 		header_spacer.visible = not state
 
         if text_field.visible then
+            text_field.text = player_data.get_hud_search_text(params.player_index)
             text_field.focus()
         end
 end

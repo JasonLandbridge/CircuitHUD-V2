@@ -10,80 +10,55 @@ local function register_event(event_name, handler)
 	Event.register(Event.generate_event_name(event_name), handler)
 end
 
---#region GUI HUD
-register_event(
-	const.EVENTS.gui_hud_create,
-	function(event)
+local function register_events()
+	--#region GUI HUD
+	register_event(const.EVENTS.gui_hud_create, function(event)
 		gui_hud.create(event.player_index)
-	end
-)
+	end)
 
-register_event(
-	const.EVENTS.gui_hud_collapse_switch,
-	function(event)
+	register_event(const.EVENTS.gui_hud_collapse_switch, function(event)
 		gui_hud.update_collapse_state(event.player_index, event.state)
-	end
-)
+	end)
 
-register_event(
-	const.EVENTS.gui_hud_toggle,
-	function(event)
+	register_event(const.EVENTS.gui_hud_toggle, function(event)
 		local toggle_state = not player_data.get_hud_collapsed(event.player_index)
 		gui_hud.update_collapse_state(event.player_index, toggle_state)
-	end
-)
+	end)
 
-register_event(
-	const.EVENTS.gui_hud_reset_all_players,
-	function()
+	register_event(const.EVENTS.gui_hud_reset_all_players, function()
 		gui_hud.reset_all_players()
-	end
-)
+	end)
 
-register_event(
-	const.EVENTS.gui_hud_size_changed,
-	function(event)
+	register_event(const.EVENTS.gui_hud_size_changed, function(event)
 		gui_hud.size_changed(event.player_index, event.size)
-	end
-)
---#endregion
+	end)
+	--#endregion
 
---#region GUI Combinator
-register_event(
-	const.EVENTS.open_hud_combinator,
-	function(event)
+	--#region GUI Combinator
+	register_event(const.EVENTS.open_hud_combinator, function(event)
 		gui_combinator.reset(event.player_index, event.unit_number)
-	end
-)
---#endregion
+	end)
+	--#endregion
 
---#region GUI Settings
-register_event(
-	const.EVENTS.gui_settings_create,
-	function(event)
+	--#region GUI Settings
+	register_event(const.EVENTS.gui_settings_create, function(event)
 		gui_settings.create(event.player_index)
-	end
-)
+	end)
 
-register_event(
-	const.EVENTS.gui_settings_open,
-	function(event)
+	register_event(const.EVENTS.gui_settings_open, function(event)
 		gui_settings.create(event.player_index)
-	end
-)
---#endregion
+	end)
+	--#endregion
 
-Event.register(
-	const.EVENTS.gui_hud_toggle,
-	function(event)
+	Event.register(const.EVENTS.gui_hud_toggle, function(event)
 		local toggle_state = not player_data.get_hud_collapsed(event.player_index)
 		gui_hud.update_collapse_state(event.player_index, toggle_state)
-	end
-)
+	end)
 
-Event.register(
-	const.EVENTS.gui_settings_open,
-	function(event)
+	Event.register(const.EVENTS.gui_settings_open, function(event)
 		gui_settings.create(event.player_index)
-	end
-)
+	end)
+end
+
+Event.on_init(register_events)
+Event.on_load(register_events)
