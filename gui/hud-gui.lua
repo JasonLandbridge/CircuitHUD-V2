@@ -193,12 +193,21 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 					}
 
 
+					local gui_quality
 					if signal_type == 'item' then
 						button.elem_tooltip = {
 							type = 'item-with-quality',
 							name = signal_name,
 							quality = signal.signal.quality,
 						}
+						if signal.signal.quality and signal.signal.quality ~= 'normal' then
+							gui_quality = {
+								type = 'sprite',
+								style = const.STYLES.quality_image,
+								sprite = 'quality/' .. signal.signal.quality,
+								enabled = true,
+							}
+						end
 					elseif signal_type == 'virtual' then
 						button.elem_tooltip = {
 							type = 'signal',
@@ -212,7 +221,8 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 						}
 					end
 
-					table[table_name].add(button)
+					local gui_button = table[table_name].add(button)
+					if gui_quality then gui_button.add(gui_quality) end
 
 					signal_count = signal_count + 1
 				end
