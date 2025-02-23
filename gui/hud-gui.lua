@@ -115,6 +115,9 @@ local function sort_hud_combinators(hud_combinators, player_index)
 	return combinator_array
 end
 
+---@param name string
+---@param children LuaGuiElement[]
+---@return table<string, LuaGuiElement>?
 local function find_child(name, children)
 	for _, child in pairs(children) do
 		if name == child.name then return { [name] = child } end
@@ -122,6 +125,10 @@ local function find_child(name, children)
 	return nil
 end
 
+---@param hud_combinator any
+---@param parent_gui LuaGuiElement
+---@param max_columns number
+---@param signals_filter any
 function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals_filter)
 	if not (parent_gui and parent_gui.valid) then return end
 
@@ -141,6 +148,19 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
         ['space-location'] = 'space_location',
         ['asteroid-chunk'] = 'asteroid_chunk',
     }
+
+	local signalid_to_elemid = {
+		item = 'item-with-quality',
+		entity = 'entity-with-quality',
+		recipe = 'recipe-with-quality',
+		equipment = 'equipment-with-quality',
+		['item-with-quality'] = 'item-with-quality',
+		['entity-with-quality'] = 'entity-with-quality',
+		['recipe-with-quality'] = 'recipe-with-quality',
+		['equipment-with-quality'] = 'equipment-with-quality',
+		['space-location'] = 'space-location',
+		['asteroid-chunk'] = 'asteroid-chunk',
+	}
 
 	local hide_signal_detected = false
 	local signal_total_count = 0
@@ -185,6 +205,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 
                     local prototype_name = signal_id_type[signal_type] and signal_id_type[signal_type] or signal_type
 
+					---@type LuaGuiElement.add_param
 					local button = {
 						type = "sprite-button",
 						sprite = type .. "/" .. signal_name,
@@ -193,13 +214,12 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 						tooltip = prototypes[prototype_name][signal_name].localised_name,
 					}
 
-
 					local gui_quality
-					if signal_type == 'item' then
+					if signalid_to_elemid[signal_type] then
 						button.elem_tooltip = {
-							type = 'item-with-quality',
-							name = signal_name,
-							quality = signal.signal.quality,
+						   type = signalid_to_elemid[signal_type],
+						   name = signal_name,
+						   quality = signal.signal.quality,
 						}
 						if signal.signal.quality and signal.signal.quality ~= 'normal' then
 							gui_quality = {
@@ -209,15 +229,10 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 								enabled = true,
 							}
 						end
-					elseif signal_type == 'virtual' then
-						button.elem_tooltip = {
-							type = 'signal',
-							signal_type = 'virtual', -- see https://forums.factorio.com/viewtopic.php?f=7&t=123237
-							name = signal_name,
-						}
 					else
 						button.elem_tooltip = {
-							type = signal_type,
+							type = 'signal',
+							signal_type = signal_type,
 							name = signal_name,
 						}
 					end
