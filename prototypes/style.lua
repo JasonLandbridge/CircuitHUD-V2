@@ -117,4 +117,5 @@ default_gui[const.STYLES.slider_count_label] = {
 default_gui[const.STYLES.quality_image] = {
 	type = 'image_style',
 	left_padding = 16,
+	size = { 32, 16, },
 }
