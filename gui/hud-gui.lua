@@ -226,6 +226,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 								type = 'sprite',
 								style = const.STYLES.quality_image,
 								sprite = 'quality/' .. signal.signal.quality,
+								resize_to_sprite = false,
 								enabled = true,
 							}
 						end
