@@ -212,6 +212,7 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 						number = signal.count,
 						style = network_styles[i],
 						tooltip = prototypes[prototype_name][signal_name].localised_name,
+						quality = signal.signal.quality,
 					}
 
 					local gui_quality
@@ -221,15 +222,6 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 						   name = signal_name,
 						   quality = signal.signal.quality,
 						}
-						if signal.signal.quality and signal.signal.quality ~= 'normal' then
-							gui_quality = {
-								type = 'sprite',
-								style = const.STYLES.quality_image,
-								sprite = 'quality/' .. signal.signal.quality,
-								resize_to_sprite = false,
-								enabled = true,
-							}
-						end
 					else
 						button.elem_tooltip = {
 							type = 'signal',

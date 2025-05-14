@@ -122,7 +122,6 @@ const.STYLES = {
 	settings_title_label = const.SHORT_PREFIX .. "settings_title_label",
 	settings_slider = const.SHORT_PREFIX .. "settings_slider_style",
 	slider_count_label = const.SHORT_PREFIX .. "slider_count_label",
-	quality_image = const.SHORT_PREFIX .. 'quality_image',
 }
 
 const.BUTTON_STYLES = {
