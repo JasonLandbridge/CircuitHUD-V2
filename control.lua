@@ -116,6 +116,9 @@ local function register_events()
 			defines.events.script_raised_revive,
 		}, function(event)
 			set_combinator_registration(event.entity, true)
+			if event.tags then
+				combinator.paste_blueprint_tags(event.entity, event.tags)
+			end
 		end,
 		entity_filter)
 
@@ -128,6 +131,31 @@ local function register_events()
 			set_combinator_registration(event.entity, false)
 		end,
 		entity_filter)
+
+	--#endregion
+	--#region Copy / Paste and Blueprint Support
+
+	Event.register(defines.events.on_entity_settings_pasted, function(event)
+		local source = event.source
+		local destination = event.destination
+		if source.name == const.HUD_COMBINATOR_NAME and destination.name == const.HUD_COMBINATOR_NAME then
+			combinator.copy_settings(source, destination)
+		end
+	end)
+
+	Event.register(defines.events.on_player_setup_blueprint, function(event)
+		local player = game.players[event.player_index]
+		if not player then return end
+
+		local blueprint = player.cursor_stack
+		if not blueprint then return end
+
+		if blueprint.valid_for_read and blueprint.name == "blueprint" then
+			for index, entity in pairs(event.mapping.get()) do
+				combinator.copy_tags_to_blueprint(blueprint, index, entity)
+			end
+		end
+	end)
 
 	--#endregion
 	--#region Resolution Changes

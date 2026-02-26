@@ -1,13 +1,18 @@
+local table = require('stdlib.utils.table')
 local const = require("lib.constants")
 local event_handler = require("events.event-handler")
 local player_settings = require("globals.player-settings")
 local combinator = {}
 
+function default_combinator_name(entity)
+	return "HUD Combinator #" .. entity.unit_number
+end
+
 function combinator.add_hud_combinator_ref(hud_combinator)
 
 		-- if revive, entity already exists...
 	storage.hud_combinators[hud_combinator.unit_number] = storage.hud_combinators[hud_combinator.unit_number] or {
-		name = "HUD Combinator #" .. hud_combinator.unit_number,
+		name = default_combinator_name(hud_combinator),
 		temp_name = "",
 		filters = {},
 		should_filter = false,
@@ -158,6 +163,75 @@ function combinator.check_combinator_registrations()
 				end
 			end
 		end
+	end
+end
+
+function combinator.copy_settings(source, destination)
+	local source_hud_combinator = combinator.get_hud_combinator(source.unit_number)
+	local destination_hud_combinator = combinator.get_hud_combinator(destination.unit_number)
+	if source_hud_combinator and destination_hud_combinator then
+
+		-- Only copy the name if it was customized.
+		--
+		-- When the source combinator has the default name (which contains the
+		-- source entities unit number), then the destination entity will be given
+		-- its default name as well (which contains the destination entities unit
+		-- number).
+		--
+		if source_hud_combinator.name ~= default_combinator_name(source) then
+			destination_hud_combinator.name = source_hud_combinator.name
+		else
+			destination_hud_combinator.name = default_combinator_name(destination)
+		end
+
+		destination_hud_combinator.filters = table.deepcopy(source_hud_combinator.filters)
+		destination_hud_combinator.should_filter = source_hud_combinator.should_filter
+		destination_hud_combinator.priority = source_hud_combinator.priority
+
+    -- Reset HUD all players on update
+    event_handler.gui_hud_reset_all_players()
+	end
+end
+
+function combinator.copy_tags_to_blueprint(blueprint, index, entity)
+	local hud_combinator = combinator.get_hud_combinator(entity.unit_number)
+	if hud_combinator then
+
+		-- Only embed the name in the blueprint if it was customized.
+		--
+		-- When the copied combinator entity has the default name (which contains
+		-- its unit number), then the absence of the name in the blueprint tags will
+		-- ensure that when the blueprint is pasted, the new combinator entity will
+		-- be given its default name as well (which contains its unit number).
+		--
+		if hud_combinator.name ~= default_combinator_name(entity) then
+			blueprint.set_blueprint_entity_tag(index, const.TAGS.combinator_name, hud_combinator.name)
+		end
+
+		blueprint.set_blueprint_entity_tag(index, const.TAGS.combinator_filters, hud_combinator.filters)
+		blueprint.set_blueprint_entity_tag(index, const.TAGS.combinator_should_filter, hud_combinator.should_filter)
+		blueprint.set_blueprint_entity_tag(index, const.TAGS.combinator_priority, hud_combinator.priority)
+	end
+end
+
+function combinator.paste_blueprint_tags(entity, tags)
+	local hud_combinator = combinator.get_hud_combinator(entity.unit_number)
+	if not hud_combinator then return end
+
+	if tags[const.TAGS.combinator_name] ~= nil then
+		hud_combinator.name = tags[const.TAGS.combinator_name]
+	end
+
+	if tags[const.TAGS.combinator_filters] ~= nil then
+		hud_combinator.filters = table.deepcopy(tags[const.TAGS.combinator_filters])
+	end
+
+	if tags[const.TAGS.combinator_should_filter] ~= nil then
+		hud_combinator.should_filter = tags[const.TAGS.combinator_should_filter]
+	end
+
+	if tags[const.TAGS.combinator_priority] ~= nil then
+		hud_combinator.priority = tags[const.TAGS.combinator_priority]
 	end
 end
 

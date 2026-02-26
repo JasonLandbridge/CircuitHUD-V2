@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: TBD
+Date: TBD
+  Changes:
+    - Preserve combinator settings when embedding HUD combinator entities in blueprints.
+    - Implement copy / paste of settings from one HUD combinator entity to another.
+---------------------------------------------------------------------------------------------------
 Version: 2.5.1
 Date: 2025-06-23
   Bugfixes:

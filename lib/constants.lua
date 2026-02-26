@@ -142,4 +142,11 @@ const.EVENTS = {
 	gui_settings_create = const.SHORT_PREFIX .. "gui_settings_create"
 }
 
+const.TAGS = {
+	combinator_name = const.SHORT_PREFIX .. "combinator_name",
+	combinator_filters = const.SHORT_PREFIX .. "combinator_filters",
+	combinator_should_filter = const.SHORT_PREFIX .. "combinator_should_filter",
+	combinator_priority = const.SHORT_PREFIX .. "combinator_priority",
+}
+
 return const
