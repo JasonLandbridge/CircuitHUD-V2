@@ -349,7 +349,7 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 		local result = gui_hud.render_signals(hud_combinator, combinator_content, max_columns, signals_filter)
 
 		if result.hide_signal_detected then
-			refs.hud_combinator_flow.destroy()
+			refs[flow_id].destroy()
 			return
 		end
 
