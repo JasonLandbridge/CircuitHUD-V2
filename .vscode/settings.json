@@ -29,9 +29,12 @@
 		"lowercase-global"
 	],
 	"Lua.workspace.library": [
-		/* Adjust these to match your Factorio install path */
-		"T:/SteamLibrary/steamapps/common/Factorio/data/", /* for __base__ and __core__ */
-		"T:/SteamLibrary/steamapps/common/Factorio/data/core/lualib", /* some basic libs can be required directly*/
+		"T:/SteamLibrary/steamapps/common/Factorio/data/",
+		"T:/SteamLibrary/steamapps/common/Factorio/data/core/lualib"
 	],
 	"lua.format.lineWidth": 150,
+	"Lua.workspace.userThirdParty": [
+		"/Users/henning/Library/Application Support/Code/User/workspaceStorage/811fa6f1941acf49d6bd5ad079950db5/justarandomgeek.factoriomod-debug/sumneko-3rd"
+	],
+	"Lua.workspace.checkThirdParty": "ApplyInMemory",
 }

@@ -1,4 +1,4 @@
-local Event = require("stdlib/event/event")
+local Event = require("stdlib.event.event")
 local const = require("lib.constants")
 
 local player_data = require("globals.player-data")
