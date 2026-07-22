@@ -1,4 +1,4 @@
-local Event = require("stdlib/event/event")
+local Event = require("stdlib.event.event")
 local flib_gui = require("__flib__.gui")
 
 local const = require("lib.constants")
