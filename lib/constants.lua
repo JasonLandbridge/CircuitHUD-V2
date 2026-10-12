@@ -52,6 +52,7 @@ const.SETTINGS = {
 	hud_refresh_rate = "hud_refresh_rate",
 	hud_height = "hud_height",
 	hud_sort = "hud_sort",
+	merge_same_name = "merge_same_name",
 	uncollapse_hud_on_register_combinator = "uncollapse_hud_on_register_combinator",
 	map_zoom_factor = "map_zoom_factor",
 	debug_mode = "debug_mode",
@@ -112,6 +113,8 @@ const.GUI_ACTIONS = {
 	go_to_combinator = "GO_TO_COMBINATOR",
 	hide_combinator = "HIDE_COMBINATOR",
 	show_combinator = "SHOW_COMBINATOR",
+	toggle_group_members = "TOGGLE_GROUP_MEMBERS",
+	toggle_group_signals = "TOGGLE_GROUP_SIGNALS",
 	-------------------------------------------------------------------------
 	filter_signal_update = "FILTER_SIGNAL_UPDATE",
 	switch_filter_state = "SWITCH_FILTER_STATE",

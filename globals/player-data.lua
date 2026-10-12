@@ -127,6 +127,14 @@ end
 
 --#endregion
 
+-- Group controls belong to each player's HUD, not to the combinators or blueprints.
+function player_data.get_hud_group_state(player_index, name)
+	local player = player_data.get_player_global(player_index)
+	player.hud_groups = player.hud_groups or {}
+	player.hud_groups[name] = player.hud_groups[name] or {expanded = false, visible = true}
+	return player.hud_groups[name]
+end
+
 --#region Add Properties
 function player_data.add_player_global(player_index)
 	local player = common.get_player(player_index)

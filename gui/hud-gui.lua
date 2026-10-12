@@ -6,6 +6,7 @@ local common = require("lib.common")
 local player_settings = require("globals.player-settings")
 local combinator = require("globals.combinator")
 local compaktcircuit = require("lib.compaktcircuit")
+local hud_groups = require("lib.hud-groups")
 local player_data = require("globals.player-data")
 local event_handler = require("events.event-handler")
 
@@ -33,7 +34,7 @@ local function sort_hud_combinators(hud_combinators, player_index)
 	-- Source: https://stackoverflow.com/q/24164118/8205497
 	local combinator_array = {}
 	for _, v in pairs(hud_combinators) do
-		table.insert(combinator_array, {name = v.name, unit_number = v.unit_number, priority = v.priority, entity = v.entity})
+		table.insert(combinator_array, v)
 	end
 
 	-- None
@@ -46,6 +47,7 @@ local function sort_hud_combinators(hud_combinators, player_index)
 		table.sort(
 			combinator_array,
 			function(a, b)
+				if a.name:lower() == b.name:lower() then return a.unit_number < b.unit_number end
 				return a.name:lower() < b.name:lower()
 			end
 		)
@@ -56,6 +58,7 @@ local function sort_hud_combinators(hud_combinators, player_index)
 		table.sort(
 			combinator_array,
 			function(a, b)
+				if a.name:lower() == b.name:lower() then return a.unit_number < b.unit_number end
 				return a.name:lower() > b.name:lower()
 			end
 		)
@@ -93,6 +96,7 @@ local function sort_hud_combinators(hud_combinators, player_index)
 			combinator_array,
 			function(a, b)
 				if a.priority == b.priority then
+					if a.name:lower() == b.name:lower() then return a.unit_number < b.unit_number end
 					return a.name:lower() < b.name:lower()
 				end
 				return a.priority < b.priority
@@ -106,6 +110,7 @@ local function sort_hud_combinators(hud_combinators, player_index)
 			combinator_array,
 			function(a, b)
 				if a.priority == b.priority then
+					if a.name:lower() == b.name:lower() then return a.unit_number < b.unit_number end
 					return a.name:lower() > b.name:lower()
 				end
 				return a.priority > b.priority
@@ -126,21 +131,7 @@ local function find_child(name, children)
 	return nil
 end
 
----@param hud_combinator any
----@param parent_gui LuaGuiElement
----@param max_columns number
----@param signals_filter any
-function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals_filter)
-	if not (parent_gui and parent_gui.valid) then return end
-	if not (hud_combinator.entity and hud_combinator.entity.valid) then return end
-
-	local unit_number = hud_combinator.unit_number
-	local should_filter = combinator.get_hud_combinator_filter_state(unit_number)
-
-	local red_network = hud_combinator.entity.get_circuit_network(defines.wire_connector_id.circuit_red)
-	local green_network = hud_combinator.entity.get_circuit_network(defines.wire_connector_id.circuit_green)
-
-	local networks = {green_network, red_network}
+local function render_networks(networks, parent_gui, max_columns, should_filter, signals_filter)
 	local network_colors = {"green", "red"}
 	local network_styles = {"green_circuit_network_content_slot", "red_circuit_network_content_slot"}
 
@@ -248,6 +239,15 @@ function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals
 	}
 end
 
+-- The configuration preview and unmerged HUD keep reading one combinator at a time.
+function gui_hud.render_signals(hud_combinator, parent_gui, max_columns, signals_filter)
+    if not (parent_gui and parent_gui.valid and hud_combinator.entity and hud_combinator.entity.valid) then return end
+    local green = hud_combinator.entity.get_circuit_network(defines.wire_connector_id.circuit_green)
+    local red = hud_combinator.entity.get_circuit_network(defines.wire_connector_id.circuit_red)
+    return render_networks({green, red}, parent_gui, max_columns,
+        combinator.get_hud_combinator_filter_state(hud_combinator.unit_number), signals_filter)
+end
+
 -- Takes the data from HUD Combinator and display it in the HUD
 -- @param scroll_pane_frame The Root frame
 -- @param hud_combinator The HUD Combinator to process
@@ -350,7 +350,7 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 		local result = gui_hud.render_signals(hud_combinator, combinator_content, max_columns, signals_filter)
 
 		if result.hide_signal_detected then
-			refs.hud_combinator_flow.destroy()
+			refs[flow_id].destroy()
 			return
 		end
 
@@ -368,6 +368,94 @@ function gui_hud.render_combinator(scroll_pane_frame, player_index, unit_number)
 			return
 		end
 	end
+end
+
+local function add_member_controls(parent, player_index, member)
+    local visible = player_data.get_hud_combinator_visibilty(player_index, member.unit_number)
+    flib_gui.add(parent, {
+        {type = "empty-widget", style = "flib_horizontal_pusher", ignored_by_interaction = true},
+        {
+            type = "button", style = const.BUTTON_STYLES.go_to_button,
+            tooltip = {"chv2_button_tooltips.go_to_combinator"},
+            tags = {unit_number = member.unit_number},
+            handler = {[defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.go_to_combinator]},
+        },
+        {
+            type = "button", style = const.BUTTON_STYLES.edit_button,
+            tooltip = {"chv2_button_tooltips.open_combinator"},
+            tags = {unit_number = member.unit_number},
+            handler = {[defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.open_combinator]},
+        },
+        {
+            type = "button", style = visible and const.BUTTON_STYLES.hide_button or const.BUTTON_STYLES.show_button,
+            tooltip = {visible and "chv2_button_tooltips.hide_combinator" or "chv2_button_tooltips.show_combinator"},
+            tags = {unit_number = member.unit_number},
+            handler = {[defines.events.on_gui_click] = gui_handlers[visible and const.GUI_ACTIONS.hide_combinator or const.GUI_ACTIONS.show_combinator]},
+        },
+    })
+end
+
+function gui_hud.render_group(parent, player_index, group, network_cache)
+    local state = player_data.get_hud_group_state(player_index, group.name)
+    local result
+    if state.visible then
+        result = hud_groups.collect(group.members, function(unit_number)
+            return player_data.get_hud_combinator_visibilty(player_index, unit_number)
+        end, network_cache)
+        if result.hidden_members == #group.members then return end
+    end
+
+    local root = parent.add{
+        type = "flow", direction = "vertical", style = "combinator_flow_style",
+        name = "hud_group_" .. group.members[1].unit_number,
+    }
+    local header = root.add{type = "flow", direction = "horizontal", style = "flib_titlebar_flow"}
+    flib_gui.add(header, {
+        {
+            type = "label", style = "hud_combinator_label",
+            caption = {"chv2_hud_gui.group_title", group.name, #group.members},
+        },
+        {type = "empty-widget", style = "flib_horizontal_pusher", ignored_by_interaction = true},
+        {
+            type = "sprite-button", style = "frame_action_button",
+            sprite = state.expanded and "utility/collapse" or "utility/expand",
+            tooltip = {state.expanded and "chv2_button_tooltips.collapse_group" or "chv2_button_tooltips.expand_group"},
+            tags = {group_name = group.name},
+            handler = {[defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.toggle_group_members]},
+        },
+        {
+            type = "button", style = state.visible and const.BUTTON_STYLES.hide_button or const.BUTTON_STYLES.show_button,
+            tooltip = {state.visible and "chv2_button_tooltips.hide_group" or "chv2_button_tooltips.show_group"},
+            tags = {group_name = group.name},
+            handler = {[defines.events.on_gui_click] = gui_handlers[const.GUI_ACTIONS.toggle_group_signals]},
+        },
+    })
+
+    if result then
+        local content = root.add{type = "flow", direction = "vertical", style = "packed_vertical_flow", name = "group_content"}
+        if result.signal_count == 0 then
+            content.add{type = "label", style = "hud_combinator_label", caption = {"chv2_hud_gui.group_no_signal"}}
+        else
+            render_networks(result.networks, content, player_settings.get_hud_columns_setting(player_index), false, {})
+        end
+    end
+
+    -- Build member controls only while expanded; merging large groups should reduce GUI work.
+    if state.expanded then
+        local list = root.add{type = "flow", direction = "vertical", name = "group_members"}
+        for _, member in ipairs(group.members) do
+            if member.entity.valid then
+                local entity = member.entity
+                local row = list.add{type = "flow", direction = "horizontal", name = "member_" .. member.unit_number}
+                row.add{
+                    type = "label", style = "hud_combinator_label",
+                    caption = {"chv2_hud_gui.group_member", member.unit_number, entity.surface.name,
+                        math.floor(entity.position.x), math.floor(entity.position.y)},
+                }
+                add_member_controls(row, player_index, member)
+            end
+        end
+    end
 end
 
 -- Build the HUD with the signals
@@ -644,12 +732,22 @@ function gui_hud.update(player_index)
 				}
 			)
 		else
-			-- loop over every HUD Combinator provided
-			for _, hud_combinator in ipairs(hud_combinators_unit_numbers) do
-				if hud_combinator.entity.valid then
-					gui_hud.render_combinator(scroll_pane_frame, player_index, hud_combinator.unit_number)
-				end
-			end
+            if player_settings.get_merge_same_name_setting(player_index) then
+                local network_cache = {}
+                for _, group in ipairs(hud_groups.build(hud_combinators_unit_numbers)) do
+                    if #group.members == 1 then
+                        gui_hud.render_combinator(scroll_pane_frame, player_index, group.members[1].unit_number)
+                    else
+                        gui_hud.render_group(scroll_pane_frame, player_index, group, network_cache)
+                    end
+                end
+            else
+                for _, hud_combinator in ipairs(hud_combinators_unit_numbers) do
+                    if hud_combinator.entity.valid then
+                        gui_hud.render_combinator(scroll_pane_frame, player_index, hud_combinator.unit_number)
+                    end
+                end
+            end
 		end
 	end
 
@@ -798,6 +896,20 @@ end
 
 gui_handlers[const.GUI_ACTIONS.hide_combinator] = function(params)
     player_data.set_hud_combinator_visibilty(params.player_index, params.unit_number, false)
+    gui_hud.update(params.player_index)
+end
+
+gui_handlers[const.GUI_ACTIONS.toggle_group_members] = function(params)
+    if params.group_name == nil then return end
+    local state = player_data.get_hud_group_state(params.player_index, params.group_name)
+    state.expanded = not state.expanded
+    gui_hud.update(params.player_index)
+end
+
+gui_handlers[const.GUI_ACTIONS.toggle_group_signals] = function(params)
+    if params.group_name == nil then return end
+    local state = player_data.get_hud_group_state(params.player_index, params.group_name)
+    state.visible = not state.visible
     gui_hud.update(params.player_index)
 end
 

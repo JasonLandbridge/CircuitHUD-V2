@@ -306,6 +306,28 @@ function gui_settings.create(player_index)
 									}
 								}
 							},
+                            -- Merge HUD combinators with identical names
+                            {
+                                type = "flow",
+                                style = "flib_titlebar_flow",
+                                children = {
+                                    {
+                                        type = "label",
+                                        style = const.STYLES.settings_title_label,
+                                        caption = {"chv2_settings_name.merge_same_name"},
+                                        tooltip = {"chv2_settings_gui_tooltips.merge_same_name"},
+                                    },
+                                    {
+                                        type = "checkbox",
+                                        name = "chv2_merge_same_name",
+                                        state = player_settings.get_merge_same_name_setting(player_index),
+                                        style_mods = {top_margin = 8},
+                                        handler = {
+                                            [defines.events.on_gui_click] = gui_handlers[const.SETTINGS.merge_same_name],
+                                        },
+                                    },
+                                },
+                            },
 							-- Uncollapse HUD on new combinator
 							{
 								type = "flow",
@@ -510,6 +532,11 @@ gui_handlers[const.SETTINGS.hud_sort] = function(params)
     player_settings.set_hud_sort_setting(params.player_index, const.HUD_SORT_INDEX[params.value])
     gui_hud.reset(params.player_index)
     return
+end
+
+gui_handlers[const.SETTINGS.merge_same_name] = function(params)
+    player_settings.set_merge_same_name_setting(params.player_index, params.value)
+    gui_hud.reset(params.player_index)
 end
 
 -- Uncollapse HUD on new combinator

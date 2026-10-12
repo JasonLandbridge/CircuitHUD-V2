@@ -24,6 +24,7 @@ function player_settings.default_player_settings()
 	settings[const.SETTINGS.hud_height] = 600
 	settings[const.SETTINGS.hud_refresh_rate] = 60
 	settings[const.SETTINGS.hud_sort] = const.HUD_SORT.none
+	settings[const.SETTINGS.merge_same_name] = false
 	settings[const.SETTINGS.uncollapse_hud_on_register_combinator] = true
 	settings[const.SETTINGS.debug_mode] = false
 	settings[const.SETTINGS.map_zoom_factor] = 2
@@ -63,6 +64,11 @@ end
 
 function player_settings.get_hud_refresh_rate_setting(player_index)
 	return player_settings.get_setting(player_index, const.SETTINGS.hud_refresh_rate)
+end
+
+-- Missing in older saves; merging remains opt-in without resetting other settings.
+function player_settings.get_merge_same_name_setting(player_index)
+	return player_settings.get_setting(player_index, const.SETTINGS.merge_same_name) == true
 end
 
 function player_settings.get_hud_sort_setting(player_index)
@@ -123,6 +129,10 @@ end
 
 function player_settings.set_uncollapse_hud_on_register_combinator_setting(player_index, state)
 	player_settings.set_setting(player_index, const.SETTINGS.uncollapse_hud_on_register_combinator, state)
+end
+
+function player_settings.set_merge_same_name_setting(player_index, state)
+	player_settings.set_setting(player_index, const.SETTINGS.merge_same_name, state)
 end
 
 function player_settings.set_hud_sort_setting(player_index, state)
