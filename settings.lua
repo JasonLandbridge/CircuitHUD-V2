@@ -1,4 +1,15 @@
 local const = require("lib.constants")
+
+data:extend{
+	{
+		type = "bool-setting",
+		name = const.COMPAKT_SUPPORT_SETTING,
+		setting_type = "startup",
+		default_value = false,
+		order = "a",
+	}
+}
+
 -- DEPRECATED: EVERYTHING HERE SHOULD BE DELETED AFTER V1.3 HAS BEEN LAUNCHED
 -- Only still here to migrate any player settings to the in-game settings menu
 -- Per Player SETTINGS

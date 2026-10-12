@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.1.0
+Date: 2026-10-12
+  Features:
+    - Optionally merge identically named HUD combinators into one group, summing signals by type and quality while keeping red and green networks separate. Shared networks count once; source filters and visibility still apply. Expand groups to navigate to, edit or hide their members. Enable merging in each player's HUD settings (off by default). (#35)
+    - Add experimental support for HUD combinators inside Compakt Circuits, preserving settings when packing. Circuit HUDs are only shown while that circuit is open in your editor; go-to keeps god/map-editor mode active. Enable it with the EXPERIMENTAL startup setting (off by default). (#36)
+  Bugfixes:
+    - Fix a crash when a circuit signal hides a HUD combinator.
+    - Preserve HUD combinator names, signal filters, filtering state and priority when copying, cutting or blueprinting combinators. (#37)
+    - Support copying HUD combinator settings and pasting blueprint settings over existing combinators.
+---------------------------------------------------------------------------------------------------
 Version: 3.0.0
 Date: 2026-07-21
   Changes:

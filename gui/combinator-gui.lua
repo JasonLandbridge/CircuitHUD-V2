@@ -42,15 +42,21 @@ local function generate_signal_filter_table(unit_number)
 end
 
 function gui_combinator.update_signals(player_index, unit_number)
+	local hud_combinator = combinator.get_hud_combinator(unit_number)
+	if not (hud_combinator and hud_combinator.entity.valid) then
+		gui_combinator.destroy_all(player_index)
+		return
+	end
 	local preview = player_data.get_hud_ref(player_index, const.HUD_NAMES.combinator_signal_preview)
 	if not (preview and preview.valid) then return end
 
-	local hud_combinator = combinator.get_hud_combinator(unit_number)
 	-- Render the preview signals
 	gui_hud.render_signals(hud_combinator, preview, 10, {})
 end
 
 function gui_combinator.create(player_index, unit_number)
+    local data = combinator.get_hud_combinator(unit_number)
+    if not data or not combinator.is_visible_to_player(data.entity, common.get_player(player_index)) then return end
     -- Check if it doesn't exist already
     local player = common.get_player(player_index)
     local combinator_gui = gui_combinator.get_combinator_gui(player_index)

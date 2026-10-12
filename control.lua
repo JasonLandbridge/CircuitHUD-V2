@@ -15,6 +15,10 @@ local gui_combinator = require('gui.combinator-gui')
 
 require "events.gui-events"
 require "events.custom-events"
+require "events.combinator-settings"
+if require('lib.compaktcircuit').is_enabled(script.active_mods) then
+	require "events.compaktcircuit"
+end
 
 -- Enable Lua API global Variable Viewer
 -- https://mods.factorio.com/mod/gvv
@@ -85,28 +89,26 @@ local function register_events()
 	--#endregion
 	--#region Register / De-register HUD Combinator
 
-	local function set_combinator_registration(entity, state)
+	local function set_combinator_registration(entity, state, tags)
 		if state then
-			combinator.register_combinator(entity)
+			combinator.register_combinator(entity, tags)
 		else
-			combinator.unregister_combinator(entity)
+			combinator.unregister_combinator(entity.unit_number)
 		end
 		gui_hud.check_all_player_hud_visibility()
 	end
 
-	local function close_combinator_gui(entity)
-		if not (entity and entity.valid) then return end
-
+	local function close_combinator_gui(unit_number)
 		for player_index in pairs(game.players) do
 			local gui = gui_combinator.get_combinator_gui(player_index)
-			if gui and gui.tags.unit_number == entity.unit_number then
+			if gui and gui.tags.unit_number == unit_number then
 				gui_combinator.destroy(player_index, gui.name)
 			end
 		end
 	end
 
 	local entity_filter = function(event)
-		return event and event.entity.name == const.HUD_COMBINATOR_NAME and true or false
+		return event and combinator.is_hud_combinator(event.entity) and event.entity.type ~= "entity-ghost"
 	end
 
 	Event.register({
@@ -114,8 +116,9 @@ local function register_events()
 			defines.events.on_robot_built_entity,
 			defines.events.on_space_platform_built_entity,
 			defines.events.script_raised_revive,
+			defines.events.script_raised_built,
 		}, function(event)
-			set_combinator_registration(event.entity, true)
+			set_combinator_registration(event.entity, true, event.tags)
 		end,
 		entity_filter)
 
@@ -124,10 +127,29 @@ local function register_events()
 			defines.events.on_robot_mined_entity,
 			defines.events.on_space_platform_mined_entity,
 		}, function(event)
-			close_combinator_gui(event.entity)
+			close_combinator_gui(event.entity.unit_number)
 			set_combinator_registration(event.entity, false)
 		end,
 		entity_filter)
+
+	-- Compakt destroys packed entities and editor surfaces without mining events.
+	Event.register(defines.events.on_object_destroyed, function(event)
+		local data = combinator.get_hud_combinator(event.useful_id)
+		if data and data.destruction_registration == event.registration_number then
+			close_combinator_gui(event.useful_id)
+			combinator.unregister_combinator(event.useful_id)
+			gui_hud.check_all_player_hud_visibility()
+		end
+	end)
+
+	Event.register(defines.events.on_entity_cloned, function(event)
+		if combinator.is_hud_combinator(event.source) and event.source.type ~= "entity-ghost" then
+			combinator.register_combinator(event.destination, {
+				[const.COMBINATOR_SETTINGS_TAG] = combinator.get_settings(event.source),
+			})
+			gui_hud.check_all_player_hud_visibility()
+		end
+	end)
 
 	--#endregion
 	--#region Resolution Changes

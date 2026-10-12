@@ -1,13 +1,85 @@
+local table = require("stdlib.utils.table")
 local const = require("lib.constants")
 local event_handler = require("events.event-handler")
 local player_settings = require("globals.player-settings")
+local compaktcircuit = require("lib.compaktcircuit")
+local compaktcircuit_enabled = compaktcircuit.is_enabled(script.active_mods)
 local combinator = {}
+
+local function default_combinator_name(entity)
+	return "HUD Combinator #" .. entity.unit_number
+end
+
+function combinator.is_hud_combinator(entity)
+	return entity and entity.valid and (entity.name == const.HUD_COMBINATOR_NAME
+		or entity.name == const.PACKED_COMBINATOR_NAME
+		or (entity.type == "entity-ghost" and entity.ghost_name == const.HUD_COMBINATOR_NAME))
+end
+
+-- Only persistent configuration belongs in blueprints, not entity references or GUI state.
+function combinator.get_settings(entity)
+	if not combinator.is_hud_combinator(entity) then return end
+	if entity.type == "entity-ghost" then
+		return table.deepcopy(entity.tags[const.COMBINATOR_SETTINGS_TAG])
+	end
+
+	local data = combinator.get_hud_combinator(entity.unit_number)
+	if not data then return end
+	return {
+		name = data.name ~= default_combinator_name(entity) and data.name or nil,
+		filters = table.deepcopy(data.filters),
+		should_filter = data.should_filter,
+		priority = data.priority,
+	}
+end
+
+function combinator.apply_settings(entity, settings)
+	if not combinator.is_hud_combinator(entity) or type(settings) ~= "table" then return false end
+	if (settings.name ~= nil and type(settings.name) ~= "string")
+		or type(settings.filters) ~= "table"
+		or type(settings.should_filter) ~= "boolean"
+		or type(settings.priority) ~= "number"
+		or not (settings.priority >= -100 and settings.priority <= 100) then return false end
+
+	-- Blueprint tags turn numeric table keys into strings. Restore the GUI's 50 slots.
+	local filters = {}
+	for index = 1, 50 do
+		local signal = settings.filters[index] or settings.filters[tostring(index)]
+		if type(signal) == "table" then
+			filters[index] = table.deepcopy(signal)
+		end
+	end
+
+	if entity.type == "entity-ghost" then
+		local tags = entity.tags
+		tags[const.COMBINATOR_SETTINGS_TAG] = {
+			name = settings.name,
+			filters = filters,
+			should_filter = settings.should_filter,
+			priority = settings.priority,
+		}
+		entity.tags = tags
+	else
+		local data = combinator.get_hud_combinator(entity.unit_number)
+		if not data then return false end
+		data.name = settings.name or default_combinator_name(entity)
+		data.temp_name = data.name
+		data.filters = filters
+		data.should_filter = settings.should_filter
+		data.priority = settings.priority
+	end
+	return true
+end
+
+function combinator.copy_settings(source, destination)
+	return combinator.apply_settings(destination, combinator.get_settings(source))
+end
 
 function combinator.add_hud_combinator_ref(hud_combinator)
 
 		-- if revive, entity already exists...
 	storage.hud_combinators[hud_combinator.unit_number] = storage.hud_combinators[hud_combinator.unit_number] or {
-		name = "HUD Combinator #" .. hud_combinator.unit_number,
+		name = default_combinator_name(hud_combinator),
 		temp_name = "",
 		filters = {},
 		should_filter = false,
@@ -16,14 +88,19 @@ function combinator.add_hud_combinator_ref(hud_combinator)
 	}
 
 	storage.hud_combinators[hud_combinator.unit_number].entity = hud_combinator
+	storage.hud_combinators[hud_combinator.unit_number].destruction_registration = script.register_on_object_destroyed(hud_combinator)
 end
 
 local function remove_hud_combinator_ref(unit_number)
 	storage.hud_combinators[unit_number] = nil
+	for _, player in pairs(storage.players) do
+		player.hud_combinators[unit_number] = nil
+	end
 end
 
-function combinator.register_combinator(entity)
+function combinator.register_combinator(entity, tags)
 	combinator.add_hud_combinator_ref(entity)
+	if tags then combinator.apply_settings(entity, tags[const.COMBINATOR_SETTINGS_TAG]) end
 
 	for k, player in pairs(game.players) do
 		-- Uncollapse the HUD when a new combinator is registered
@@ -33,8 +110,8 @@ function combinator.register_combinator(entity)
 	end
 end
 
-function combinator.unregister_combinator(entity)
-	remove_hud_combinator_ref(entity.unit_number)
+function combinator.unregister_combinator(unit_number)
+	remove_hud_combinator_ref(unit_number)
 end
 
 --#region Get Combinator Helpers
@@ -89,12 +166,25 @@ function combinator.get_hud_combinator_priority(unit_number)
 	return 0
 end
 
-function combinator.get_hud_combinators()
-	return storage["hud_combinators"]
+function combinator.is_visible_to_player(entity, player)
+	return entity and entity.valid
+		and (not compaktcircuit_enabled or compaktcircuit.is_visible(entity, player))
 end
 
-function combinator.has_hud_combinators()
-	return table_size(combinator.get_hud_combinators()) > 0
+function combinator.get_hud_combinators(player_index)
+	if not compaktcircuit_enabled then return storage.hud_combinators end
+	local player = player_index and game.get_player(player_index)
+	local result = {}
+	for unit_number, data in pairs(storage.hud_combinators) do
+		if combinator.is_visible_to_player(data.entity, player) then
+			result[unit_number] = data
+		end
+	end
+	return result
+end
+
+function combinator.has_hud_combinators(player_index)
+	return table_size(combinator.get_hud_combinators(player_index)) > 0
 end
 
 --#endregion
@@ -143,13 +233,17 @@ function combinator.check_combinator_registrations()
 	for key, meta_entity in pairs(storage.hud_combinators) do
 		if (not meta_entity.entity) or (not meta_entity.entity.valid) then
 			remove_hud_combinator_ref(key)
+		else
+			meta_entity.destruction_registration = script.register_on_object_destroyed(meta_entity.entity)
 		end
 	end
 
 	-- find entities not discovered
+	local names = {const.HUD_COMBINATOR_NAME}
+	if compaktcircuit_enabled then names[#names + 1] = const.PACKED_COMBINATOR_NAME end
 	for i, surface in pairs(game.surfaces) do
 		-- find all hud combinator
-		local hud_combinators = surface.find_entities_filtered {name = const.HUD_COMBINATOR_NAME}
+		local hud_combinators = surface.find_entities_filtered {name = names}
 
 		if hud_combinators then
 			for _, hud_combinator in pairs(hud_combinators) do

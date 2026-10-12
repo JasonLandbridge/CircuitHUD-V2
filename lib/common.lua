@@ -61,6 +61,7 @@ function common.gui_wrapper(event, handler)
         player_index = event.player_index,
         gui = element.tags['gui'],
         unit_number = element.tags['unit_number'],
+        group_name = element.tags['group_name'],
         index = element.tags['index'],
     }
 
