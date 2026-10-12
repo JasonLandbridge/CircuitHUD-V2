@@ -5,6 +5,7 @@ local const = require("lib.constants")
 local common = require("lib.common")
 local player_settings = require("globals.player-settings")
 local combinator = require("globals.combinator")
+local compaktcircuit = require("lib.compaktcircuit")
 local player_data = require("globals.player-data")
 local event_handler = require("events.event-handler")
 
@@ -373,7 +374,7 @@ end
 -- @param player_index The index of the player
 function gui_hud.create(player_index)
 	-- First check if there are any existing HUD combinator
-	if not combinator.has_hud_combinators() then
+	if not combinator.has_hud_combinators(player_index) then
 		common.debug_log(player_index, "There are no HUD Combinators registered so we can't create the HUD")
 		return
 	end
@@ -584,7 +585,7 @@ end
 
 -- Check  and ensure if the player has their HUD either visible or hidden based on the existense of HUD combinators.
 function gui_hud.should_hud_root_exist(player_index)
-	if combinator.has_hud_combinators() then
+	if combinator.has_hud_combinators(player_index) then
 		-- Ensure we have created the HUD for all players
 		if not player_data.get_hud_ref(player_index, const.HUD_NAMES.hud_root_frame) then
 			gui_hud.create(player_index)
@@ -610,7 +611,7 @@ function gui_hud.update(player_index)
 		common.debug_log(player_index, "Can't update HUD because the scroll_pane_frame does not exist for player with index: " .. player_index)
 	end
 
-	if combinator.has_hud_combinators() and not player_data.get_hud_collapsed(player_index) then
+	if combinator.has_hud_combinators(player_index) and not player_data.get_hud_collapsed(player_index) then
 		-- Clear the frame which has the signals displayed to start the update
 		scroll_pane_frame.clear()
 
@@ -618,13 +619,13 @@ function gui_hud.update(player_index)
 		local text = stdlib_string.trim(player_data.get_hud_search_text(player_index))
 		local hud_combinators = {}
 		if text ~= "" then
-			for key, hud_combinator in pairs(combinator.get_hud_combinators()) do
+			for key, hud_combinator in pairs(combinator.get_hud_combinators(player_index)) do
 				if stdlib_string.contains(hud_combinator.name:lower(), text:lower()) then
 					hud_combinators[key] = hud_combinator
 				end
 			end
 		else
-			hud_combinators = combinator.get_hud_combinators()
+			hud_combinators = combinator.get_hud_combinators(player_index)
 		end
 
 		-- Sort HUD Combinator
@@ -766,22 +767,24 @@ local function compute_zoom(zoom_level)
 end
 
 gui_handlers[const.GUI_ACTIONS.go_to_combinator] = function(params)
-    if params.unit_number then
-        -- find the entity
-        local hud_combinator = combinator.get_hud_combinator_entity(params.unit_number)
-        if hud_combinator and hud_combinator.valid then
-            local player = game.players[params.player_index]
-            if player then
-                -- open the map on the coordinates
-                player.set_controller {
-                    type = defines.controllers.remote,
-                    position = hud_combinator.position,
-                    surface = hud_combinator.surface,
-                }
-                player.zoom = compute_zoom(player_settings.get_map_zoom_factor_setting(params.player_index))
-            end
-        end
+    if not params.unit_number then return end
+    local player = game.get_player(params.player_index)
+    local entity = combinator.get_hud_combinator_entity(params.unit_number)
+    -- Ignore stale clicks after the player has left a circuit's editor.
+    if not player or not combinator.is_visible_to_player(entity, player) then return end
+
+    if compaktcircuit.is_enabled(script.active_mods) and compaktcircuit.is_editor_surface(entity.surface)
+        and (player.controller_type == defines.controllers.god or player.controller_type == defines.controllers.editor) then
+        -- Keep Compakt's editing controller and session intact while panning.
+        player.teleport(entity.position)
+    else
+        player.set_controller {
+            type = defines.controllers.remote,
+            position = entity.position,
+            surface = entity.surface,
+        }
     end
+    player.zoom = compute_zoom(player_settings.get_map_zoom_factor_setting(params.player_index))
 end
 
 gui_handlers[const.GUI_ACTIONS.open_combinator] = function(params)

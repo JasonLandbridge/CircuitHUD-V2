@@ -1,5 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 Version: 3.0.1
+  Features:
+    - Add experimental support for HUD combinators inside Compakt Circuits, preserving settings when packing. Circuit HUDs are only shown while that circuit is open in your editor; go-to keeps god/map-editor mode active. Enable it with the EXPERIMENTAL startup setting (off by default). (#36)
   Bugfixes:
     - Preserve HUD combinator names, signal filters, filtering state and priority when copying, cutting or blueprinting combinators. (#37)
     - Support copying HUD combinator settings and pasting blueprint settings over existing combinators.

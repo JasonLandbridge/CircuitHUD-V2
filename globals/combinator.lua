@@ -2,6 +2,8 @@ local table = require("stdlib.utils.table")
 local const = require("lib.constants")
 local event_handler = require("events.event-handler")
 local player_settings = require("globals.player-settings")
+local compaktcircuit = require("lib.compaktcircuit")
+local compaktcircuit_enabled = compaktcircuit.is_enabled(script.active_mods)
 local combinator = {}
 
 local function default_combinator_name(entity)
@@ -10,6 +12,7 @@ end
 
 function combinator.is_hud_combinator(entity)
 	return entity and entity.valid and (entity.name == const.HUD_COMBINATOR_NAME
+		or entity.name == const.PACKED_COMBINATOR_NAME
 		or (entity.type == "entity-ghost" and entity.ghost_name == const.HUD_COMBINATOR_NAME))
 end
 
@@ -85,10 +88,14 @@ function combinator.add_hud_combinator_ref(hud_combinator)
 	}
 
 	storage.hud_combinators[hud_combinator.unit_number].entity = hud_combinator
+	storage.hud_combinators[hud_combinator.unit_number].destruction_registration = script.register_on_object_destroyed(hud_combinator)
 end
 
 local function remove_hud_combinator_ref(unit_number)
 	storage.hud_combinators[unit_number] = nil
+	for _, player in pairs(storage.players) do
+		player.hud_combinators[unit_number] = nil
+	end
 end
 
 function combinator.register_combinator(entity, tags)
@@ -103,8 +110,8 @@ function combinator.register_combinator(entity, tags)
 	end
 end
 
-function combinator.unregister_combinator(entity)
-	remove_hud_combinator_ref(entity.unit_number)
+function combinator.unregister_combinator(unit_number)
+	remove_hud_combinator_ref(unit_number)
 end
 
 --#region Get Combinator Helpers
@@ -159,12 +166,25 @@ function combinator.get_hud_combinator_priority(unit_number)
 	return 0
 end
 
-function combinator.get_hud_combinators()
-	return storage["hud_combinators"]
+function combinator.is_visible_to_player(entity, player)
+	return entity and entity.valid
+		and (not compaktcircuit_enabled or compaktcircuit.is_visible(entity, player))
 end
 
-function combinator.has_hud_combinators()
-	return table_size(combinator.get_hud_combinators()) > 0
+function combinator.get_hud_combinators(player_index)
+	if not compaktcircuit_enabled then return storage.hud_combinators end
+	local player = player_index and game.get_player(player_index)
+	local result = {}
+	for unit_number, data in pairs(storage.hud_combinators) do
+		if combinator.is_visible_to_player(data.entity, player) then
+			result[unit_number] = data
+		end
+	end
+	return result
+end
+
+function combinator.has_hud_combinators(player_index)
+	return table_size(combinator.get_hud_combinators(player_index)) > 0
 end
 
 --#endregion
@@ -213,13 +233,17 @@ function combinator.check_combinator_registrations()
 	for key, meta_entity in pairs(storage.hud_combinators) do
 		if (not meta_entity.entity) or (not meta_entity.entity.valid) then
 			remove_hud_combinator_ref(key)
+		else
+			meta_entity.destruction_registration = script.register_on_object_destroyed(meta_entity.entity)
 		end
 	end
 
 	-- find entities not discovered
+	local names = {const.HUD_COMBINATOR_NAME}
+	if compaktcircuit_enabled then names[#names + 1] = const.PACKED_COMBINATOR_NAME end
 	for i, surface in pairs(game.surfaces) do
 		-- find all hud combinator
-		local hud_combinators = surface.find_entities_filtered {name = const.HUD_COMBINATOR_NAME}
+		local hud_combinators = surface.find_entities_filtered {name = names}
 
 		if hud_combinators then
 			for _, hud_combinator in pairs(hud_combinators) do

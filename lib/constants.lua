@@ -2,6 +2,8 @@ local const = {}
 
 const.SHORT_PREFIX = "chv2_"
 const.HUD_COMBINATOR_NAME = "hud-combinator"
+const.PACKED_COMBINATOR_NAME = "hud-combinator-packed"
+const.COMPAKT_SUPPORT_SETTING = "CircuitHUD_compaktcircuit_support"
 const.COMBINATOR_SETTINGS_TAG = const.SHORT_PREFIX .. "combinator_settings"
 const.HIDE_SIGNAL_NAME = "signal-hide-hud-comparator"
 
