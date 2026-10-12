@@ -1,13 +1,82 @@
+local table = require("stdlib.utils.table")
 local const = require("lib.constants")
 local event_handler = require("events.event-handler")
 local player_settings = require("globals.player-settings")
 local combinator = {}
 
+local function default_combinator_name(entity)
+	return "HUD Combinator #" .. entity.unit_number
+end
+
+function combinator.is_hud_combinator(entity)
+	return entity and entity.valid and (entity.name == const.HUD_COMBINATOR_NAME
+		or (entity.type == "entity-ghost" and entity.ghost_name == const.HUD_COMBINATOR_NAME))
+end
+
+-- Only persistent configuration belongs in blueprints, not entity references or GUI state.
+function combinator.get_settings(entity)
+	if not combinator.is_hud_combinator(entity) then return end
+	if entity.type == "entity-ghost" then
+		return table.deepcopy(entity.tags[const.COMBINATOR_SETTINGS_TAG])
+	end
+
+	local data = combinator.get_hud_combinator(entity.unit_number)
+	if not data then return end
+	return {
+		name = data.name ~= default_combinator_name(entity) and data.name or nil,
+		filters = table.deepcopy(data.filters),
+		should_filter = data.should_filter,
+		priority = data.priority,
+	}
+end
+
+function combinator.apply_settings(entity, settings)
+	if not combinator.is_hud_combinator(entity) or type(settings) ~= "table" then return false end
+	if (settings.name ~= nil and type(settings.name) ~= "string")
+		or type(settings.filters) ~= "table"
+		or type(settings.should_filter) ~= "boolean"
+		or type(settings.priority) ~= "number"
+		or not (settings.priority >= -100 and settings.priority <= 100) then return false end
+
+	-- Blueprint tags turn numeric table keys into strings. Restore the GUI's 50 slots.
+	local filters = {}
+	for index = 1, 50 do
+		local signal = settings.filters[index] or settings.filters[tostring(index)]
+		if type(signal) == "table" then
+			filters[index] = table.deepcopy(signal)
+		end
+	end
+
+	if entity.type == "entity-ghost" then
+		local tags = entity.tags
+		tags[const.COMBINATOR_SETTINGS_TAG] = {
+			name = settings.name,
+			filters = filters,
+			should_filter = settings.should_filter,
+			priority = settings.priority,
+		}
+		entity.tags = tags
+	else
+		local data = combinator.get_hud_combinator(entity.unit_number)
+		if not data then return false end
+		data.name = settings.name or default_combinator_name(entity)
+		data.temp_name = data.name
+		data.filters = filters
+		data.should_filter = settings.should_filter
+		data.priority = settings.priority
+	end
+	return true
+end
+
+function combinator.copy_settings(source, destination)
+	return combinator.apply_settings(destination, combinator.get_settings(source))
+end
+
 function combinator.add_hud_combinator_ref(hud_combinator)
 
 		-- if revive, entity already exists...
 	storage.hud_combinators[hud_combinator.unit_number] = storage.hud_combinators[hud_combinator.unit_number] or {
-		name = "HUD Combinator #" .. hud_combinator.unit_number,
+		name = default_combinator_name(hud_combinator),
 		temp_name = "",
 		filters = {},
 		should_filter = false,
@@ -22,8 +91,9 @@ local function remove_hud_combinator_ref(unit_number)
 	storage.hud_combinators[unit_number] = nil
 end
 
-function combinator.register_combinator(entity)
+function combinator.register_combinator(entity, tags)
 	combinator.add_hud_combinator_ref(entity)
+	if tags then combinator.apply_settings(entity, tags[const.COMBINATOR_SETTINGS_TAG]) end
 
 	for k, player in pairs(game.players) do
 		-- Uncollapse the HUD when a new combinator is registered

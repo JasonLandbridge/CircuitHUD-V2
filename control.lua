@@ -15,6 +15,7 @@ local gui_combinator = require('gui.combinator-gui')
 
 require "events.gui-events"
 require "events.custom-events"
+require "events.combinator-settings"
 
 -- Enable Lua API global Variable Viewer
 -- https://mods.factorio.com/mod/gvv
@@ -85,9 +86,9 @@ local function register_events()
 	--#endregion
 	--#region Register / De-register HUD Combinator
 
-	local function set_combinator_registration(entity, state)
+	local function set_combinator_registration(entity, state, tags)
 		if state then
-			combinator.register_combinator(entity)
+			combinator.register_combinator(entity, tags)
 		else
 			combinator.unregister_combinator(entity)
 		end
@@ -115,7 +116,7 @@ local function register_events()
 			defines.events.on_space_platform_built_entity,
 			defines.events.script_raised_revive,
 		}, function(event)
-			set_combinator_registration(event.entity, true)
+			set_combinator_registration(event.entity, true, event.tags)
 		end,
 		entity_filter)
 
